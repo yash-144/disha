@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import TenancyContext, require_role
+from app.core.meko import get_meko
+from app.modules.meko.hooks import playbook_text
 from app.modules.ai import providers
 from app.modules.ai.permissions import CASE_AI_ROLES, EVIDENCE_AI_ROLES, STATUS_ROLES
 from app.modules.ai.schemas import AiResult, AiStatusResponse, CaseAiRequest, EvidenceRequest, OutreachRequest
@@ -44,10 +46,14 @@ async def suggest_interventions(
     payload: CaseAiRequest,
     tenancy: TenancyContext = Depends(require_role(*CASE_AI_ROLES)),
     db: AsyncSession = Depends(get_db),
+    meko=Depends(get_meko),
 ):
     require_provider()
     ctx = await ContextBuilder.for_case(db, tenancy, payload.case_id)
     ctx = await ContextBuilder.with_catalog(db, ctx)
+    hint = await playbook_text(meko, db, payload.case_id)  # text only; '' when Meko is off
+    if hint:
+        ctx.blocks.append(("meko_playbook", hint))
     return await AiService.run(db, tenancy, "suggest_interventions", ctx)
 
 

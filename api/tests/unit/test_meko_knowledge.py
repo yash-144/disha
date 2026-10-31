@@ -68,9 +68,29 @@ def env(tmp_path, monkeypatch):
     p.write_text(json.dumps(CATALOG))
     monkeypatch.setenv("MEKO_CATALOG_PATH", str(p))
     fake = FakeMeko()
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import StaticPool
+    from app.core.database import Base, get_db
+    from app.modules.audit import models as _audit  # noqa: F401
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool, connect_args={"check_same_thread": False})
+    sf = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+    async def _db():
+        async with sf() as s:
+            yield s
+
+    import asyncio
+
+    async def _setup():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    asyncio.run(_setup())
+    app.dependency_overrides[get_db] = _db
     with TestClient(app) as client:
         app.state.meko = fake
+        client.sf = sf
         yield client, fake
+    app.dependency_overrides.pop(get_db, None)
 
 
 def upload(client, role, content=b"Scholarship rules apply.", name="rules.md"):
@@ -123,3 +143,21 @@ def test_outcome_loop_promotes_and_playbook_filters_catalogue(env):
     r = client.get("/api/v1/meko/playbook?reason_codes=fee_dues&tier=HIGH", headers=auth("mentor")).json()
     assert [s["intervention_id"] for s in r["suggestions"]] == ["mentor_call"]  # 'ghost' not in catalogue
     assert r["suggestions"][0]["title"] == "Mentor call" and r["dropped_not_in_catalogue"] == 1
+
+
+def test_outcome_validates_against_db_catalogue_when_it_has_rows(env):
+    import asyncio
+    from app.modules.cases.models import InterventionCatalogue
+    client, fake = env
+
+    async def seed():
+        async with client.sf() as s:
+            s.add(InterventionCatalogue(id="db-1", campus_id=None, name="Mentor call"))
+            s.add(InterventionCatalogue(id="db-off", campus_id="c1", name="Off", is_active=False))
+            await s.commit()
+    asyncio.run(seed())
+    body = {"outcome": "improved", "reason_codes": ["FEE_DUES"], "case_id": "case-9"}
+    url = "/api/v1/meko/outcomes"
+    assert client.post(url, headers=auth("mentor"), json={**body, "intervention_id": "db-1"}).status_code == 200
+    assert client.post(url, headers=auth("mentor"), json={**body, "intervention_id": "db-off"}).status_code == 422
+    assert client.post(url, headers=auth("mentor"), json={**body, "intervention_id": "mentor_call"}).status_code == 422  # file no longer used

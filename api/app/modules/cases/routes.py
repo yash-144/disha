@@ -1,10 +1,12 @@
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_tenancy_context, TenancyContext
+from app.core.meko import get_meko
 from app.core.permissions import Role
+from app.modules.meko.hooks import schedule_case_decision
 from app.modules.cases.schemas import (
     CaseCreateRequest,
     CaseUpdateRequest,
@@ -132,6 +134,8 @@ async def transition_case_state(
     current_user: dict = Depends(get_current_user),
     ctx: TenancyContext = Depends(get_tenancy_context),
     db: AsyncSession = Depends(get_db),
+    tasks: BackgroundTasks = BackgroundTasks(),
+    meko=Depends(get_meko),
 ):
     """
     Execute canonical state transition governed by the 14-state transition matrix
@@ -157,6 +161,10 @@ async def transition_case_state(
     )
 
     await db.commit()
+    accepted = payload.target_state == "under_review" and result["event"]["from_state"] == "suggested"
+    if accepted or payload.target_state == "dismissed":
+        await schedule_case_decision(tasks, meko, db, case_id=case_id, action="accept" if accepted else "dismiss",
+                                     role=ctx.role.value, campus_id=ctx.campus_id, note=payload.reason_code)
     return {
         "status": "success",
         "case": result["case"],
@@ -218,6 +226,8 @@ async def dismiss_case(
     current_user: dict = Depends(get_current_user),
     ctx: TenancyContext = Depends(get_tenancy_context),
     db: AsyncSession = Depends(get_db),
+    tasks: BackgroundTasks = BackgroundTasks(),
+    meko=Depends(get_meko),
 ):
     """Dismiss a case early with mandatory rationale."""
     actor_id, actor_roles = _extract_actor_context(current_user, ctx)
@@ -231,6 +241,8 @@ async def dismiss_case(
         is_platform_admin=ctx.is_platform_admin,
     )
     await db.commit()
+    await schedule_case_decision(tasks, meko, db, case_id=case_id, action="dismiss", role=ctx.role.value,
+                                 campus_id=ctx.campus_id, note=payload.reason_code)
     return case_to_detail_response(case)
 
 

@@ -3,12 +3,14 @@ interventions / outcome / follow-up routes (``case_router``, mounted at /api/v1/
 """
 from typing import List
 
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Path, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import TenancyContext, get_tenancy_context, require_role
+from app.core.meko import get_meko
 from app.core.permissions import STAFF_ROLES
+from app.modules.meko.hooks import schedule_case_outcome
 from app.modules.interventions.permissions import CASE_WORK_ROLES, CASE_VIEW_ROLES, CATALOGUE_ADMIN_ROLES
 from app.modules.interventions.schemas import (
     CatalogueCreate,
@@ -128,16 +130,21 @@ async def record_case_outcome(
     idempotency_key: str = Depends(verify_idempotency_key),
     ctx: TenancyContext = Depends(require_case_work),
     db: AsyncSession = Depends(get_db),
+    tasks: BackgroundTasks = BackgroundTasks(),
+    meko=Depends(get_meko),
 ):
     """Record the outcome of an intervention. Moving the case to ``outcome_reviewed`` stays a
     ``POST /cases/{id}/transition``, whose guard now finds this row."""
     async def produce():
         return await InterventionService.record_outcome(db, ctx, case_id, payload)
 
-    return await run_idempotent(
+    out = await run_idempotent(
         db, campus_id=ctx.campus_id, actor_id=ctx.user_id, key=idempotency_key,
         scope=f"case.{case_id}.outcome", body=payload.model_dump(), produce=produce,
     )
+    await schedule_case_outcome(tasks, meko, db, case_id=case_id, intervention_id=payload.intervention_id,
+                                completion_status=payload.completion_status, campus_id=ctx.campus_id)
+    return out
 
 
 # ---------------------------------------------------------------- follow-ups

@@ -44,7 +44,7 @@ async def meko_lifespan(app: FastAPI):
 
 
 def get_meko(request: Request):
-    return request.app.state.meko
+    return getattr(request.app.state, "meko", None) or _Off()
 
 
 async def _safe(coro):
