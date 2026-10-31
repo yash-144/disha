@@ -7,7 +7,7 @@ early academic risk signals. Ground rules:
 * Human in the loop: ML predictions attach as evidence; they never open cases
   by themselves.
 
-The Python package is `kagaz_ml` (the project's earlier working name).
+The Python package is `disha_ml`.
 
 This folder trains and runs the machine-learning part of DISHA: it looks at a
 student's academic record and decides whether to raise an **early risk
@@ -252,7 +252,7 @@ actually contact.
 | `GRADE_DROP` (`cp2`) | semester 2 average lower than semester 1 by ≥ threshold | 2 |
 
 Rules confirm MEDIUM scores and give staff checkable facts. Thresholds are in
-`kagaz_ml/config.py`.
+`disha_ml/config.py`.
 
 ## 12. Explanations for each student
 
@@ -291,8 +291,8 @@ cd ml
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m pytest tests -q                                   # ~10 s
-python -m kagaz_ml.train --data data/dataset.csv --out artifacts
-python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
+python -m disha_ml.train --data data/dataset.csv --out artifacts
+python -m disha_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
 ```
 
 `data/` and `artifacts/` are git-ignored; real student data is never committed.
@@ -337,7 +337,7 @@ semester 1, and a **final outcome** for training.
 
 **Step 1 — create a mapping template**
 ```bash
-python -m kagaz_ml.mapping --data my_students.csv --out mapping.json
+python -m disha_ml.mapping --data my_students.csv --out mapping.json
 ```
 It lists every header in your file, fills in the ones it recognises, and
 guesses your outcome values.
@@ -390,7 +390,7 @@ Pipeline column names you can map:
 
 **Step 3 — train**
 ```bash
-python -m kagaz_ml.train --data my_students.csv --mapping mapping.json --out artifacts
+python -m disha_ml.train --data my_students.csv --mapping mapping.json --out artifacts
 ```
 The mapping is saved inside the model, so scoring uses it automatically.
 
@@ -434,7 +434,7 @@ All numbers come from the run; none are written by hand.
 ## 19. Scoring students for the demo
 
 ```bash
-python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
+python -m disha_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
 ```
 
 | Output column | Meaning |
@@ -461,7 +461,7 @@ automatically in the demo file.
 
 ## 20. Configuration
 
-All in `kagaz_ml/config.py`; recorded in every manifest.
+All in `disha_ml/config.py`; recorded in every manifest.
 
 | Setting | Default | Meaning | CLI flag |
 |---|---|---|---|
@@ -497,7 +497,7 @@ split once at the end.
 ml/
 ├── kaggle_train.py          one-command runner for Kaggle
 ├── requirements.txt
-├── kagaz_ml/
+├── disha_ml/
 │   ├── config.py            all settings, cutoff targets, rule thresholds
 │   ├── data.py              load CSV, map columns (UCI or your mapping), clean
 │   ├── mapping.py           mapping-template generator for your dataset
@@ -519,7 +519,7 @@ ml/
 │   └── external/            third-party reference data
 ├── tests/                   pipeline tests
 └── evaluation/ features/ registry/ scripts/ simulation/ training/ notebooks/
-                             monorepo placeholders (not used by kagaz_ml yet)
+                             monorepo placeholders (not used by disha_ml yet)
 ```
 
 ## 23. Tests

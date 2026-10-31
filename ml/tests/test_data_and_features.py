@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagaz_ml.data import AUDIT_COLUMNS, load_dataset, map_columns
-from kagaz_ml.features import build_features, feature_columns
-from kagaz_ml.labels import make_label
-from kagaz_ml.synthetic import generate
+from disha_ml.data import AUDIT_COLUMNS, load_dataset, map_columns
+from disha_ml.features import build_features, feature_columns
+from disha_ml.labels import make_label
+from disha_ml.synthetic import generate
 
 
 def test_loads_semicolon_and_comma_and_header_variants(tmp_path):
@@ -63,7 +63,7 @@ def test_rates_are_missing_when_no_units_enrolled():
 
 
 def test_all_zero_semester_is_no_record_and_not_eligible():
-    from kagaz_ml.data import eligible_rows
+    from disha_ml.data import eligible_rows
     raw = generate(20, seed=4)
     for s in ("1st", "2nd"):
         for k in ("credited", "enrolled", "approved", "evaluations", "without evaluations", "grade"):
@@ -91,5 +91,5 @@ def test_labels():
 
 
 def load_dataset_from(raw):
-    from kagaz_ml.data import clean
+    from disha_ml.data import clean
     return clean(map_columns(raw))

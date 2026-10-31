@@ -1,8 +1,8 @@
 import numpy as np
 
-from kagaz_ml.config import TierConfig
-from kagaz_ml.signal import assign_tiers
-from kagaz_ml.thresholds import choose_cutoff, choose_tier_cutoffs
+from disha_ml.config import TierConfig
+from disha_ml.signal import assign_tiers
+from disha_ml.thresholds import choose_cutoff, choose_tier_cutoffs
 
 
 def test_cutoff_meets_precision_target_and_is_stable():

@@ -31,7 +31,7 @@ cd ml
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m pytest tests -q
-python -m kagaz_ml.train --data data/<dataset>.csv --out artifacts
+python -m disha_ml.train --data data/<dataset>.csv --out artifacts
 ```
 
 **Version rule:** a saved model must be loaded with the same scikit-learn
@@ -39,9 +39,9 @@ version it was trained with. The version is recorded in each manifest.
 
 ### Own dataset
 ```bash
-python -m kagaz_ml.mapping --data my_students.csv --out mapping.json   # template
+python -m disha_ml.mapping --data my_students.csv --out mapping.json   # template
 # edit mapping.json: your headers, outcome values, grade_scale
-python -m kagaz_ml.train --data my_students.csv --mapping mapping.json --out artifacts
+python -m disha_ml.train --data my_students.csv --mapping mapping.json --out artifacts
 ```
 Minimum columns: semester-1 subjects registered, semester-1 subjects passed,
 final outcome. Checkpoints the data cannot support are skipped; absent
@@ -49,7 +49,7 @@ features are left out and logged. Full instructions: `ml/README.md` §17.
 
 ## 3. Step 1 — Load and clean
 
-`kagaz_ml/data.py`:
+`disha_ml/data.py`:
 - Detects `;` or `,` delimiter.
 - Normalises headers (case, extra spaces, stray tabs) and maps them to short
   names; stops with a clear error if a required column is missing.
@@ -61,7 +61,7 @@ features are left out and logged. Full instructions: `ml/README.md` §17.
 
 ## 4. Step 2 — Label
 
-`kagaz_ml/labels.py`. Choose with `--label`:
+`disha_ml/labels.py`. Choose with `--label`:
 
 | Label | Positive (1) | Negative (0) | When to use |
 |---|---|---|---|
@@ -70,20 +70,20 @@ features are left out and logged. Full instructions: `ml/README.md` §17.
 
 ## 5. Step 3 — Features per checkpoint
 
-`kagaz_ml/features.py` — see [16](16-risk-signal-pipeline.md) §5 for the list.
+`disha_ml/features.py` — see [16](16-risk-signal-pipeline.md) §5 for the list.
 Tests enforce that `cp0` has no semester data, `cp1` has no semester-2 data,
 and no checkpoint uses gender, age, displaced, special needs or the target.
 
 ## 6. Step 4 — Train, calibrate, choose cutoffs
 
-`kagaz_ml/train.py`, per checkpoint:
+`disha_ml/train.py`, per checkpoint:
 
 1. **Split** once: 80% train, 20% test, stratified by label, seed 42. The same
    students are in the test set for every checkpoint.
 2. **Out-of-fold scores:** 5-fold cross-validation on train; each fold's model
    is calibrated (isotonic) inside its own training part.
 3. **Cutoffs** from the out-of-fold scores (method in
-   [16](16-risk-signal-pipeline.md) §7). Defaults in `kagaz_ml/config.py`:
+   [16](16-risk-signal-pipeline.md) §7). Defaults in `disha_ml/config.py`:
 
    | Setting | Default | Meaning |
    |---|---|---|
@@ -147,7 +147,7 @@ numbers; the test split is read once at the end.
 ## 10. Step 7 — Score students (demo)
 
 ```bash
-python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
+python -m disha_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
 ```
 
 - Input: same headers as training; `Target` not needed. Columns `student_id`,
@@ -185,19 +185,19 @@ invented for display, label them as sample names.
 
 | File | Role |
 |---|---|
-| `ml/kagaz_ml/config.py` | All settings, cutoff targets, rule thresholds |
-| `ml/kagaz_ml/data.py` | Load, map columns (UCI or mapping file), rescale grades, map outcomes, clean |
-| `ml/kagaz_ml/mapping.py` | Mapping-template generator for your own dataset |
-| `ml/kagaz_ml/labels.py` | Label definitions |
-| `ml/kagaz_ml/features.py` | Checkpoint features, explanation groups |
-| `ml/kagaz_ml/rules.py` | Academic rules and reason texts |
-| `ml/kagaz_ml/models.py` | Model pipelines and calibration |
-| `ml/kagaz_ml/thresholds.py` | Precision-based cutoff selection |
-| `ml/kagaz_ml/signal.py` | Tier logic and capacity cap |
-| `ml/kagaz_ml/explain.py` | Per-student factor contributions |
-| `ml/kagaz_ml/evaluate.py` | Metrics, calibration table, fairness |
-| `ml/kagaz_ml/train.py` | Training CLI, release check, report |
-| `ml/kagaz_ml/score.py` | Scoring CLI with model hash check |
-| `ml/kagaz_ml/synthetic.py` | Invented data for tests only |
+| `ml/disha_ml/config.py` | All settings, cutoff targets, rule thresholds |
+| `ml/disha_ml/data.py` | Load, map columns (UCI or mapping file), rescale grades, map outcomes, clean |
+| `ml/disha_ml/mapping.py` | Mapping-template generator for your own dataset |
+| `ml/disha_ml/labels.py` | Label definitions |
+| `ml/disha_ml/features.py` | Checkpoint features, explanation groups |
+| `ml/disha_ml/rules.py` | Academic rules and reason texts |
+| `ml/disha_ml/models.py` | Model pipelines and calibration |
+| `ml/disha_ml/thresholds.py` | Precision-based cutoff selection |
+| `ml/disha_ml/signal.py` | Tier logic and capacity cap |
+| `ml/disha_ml/explain.py` | Per-student factor contributions |
+| `ml/disha_ml/evaluate.py` | Metrics, calibration table, fairness |
+| `ml/disha_ml/train.py` | Training CLI, release check, report |
+| `ml/disha_ml/score.py` | Scoring CLI with model hash check |
+| `ml/disha_ml/synthetic.py` | Invented data for tests only |
 | `ml/kaggle_train.py` | One-command Kaggle runner |
 | `ml/tests/` | Leakage, protected-column, cutoff, tier, end-to-end tests |

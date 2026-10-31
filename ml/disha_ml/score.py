@@ -1,7 +1,7 @@
 """Score a cohort with a trained checkpoint and write one row per student.
 
 Usage:
-    python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
+    python -m disha_ml.score --model artifacts/cp1 --input students.csv --output scored.csv
 
 The input uses the same column headers as the training CSV; a 'Target'
 column is not needed. Columns named student_id, roll_no or name are passed

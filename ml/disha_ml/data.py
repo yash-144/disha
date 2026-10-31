@@ -127,7 +127,7 @@ def map_columns(raw: pd.DataFrame, require_target: bool = True, mapping: Optiona
     if missing:
         raise ValueError(
             f"Input is missing required columns: {missing}. "
-            "For your own dataset, create a mapping file: python -m kagaz_ml.mapping --data <file>"
+            "For your own dataset, create a mapping file: python -m disha_ml.mapping --data <file>"
         )
     out = pd.DataFrame(index=raw.index)
     for c in MODEL_SOURCE_COLUMNS:

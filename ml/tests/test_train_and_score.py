@@ -3,10 +3,10 @@ import json
 import pandas as pd
 import pytest
 
-from kagaz_ml.config import TrainConfig
-from kagaz_ml.data import load_dataset
-from kagaz_ml.score import load_bundle, main as score_main, score_frame
-from kagaz_ml.train import run
+from disha_ml.config import TrainConfig
+from disha_ml.data import load_dataset
+from disha_ml.score import load_bundle, main as score_main, score_frame
+from disha_ml.train import run
 
 
 @pytest.fixture(scope="module")

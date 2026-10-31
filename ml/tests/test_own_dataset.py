@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagaz_ml.config import TrainConfig
-from kagaz_ml.data import load_dataset, load_mapping
-from kagaz_ml.mapping import build_template, main as mapping_main
-from kagaz_ml.score import main as score_main
-from kagaz_ml.synthetic import generate
-from kagaz_ml.train import run
+from disha_ml.config import TrainConfig
+from disha_ml.data import load_dataset, load_mapping
+from disha_ml.mapping import build_template, main as mapping_main
+from disha_ml.score import main as score_main
+from disha_ml.synthetic import generate
+from disha_ml.train import run
 
 RENAME = {
     "Previous qualification (grade)": "Class 12 %",
@@ -81,7 +81,7 @@ def test_template_guesses_outcomes_and_lists_headers(own_csv, tmp_path):
 
 
 def test_outcome_guessing():
-    from kagaz_ml.mapping import _guess_outcome
+    from disha_ml.mapping import _guess_outcome
     assert _guess_outcome("Dropped out") == "Dropout"
     assert _guess_outcome("Passed out") == "Graduate"
     assert _guess_outcome("Continuing") == "Enrolled"

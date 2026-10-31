@@ -25,10 +25,10 @@ import sklearn
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from kagaz_ml.config import CHECKPOINTS, TrainConfig  # noqa: E402
-from kagaz_ml.data import load_dataset, load_mapping  # noqa: E402
-from kagaz_ml.score import load_bundle, score_frame  # noqa: E402
-from kagaz_ml.train import run  # noqa: E402
+from disha_ml.config import CHECKPOINTS, TrainConfig  # noqa: E402
+from disha_ml.data import load_dataset, load_mapping  # noqa: E402
+from disha_ml.score import load_bundle, score_frame  # noqa: E402
+from disha_ml.train import run  # noqa: E402
 
 DEFAULT_DATA = HERE / "data" / "processed" / "data.csv"
 

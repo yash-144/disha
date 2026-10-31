@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from kagaz_ml import synthetic  # noqa: E402
+from disha_ml import synthetic  # noqa: E402
 
 
 @pytest.fixture(scope="session")

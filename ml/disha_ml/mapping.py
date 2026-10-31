@@ -1,6 +1,6 @@
 """Create a mapping-file template for your own dataset.
 
-    python -m kagaz_ml.mapping --data my_students.csv --out mapping.json
+    python -m disha_ml.mapping --data my_students.csv --out mapping.json
 
 It matches headers it recognises, lists every header in your file, guesses
 how your outcome values map to Dropout / Graduate / Enrolled, and writes a JSON

@@ -3,7 +3,7 @@
 This document explains, step by step, how the system decides that a student
 needs attention, what data it uses, and what happens under the hood. It is
 written for reviewers and judges as well as engineers. Code lives in
-`ml/kagaz_ml/`; the training procedure is in
+`ml/disha_ml/`; the training procedure is in
 [17-model-training-guide.md](17-model-training-guide.md); data requirements
 are in [18-dataset-requirements.md](18-dataset-requirements.md).
 

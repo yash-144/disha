@@ -1,9 +1,9 @@
 """Train, calibrate, pick cutoffs, evaluate and save one model per checkpoint.
 
 Usage:
-    python -m kagaz_ml.train --data path/to/data.csv --out artifacts
-    python -m kagaz_ml.train --data data.csv --out artifacts --checkpoints cp1 cp2 --label dropout
-    python -m kagaz_ml.train --data my_students.csv --mapping mapping.json --out artifacts
+    python -m disha_ml.train --data path/to/data.csv --out artifacts
+    python -m disha_ml.train --data data.csv --out artifacts --checkpoints cp1 cp2 --label dropout
+    python -m disha_ml.train --data my_students.csv --mapping mapping.json --out artifacts
 
 Steps per checkpoint:
   1. Stratified split: 80% train, 20% test (same split for every checkpoint).
@@ -311,7 +311,7 @@ def run(data: str, out: str, checkpoints: List[str], cfg: TrainConfig, mapping: 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description="Train risk-signal models per checkpoint.")
     ap.add_argument("--data", required=True)
-    ap.add_argument("--mapping", default=None, help="mapping JSON for your own dataset (see kagaz_ml.mapping)")
+    ap.add_argument("--mapping", default=None, help="mapping JSON for your own dataset (see disha_ml.mapping)")
     ap.add_argument("--out", default="artifacts")
     ap.add_argument("--checkpoints", nargs="+", default=CHECKPOINTS, choices=CHECKPOINTS)
     ap.add_argument("--label", default="dropout", choices=["dropout", "not_on_time"])

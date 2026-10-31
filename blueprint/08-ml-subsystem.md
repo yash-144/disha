@@ -10,7 +10,7 @@ cutoffs, rule corroboration and a capacity cap, is specified in
 [16-risk-signal-pipeline.md](16-risk-signal-pipeline.md), with the training
 procedure in [17-model-training-guide.md](17-model-training-guide.md) and data
 requirements in [18-dataset-requirements.md](18-dataset-requirements.md).
-Code: `ml/kagaz_ml/`. Sections 2–8 below remain the requirements for moving
+Code: `ml/disha_ml/`. Sections 2–8 below remain the requirements for moving
 that pipeline to real campus data. Section 1 describes the earlier OULAD model
 in the SUTRA repository, kept as reference.
 
