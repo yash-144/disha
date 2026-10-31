@@ -37,6 +37,7 @@ from app.modules.cases.models import (
     FollowUp,
 )
 from app.modules.audit.models import AuditEvent
+from app.modules.audit.services import AuditService
 from app.modules.cases.services import CaseService, transaction_scope
 from app.modules.faculty.schemas import (
     AttendanceRecordCreate,
