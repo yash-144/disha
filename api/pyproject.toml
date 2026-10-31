@@ -25,7 +25,11 @@ dependencies = [
 
 [project.optional-dependencies]
 meko = ["disha-meko"]  # pip install -e ../meko
-test = ["pytest", "aiosqlite", "alembic"]
+test = ["pytest", "aiosqlite", "alembic", "eth-account>=0.11"]
+# on-chain anchoring + student identity (DISHA_BLOCKCHAIN_RPC_URL etc.); both stay disabled without it
+chain = ["web3>=6.15", "eth-account>=0.11"]
+# S3-compatible document storage (DISHA_DOCUMENTS_S3_BUCKET)
+s3 = ["boto3>=1.34"]
 # optional local IndicTrans2 translation (DISHA_TRANSLATE_ENABLED=true); CPU torch is enough
 translate = ["torch", "transformers>=4.45,<5", "sentencepiece", "IndicTransToolkit"]
 

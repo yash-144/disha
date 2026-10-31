@@ -27,6 +27,40 @@ class Settings(BaseSettings):
     # Local IndicTrans2 translation (optional extra: pip install -e "api[translate]")
     DISHA_TRANSLATE_ENABLED: bool = os.getenv("DISHA_TRANSLATE_ENABLED", "false").lower() in ("1", "true", "yes")
 
+    # Documents (blueprint 11). Local filesystem by default; S3-compatible when a bucket is set (pip install -e "api[s3]")
+    DISHA_DOCUMENTS_STORAGE_DIR: str = os.getenv("DISHA_DOCUMENTS_STORAGE_DIR", "storage/documents")
+    DISHA_DOCUMENTS_MAX_BYTES: int = int(os.getenv("DISHA_DOCUMENTS_MAX_BYTES", str(10 * 1024 * 1024)))
+    DISHA_DOCUMENTS_ALLOWED_MIME: str = os.getenv(
+        "DISHA_DOCUMENTS_ALLOWED_MIME", "application/pdf,image/png,image/jpeg,text/plain,text/csv"
+    )
+    DISHA_DOCUMENTS_S3_BUCKET: str = os.getenv("DISHA_DOCUMENTS_S3_BUCKET", "")
+    DISHA_DOCUMENTS_S3_ENDPOINT_URL: str = os.getenv("DISHA_DOCUMENTS_S3_ENDPOINT_URL", "")
+    DISHA_DOCUMENTS_S3_REGION: str = os.getenv("DISHA_DOCUMENTS_S3_REGION", "")
+    DISHA_DOCUMENTS_S3_ACCESS_KEY_ID: str = os.getenv("DISHA_DOCUMENTS_S3_ACCESS_KEY_ID", "")
+    DISHA_DOCUMENTS_S3_SECRET_ACCESS_KEY: str = os.getenv("DISHA_DOCUMENTS_S3_SECRET_ACCESS_KEY", "")
+    DISHA_DOCUMENTS_SIGNED_URL_TTL_SECONDS: int = int(os.getenv("DISHA_DOCUMENTS_SIGNED_URL_TTL_SECONDS", "300"))
+
+    # Blockchain anchoring and student identity collectible (blueprint 11). All empty = disabled; nothing is
+    # ever recorded as anchored/minted without a confirmed chain receipt. Needs: pip install -e "api[chain]"
+    DISHA_BLOCKCHAIN_RPC_URL: str = os.getenv("DISHA_BLOCKCHAIN_RPC_URL", "")
+    DISHA_BLOCKCHAIN_CHAIN_ID: int = int(os.getenv("DISHA_BLOCKCHAIN_CHAIN_ID", "84532"))
+    DISHA_ANCHOR_PRIVATE_KEY: str = os.getenv("DISHA_ANCHOR_PRIVATE_KEY", "")  # use a secret manager in production (DOC-08)
+    DISHA_DOCUMENT_REGISTRY_ADDRESS: str = os.getenv("DISHA_DOCUMENT_REGISTRY_ADDRESS", "")
+    DISHA_IDENTITY_NFT_ADDRESS: str = os.getenv("DISHA_IDENTITY_NFT_ADDRESS", "")
+    DISHA_ANCHOR_CONFIRM_TIMEOUT_SECONDS: int = int(os.getenv("DISHA_ANCHOR_CONFIRM_TIMEOUT_SECONDS", "1800"))
+
+    # AI assistance (blueprint 09). Empty provider/key = disabled (endpoints answer 503).
+    DISHA_AI_PROVIDER: str = os.getenv("DISHA_AI_PROVIDER", "")  # "anthropic" or "" (disabled)
+    DISHA_AI_API_KEY: str = os.getenv("DISHA_AI_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
+    DISHA_AI_MODEL: str = os.getenv("DISHA_AI_MODEL", "claude-sonnet-5-5")
+    DISHA_AI_BASE_URL: str = os.getenv("DISHA_AI_BASE_URL", "https://api.anthropic.com")
+    DISHA_AI_TIMEOUT_SECONDS: float = float(os.getenv("DISHA_AI_TIMEOUT_SECONDS", "30"))
+    DISHA_AI_MAX_OUTPUT_TOKENS: int = int(os.getenv("DISHA_AI_MAX_OUTPUT_TOKENS", "800"))
+    DISHA_AI_RATE_LIMIT_PER_USER_HOUR: int = int(os.getenv("DISHA_AI_RATE_LIMIT_PER_USER_HOUR", "30"))
+    DISHA_AI_MONTHLY_TOKEN_BUDGET_PER_CAMPUS: int = int(os.getenv("DISHA_AI_MONTHLY_TOKEN_BUDGET_PER_CAMPUS", "2000000"))
+    # AI-12: set true only once a data-processing agreement with the provider exists
+    DISHA_AI_DPA_CONFIRMED: bool = os.getenv("DISHA_AI_DPA_CONFIRMED", "false").lower() in ("1", "true", "yes")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -1,0 +1,4 @@
+# version: 1
+TASK: Draft a short, warm message from the staff member inviting the student to a supportive conversation. The channel and tone are given in PARAMETERS.
+Schema: {"subject": string (max 120 characters, empty for call_script/sms), "body": string (max 900 characters)}
+Address the student with the literal placeholder [STUDENT_NAME] and sign off with the literal placeholder [STAFF_NAME]. Do not mention scores, attendance numbers, risk, cases, or any sensitive detail; keep the message inviting and non-judgemental.

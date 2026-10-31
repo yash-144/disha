@@ -39,6 +39,9 @@ from app.modules.faculty.models import (
     AssessmentSubmission,
 )
 from app.modules.student.models import SupportRequest
+from app.modules.documents.models import Document
+from app.modules.student_identity.models import StudentIdentity, WalletChallenge
+from app.modules.ai.models import AiCallLog
 
 # Alembic Config object
 config = context.config
