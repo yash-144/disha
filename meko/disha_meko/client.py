@@ -5,11 +5,13 @@ disabled, unconfigured, slow or down. Meko must never break training or the API.
 """
 from __future__ import annotations
 
+import ast
 import asyncio
 import base64
 import hashlib
 import json
 import logging
+import re
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -53,6 +55,12 @@ TERMINAL_STATES = {"completed", "failed", "abandoned", "oversized"}
 HEAD_BYTES = 3072  # content_head_base64 sample size required by knowledgebase_upload_document
 
 
+JOURNEY_AGENT = "disha-journey"  # one agent id for every journey conversation: conversations are agent-owned, so API/ML/worker must share it
+HASHED = re.compile(r"^s_[0-9a-f]{12}$")
+_JOURNEY_IDS: dict[tuple[str, str, str], str] = {}  # (url, datapack id, student hash) -> conversation id, shared by every client in the process
+_WARNED: set[str] = set()
+
+
 class MekoClient:
     """One client = one component (agent_id) and, lazily, one Meko conversation per run/session.
 
@@ -70,6 +78,8 @@ class MekoClient:
         self._down_until = 0.0
         self._datapack_id = self.cfg.datapack_id or _DATAPACK_IDS.get((self.cfg.url, self.cfg.datapack), "")
         self._conversation_id = ""
+        self._journey_listed = False  # conversation_list scanned once per client
+        self._journey_touched: set[str] = set()  # students written to by this client (for the volume cap)
         self.last_error: str | None = None
         self.last_memory_id: str | None = None
         self.last_upload_states: dict = {}
@@ -267,6 +277,244 @@ class MekoClient:
             self._conversation_id = ""
         return ok
 
+    # ---- student academic journey: one conversation per student ------------------------
+    @property
+    def journey_ready(self) -> bool:
+        """Journeys are written only when Meko is active AND a salt exists (an unsalted hash of a roll number is guessable)."""
+        if not self.active:
+            return False
+        if not self.cfg.pii_salt:
+            if "salt" not in _WARNED:
+                _WARNED.add("salt")
+                log.warning("Meko journeys are OFF: set MEKO_PII_SALT (a long random secret) so student ids can be hashed")
+            return False
+        return True
+
+    def journey_hash(self, student: Any) -> str:
+        """Raw student id (or an already hashed s_<12 hex>) -> hashed id; '' when there is no salt."""
+        if isinstance(student, str) and HASHED.match(student):
+            return student
+        return self.hash_id(student) if self.cfg.pii_salt else ""
+
+    def journey_clean(self, text: Any, raw_id: Any = None) -> str:
+        """Last line of defence for every journey text: the raw id, emails, phone numbers and id-like tokens never leave."""
+        t = str(text or "")
+        if raw_id is not None and str(raw_id) and not HASHED.match(str(raw_id)):
+            t = re.sub(re.escape(str(raw_id)), self.journey_hash(raw_id), t, flags=re.I)
+        return " ".join(self._clean(t).split())
+
+    def _journey_key(self, h: str) -> tuple[str, str, str]:
+        return (self.cfg.url, self._datapack_id, h)
+
+    async def _journey_scan(self, session: Any) -> None:
+        """Fill the cache from conversation_list (titles 'journey:<hash>' / metadata kind=journey), once per client."""
+        if self._journey_listed:
+            return
+        self._journey_listed = True
+        for offset in range(0, 2000, 100):
+            res = await self._invoke(session, "list_conversations", {
+                "agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id, "limit": 100, "offset": offset})
+            rows = _conv_rows(res)
+            for r in rows:
+                h = _journey_student(r)
+                cid = str(r.get("id") or r.get("conversation_id") or "")
+                if h and cid:
+                    _JOURNEY_IDS.setdefault(self._journey_key(h), cid)
+            if len(rows) < 100:
+                break
+
+    async def _journey_conv(self, session: Any, h: str, create: bool = True) -> str:
+        """Conversation id of a student's journey: cache, then conversation_list, then (if create) conversation_create."""
+        if not h or not await self._resolve_datapack(session, create=create):
+            return ""
+        key = self._journey_key(h)
+        if key in _JOURNEY_IDS:
+            return _JOURNEY_IDS[key]
+        await self._journey_scan(session)
+        if key in _JOURNEY_IDS or not create:
+            return _JOURNEY_IDS.get(key, "")
+        if h not in self._journey_touched and len(self._journey_touched) >= self.cfg.journey_max_students:
+            log.warning("Meko journey cap reached (MEKO_JOURNEY_MAX_STUDENTS=%d); not opening a journey for %s",
+                        self.cfg.journey_max_students, h)
+            return ""
+        res = await self._invoke(session, "create_conversation", {
+            "agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id, "title": f"journey:{h}",
+            "session_id": f"journey:{h}",  # deterministic dedup key: a second create reconnects the same conversation
+            "metadata": {"kind": "journey", "student": h}})
+        cid = _first(res, "id", "conversation_id")
+        if cid:
+            _JOURNEY_IDS[key] = cid
+        return cid
+
+    async def journey_conversation(self, student: Any, create: bool = True) -> str:
+        """Get or create the journey conversation 'journey:<hash>' (metadata {kind: journey, student: <hash>}).
+        '' when Meko is off, there is no salt, the cap is reached or Meko fails."""
+        h = self.journey_hash(student)
+        if not h or h == "student-unlinked" or not self.journey_ready:
+            return ""
+        return await self._run_journey(lambda s: self._journey_conv(s, h, create), default="", timeout=self._journey_timeout()) or ""
+
+    async def _journey_add(self, session: Any, cid: str, turn: dict, h: str, raw: Any) -> bool:
+        meta = {"kind": "journey", "student": h, **(turn.get("metadata") or {})}
+        fields = {"conversation_id": cid, "agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id,
+                  "input": self.journey_clean(turn["input"], raw), "output": self.journey_clean(turn["output"], raw),
+                  "reasoning": self.journey_clean(turn.get("reasoning"), raw) or None,
+                  "metadata": self._clean(meta), "seed": turn.get("seed")}
+        for attempt in (1, 2):  # one retry: a dropped connection must not lose the turn
+            try:
+                return await self._invoke(session, "trace_decision", fields) is not None
+            except Exception as exc:  # noqa: BLE001
+                self.last_error = _describe(exc)
+                log.warning("Meko journey write failed (attempt %d): %s", attempt, self.last_error)
+                await asyncio.sleep(1.5)
+        return False
+
+    async def _run_journey(self, fn, default: Any = None, timeout: float | None = None, attempts: int = 3) -> Any:
+        """_run with retries for journey calls: a dropped connection (ConnectError/ConnectTimeout) lifts the 60 s
+        backoff and is retried after a pause, so a transient network error does not lose a write or empty a read."""
+        fail = object()
+        for i in range(attempts):
+            res = await self._run(fn, default=fail, timeout=timeout)
+            if res is not fail:
+                return res
+            if not self.active or i == attempts - 1:
+                break
+            self._down_until = 0.0
+            await asyncio.sleep(2.0 * (i + 1))
+        return default
+
+    def _journey_timeout(self, n_turns: int = 0) -> float:
+        """Journey calls are slower than plain ones (~2 s per turn, memory_update/context_search up to ~15 s)."""
+        return max(60.0, self.cfg.timeout * 8) + 4 * n_turns
+
+    async def journey_post(self, turns: list[dict], chunk: int = 40) -> int:
+        """Post academic-event turns ({student, input, output, reasoning?, metadata?, seed?}) to each student's journey
+        conversation, batched over one connection per chunk and rate limited. -> number of turns stored (soft-fails to 0)."""
+        if not turns or not self.journey_ready:
+            return 0
+        done = 0
+        for i in range(0, len(turns), chunk):
+            part = turns[i:i + chunk]
+
+            async def go(session, part=part):
+                n, cids = 0, {}
+                for t in part:
+                    h = self.journey_hash(t["student"])
+                    if not h or h == "student-unlinked":
+                        continue
+                    if h not in cids:
+                        cids[h] = await self._journey_conv(session, h)
+                    if not cids[h]:
+                        continue
+                    self._journey_touched.add(h)
+                    n += int(await self._journey_add(session, cids[h], t, h, t["student"]))
+                    await asyncio.sleep(self.cfg.journey_delay)
+                return n
+
+            # turns carry deterministic seeds, so a replayed chunk after a dropped connection cannot duplicate them
+            n = await self._run_journey(go, default=0, timeout=self._journey_timeout(len(part)))
+            done += n or 0
+        return done
+
+    async def journey_timeline(self, student: Any, limit: int = 100) -> list[dict]:
+        """The journey conversation's turns in order, as Meko returned them ([] when off / unknown student)."""
+        h = self.journey_hash(student)
+        if not h or not self.journey_ready:
+            return []
+
+        async def go(session):
+            cid = await self._journey_conv(session, h, create=False)
+            if not cid:
+                return []
+            res = await self._invoke(session, "get_conversation", {
+                "conversation_id": cid, "agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id,
+                "include_messages": True, "limit": limit})
+            msgs = (res.get("messages") or res.get("turns") or []) if isinstance(res, dict) else []
+            return [{**m, "metadata": _meta_dict(m.get("metadata"))} if "metadata" in m else m for m in msgs if isinstance(m, dict)]
+        return await self._run_journey(go, default=[], timeout=self._journey_timeout()) or []
+
+    async def journey_briefing(self, student: Any, question: str | None = None, k: int = 10,
+                               meko_enabled: bool = True) -> dict:
+        """What Meko recalls about one student, verbatim: {enabled, student, question, items:[{id, source, text}]}.
+        Items are exactly what context_search returned (no rewriting), limited to this student. meko_enabled=False
+        returns an empty briefing (the Meko on/off comparison)."""
+        h = self.journey_hash(student)
+        out = {"enabled": bool(meko_enabled), "student": h, "question": question, "items": []}
+        if not meko_enabled or not h or not self.journey_ready:
+            return out
+
+        async def go(session):
+            cid = await self._journey_conv(session, h, create=False)
+            fields = {"query": self._clean(question) if question else "academic performance, risk and support history", "limit": k,
+                      "agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id,
+                      "conversation_id": cid or str(uuid.uuid4())}
+            res = await self._invoke(session, "recall", fields)
+            mem = []
+            if cid:  # memories extracted from this student's own conversation: scoped by run_id, so never another student's
+                found = await self._invoke(session, "search_memory", {**fields, "run_id": cid})
+                mem = _rows(found)
+            return res, cid, mem
+        got = await self._run_journey(go, default=None, timeout=self._journey_timeout(5))
+        if got:
+            out["items"] = _context_items(got[0], h, got[1], got[2])
+        return out
+
+    async def correct_memory(self, memory_id: str, text: str) -> bool:
+        """Replace a recalled memory's text (memory_update). The new text passes the PII guard first."""
+        clean = self.journey_clean(text)
+        if not memory_id or not clean:
+            return False
+        return await self._journey_memory_op("update_memory", memory_id=memory_id, text=clean)
+
+    async def forget_memory(self, memory_id: str) -> bool:
+        """Delete a recalled memory for good (memory_delete_by_id)."""
+        return bool(memory_id) and await self._journey_memory_op("delete_memory", memory_id=memory_id)
+
+    async def _journey_memory_op(self, op: str, **fields) -> bool:
+        async def go(session):
+            if not await self._resolve_datapack(session, create=False):
+                return None
+            return await self._invoke(session, op, {"conversation_id": str(uuid.uuid4()), "agent_id": JOURNEY_AGENT,
+                                                    "datapack_id": self._datapack_id, **fields})
+        return await self._run_journey(go, timeout=self._journey_timeout()) is not None
+
+    async def erase_student(self, student: Any, max_rounds: int = 5) -> dict:
+        """Right to erasure: delete everything Meko holds for one student's journey.
+
+        Extracted memories are linked to the journey only by run_id (= conversation id), are not listed by
+        memory_get_all, and survive conversation_delete, so they are found with memory_search and deleted by id
+        first. Then the conversation goes. -> {"student", "memories_deleted", "conversation_deleted"}."""
+        h = self.journey_hash(student)
+        out = {"student": h, "memories_deleted": 0, "conversation_deleted": False}
+        if not h or h == "student-unlinked" or not self.journey_ready:
+            return out
+
+        async def go(session):
+            cid = await self._journey_conv(session, h, create=False)
+            if not cid:
+                return out
+            base = {"agent_id": JOURNEY_AGENT, "datapack_id": self._datapack_id}
+            for _ in range(max_rounds):  # search returns top hits only, so repeat until nothing is left
+                ids = set()
+                for q in _ERASE_QUERIES:
+                    rows = _rows(await self._invoke(session, "search_memory", {
+                        **base, "conversation_id": cid, "run_id": cid, "query": q, "limit": 100}))
+                    ids |= {m["id"] for m in rows if m.get("id") and _same_id(m.get("run_id"), cid)}
+                if not ids:
+                    break
+                for mid in ids:
+                    if await self._invoke(session, "delete_memory", {**base, "conversation_id": cid, "memory_id": mid}) is not None:
+                        out["memories_deleted"] += 1
+            r = await self._invoke(session, "delete_conversation", {**base, "conversation_id": cid})
+            out["conversation_deleted"] = r is not None
+            _JOURNEY_IDS.pop(self._journey_key(h), None)
+            return out
+        return await self._run_journey(go, default=out, timeout=self._journey_timeout(40)) or out
+
+    async def delete_journey(self, student: Any) -> bool:
+        """Delete a student's journey and its extracted memories (see erase_student)."""
+        return (await self.erase_student(student))["conversation_deleted"]
+
     # ---- knowledge upload (presigned S3 POST) ----------------------------
     def _prepare_upload(self, path: Path) -> tuple[bytes, str] | None:
         return self._prepare_bytes(path.read_bytes(), path.name) if path.suffix.lower() in KB_EXTENSIONS else \
@@ -376,9 +624,67 @@ class MekoClient:
         return await self._run(go, default={}, timeout=self.cfg.timeout * 3 + 45 * max(1, len(paths)))
 
 
+_ERASE_QUERIES = ("student", "assessment score class median", "risk tier", "admission entry baseline",
+                  "term summary course", "mentor note", "intervention case outcome")
+
+
+def _same_id(a: Any, b: Any) -> bool:
+    """Meko ids may come back with or without dashes."""
+    return bool(a) and str(a).replace("-", "") == str(b).replace("-", "")
+
+
 def _rows(res: Any) -> list[dict]:
     rows = res.get("results") if isinstance(res, dict) else res
     return [r for r in rows if isinstance(r, dict)] if isinstance(rows, list) else []
+
+
+def _conv_rows(res: Any) -> list[dict]:
+    if isinstance(res, dict):
+        res = res.get("conversations") or res.get("results") or res.get("items") or []
+    return [r for r in res if isinstance(r, dict)] if isinstance(res, list) else []
+
+
+def _meta_dict(meta: Any) -> Any:
+    """Meko returns metadata as a JSON or Python-repr string; give back a dict when it parses, else the value as is."""
+    if isinstance(meta, str):
+        for parse in (json.loads, ast.literal_eval):
+            try:
+                out = parse(meta)
+            except (ValueError, SyntaxError):
+                continue
+            if isinstance(out, dict):
+                return out
+    return meta
+
+
+def _journey_student(row: dict) -> str:
+    """Hashed student of a listed conversation, from metadata.student or a 'journey:<hash>' title."""
+    meta = _meta_dict(row.get("metadata"))
+    if isinstance(meta, dict) and meta.get("kind") == "journey" and HASHED.match(str(meta.get("student", ""))):
+        return str(meta["student"])
+    title = str(row.get("title") or "")
+    return title[len("journey:"):] if title.startswith("journey:") and HASHED.match(title[8:]) else ""
+
+
+def _context_items(res: Any, h: str, cid: str, mem_rows: list[dict]) -> list[dict]:
+    """context_search + run-scoped memory rows -> [{id, source, text}], text untouched. Only items from this student's
+    journey conversation: memories carry run_id = the conversation id, so another student's memories are dropped."""
+    norm = cid.replace("-", "")
+    items, seen = [], set()
+
+    def add(id_, source, text):
+        if text and (id_ or text) not in seen:
+            seen.add(id_ or text)
+            items.append({"id": str(id_ or ""), "source": source, "text": str(text)})
+    r = (res.get("results") if isinstance(res.get("results"), dict) else res) if isinstance(res, dict) else {}
+    own = lambda row: isinstance(row, dict) and norm and str(row.get("run_id") or row.get("meko_conversation_id") or "").replace("-", "") == norm
+    for m in mem_rows + [m for m in r.get("memory") or [] if own(m)]:
+        add(m.get("id"), "memory", m.get("memory") or m.get("text"))
+    conv = r.get("conversation") or {}
+    for hit in (conv.get("hits") if isinstance(conv, dict) else conv) or []:
+        if isinstance(hit, dict) and (own({"run_id": hit.get("conversation_id") or hit.get("session_id")}) or h in json.dumps(hit, default=str)):
+            add(hit.get("id") or hit.get("message_id"), "conversation", hit.get("output") or hit.get("text") or json.dumps(hit, default=str))
+    return items
 
 
 def _is_error(res: Any) -> bool:

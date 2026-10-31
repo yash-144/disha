@@ -101,4 +101,8 @@ Visual: table sorted by PSI with a status colour; a banner when `retrain_recomme
 
 ## 8. Meko academic-story memories
 
-`record_assessment_updates` writes one short narrative per student whose tier changed or who had a drift event, for example: "Assessment update (day 120, TMA3): mean 48% (class median 66%); risk MEDIUM→HIGH; Missed 2 of the last 3 assessments; Online activity down 60% ...". Tags include `journey:<hashed id>` so a student's updates can be recalled together. Student ids are hashed (needs `MEKO_PII_SALT`); exact marks stay in the canonical tables. Meko has one conversation per client run, so each student's journey is a tag, not a separate conversation.
+Each scored assessment now also feeds the student's Meko journey: `record_assessment_updates` posts an `assessment_update` turn for every scored student-assessment (not only changed tiers), plus `tier_change` and `drift_event` turns, into that student's own conversation `journey:<hashed id>`. Details, event types, privacy and quota: [MEKO_INTEGRATION.md, "Student academic journey"](MEKO_INTEGRATION.md#student-academic-journey). Ids are hashed (needs `MEKO_PII_SALT`); exact marks stay in the canonical tables.
+
+## 9. Course-outcome (CO) reasons
+
+When the optional CO tables (`questions`, `question_results`, ...) are supplied, `students[i].reasons` may end with `{group: "co_attainment", text: "Weak on CO3 (Recursion): 35%", effect_pts: 0.0, values: {weakest_co_pct, n_cos_below_target}}` for a student below target on a CO (only assessments due by `as_of`). `effect_pts` is 0: it is context, not a model effect (the model is not trained on CO data). Without CO data nothing changes. Class-level CO insights and their payload: [CLO_SPEC.md](CLO_SPEC.md).

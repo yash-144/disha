@@ -35,8 +35,12 @@ TOOLS = [
     tool("track_token_usage", name=STR, input_tokens={"type": "integer"}, output_tokens={"type": "integer"}, model=OPT, conversation_id=STR, datapack_id=OPT),
     tool("knowledgebase_search", query=STR, limit={"type": "integer"}, **COMMON),
     tool("knowledgebase_delete_document", document_id=STR, **COMMON),
-    tool("memory_search", query=STR, limit={"type": "integer"}, **COMMON),
+    tool("memory_search", query=STR, limit={"type": "integer"}, run_id=OPT, **COMMON),
     tool("memory_promote", memory_ids={"type": "array"}, **COMMON),
+    tool("memory_update", memory_id=STR, text=STR, **COMMON),
+    tool("conversation_list", agent_id=OPT, limit={"type": "integer"}, offset={"type": "integer"}, conversation_id=STR, datapack_id=OPT),
+    tool("conversation_get", conversation_id=STR, agent_id=OPT, include_messages={"type": "boolean"}, limit={"type": "integer"},
+         offset={"type": "integer"}, datapack_id=OPT),
     tool("amp_cluster_create"),
 ]
 DP_ID, CONV_ID = "dp-1", "conv-1"

@@ -60,15 +60,87 @@ Reads: `train.py` prints "Prior experiments from Meko" before training; `POST /a
 
 ## Academic-story memories (rolling model)
 
-`meko_hooks.record_assessment_updates(payload)` in `ml/disha_ml/meko_hooks.py` runs after `python -m disha_ml.rolling.score` (skip with `--no-meko`). It reads the insights payload ([INSIGHTS_SPEC.md](INSIGHTS_SPEC.md) §8) and writes **only** for students whose tier changed since the previous snapshot or who had a drift event; everyone else produces nothing.
+Superseded by [Student academic journey](#student-academic-journey): `record_assessment_updates` no longer writes tagged memories only for changed or drifted students; it writes turns into each student's own conversation for every scored assessment.
 
-Example text: "Assessment update (day 120, TMA3): mean 48% (class median 66%); risk MEDIUM→HIGH; Missed 2 of the last 3 assessments; ...".
+## Student academic journey
 
-* Tags: `ml`, `assessment-update`, the tier in lower case, and `journey:<hashed id>`; metadata carries the hashed student, course, term, day, tier, previous tier and drift codes.
-* The student id is hashed (`s_<12 hex>`, salted by `MEKO_PII_SALT`). Without a salt the id becomes `student-unlinked` and the `journey:` tag is omitted.
-* No raw marks are sent: only the headline mean and class median inside the sentence. Exact marks stay in the canonical tables.
-* Meko has one conversation per client run, so a student's journey is a tag, not a separate conversation.
-* Failures are swallowed; scoring never depends on Meko.
+**Purpose.** A new mentor, or the next term, sees a student's whole history in one place: admission baseline, every assessment, tier moves, early-warning events, cases, interventions and outcomes, instead of starting cold. Code: `meko/disha_meko/journey.py` (turn builders) and `MekoClient.journey_*` in `client.py`. Tests: `meko/tests/test_journey.py`.
+
+**One conversation per student.** Title and `session_id` are `journey:<hash>` (`hash` = salted `s_<12 hex>`), conversation metadata `{kind: journey, student: <hash>}`, agent id `disha-journey` (shared by API, ML and worker, because conversations are agent-owned). `journey_conversation()` gets or creates it; a deterministic `session_id` means a second create reconnects to the same conversation. Each academic event is one turn. Turn seeds are deterministic (`student|event|key`), so re-running the same snapshot does not duplicate a turn. Meko auto-extracts durable memories from the turns.
+
+### Event types
+
+Every turn has `input` (what happened), `output` (DISHA's record), `reasoning` (why it is kept) and `metadata` (always `event_type`, plus the fields listed; `kind` and `student` are added by the client).
+
+| `event_type` | Written when | Metadata | Example sentence (from the templates) |
+|---|---|---|---|
+| `admission_baseline` | Student joins; 10th/12th/entrance percentages known | programme, level, year | "A new student joined B.Tech CSE, year 1. Entry percentages: 10th 82%, 12th 78%." Output: "Admission baseline recorded: strong entry profile (average 80% across 2 entry measures)." |
+| `assessment_update` | Every scored student-assessment (rolling model run) | course, term, day, assessment_id, tier, risk, missed, late | "The student scored 48% on TMA3 in CS101 (2025A, day 120), 18 points below the class median of 66%, 22nd percentile in the class." Output: "DISHA risk 63% (high risk, moved from medium risk); top reasons: ..." Missed: "The student missed TMA3 in ..." |
+| `tier_change` | Tier moved since the previous snapshot | as above plus previous_tier | "After TMA3 in CS101 (2025A, day 120) the student's risk tier worsened from medium risk to high risk." |
+| `drift_event` | A drift/early-warning event fired | as above plus code | "Early-warning event in CS101 (2025A, day 120): online activity down 60%." Output: "Drift event ACTIVITY_DROP; the student is currently on watch." |
+| `term_summary` | End of term | term, tier, n_courses | "End of term 2025A. Per course: CS101 mean 52%, declining; weak outcomes: CO2 ... at 41%." |
+| `case_event` | Case lifecycle step | course, term, day, tier, case, status | "Support case opened for CS101 (reasons: LOW_ENGAGEMENT, SCORE_DROP)." |
+| `intervention` | Intervention started | case, intervention_id | "Intervention <id> started in CS101 (reasons: ...)." |
+| `outcome` | Staff-reviewed result | case, intervention_id, outcome | "Outcome of intervention <id>: improved (reasons: ...)." |
+| `mentor_note` | Mentor writes a note | course, term, day | "Mentor note on CS101: <text>" (PII-stripped, capped at 400 chars) |
+
+Only `assessment_update`, `tier_change` and `drift_event` are produced automatically today (`turns_from_insights`); the other builders have async posting functions but no caller wired in yet.
+
+### What lives where
+
+* **ERP / Postgres canonical tables** (`ml/disha_ml/rolling/schema.py`: `students`, `enrolments`, `assessments`, `results`, `activity`, `withdrawals`): exact marks, dates, the source of truth.
+* **Meko**: only the readable narrative (score vs class median, standing, tier, reasons). Meko extracts memories like "scored 48% on TMA3, below the class median, risk rose to high".
+* Writing path: `record_assessment_updates(payload)` in `ml/disha_ml/meko_hooks.py` runs after `rolling.score` (skip with `--no-meko`). It builds an `assessment_update` for every student with a scored assessment, plus `tier_change` and `drift_event` turns, and posts them from a background non-daemon thread (batches of 40, `MEKO_JOURNEY_DELAY` seconds apart, 3 attempts). It returns the number of turns queued and swallows failures.
+
+### Read functions
+
+| Function | Returns |
+|---|---|
+| `journey_timeline(student, limit=100)` | The conversation's turns in order, as Meko returned them, metadata parsed to a dict; `[]` if off or unknown |
+| `journey_briefing(student, question=None, k=10, meko_enabled=True)` | `{enabled, student, question, items:[{id, source: "memory"\|"conversation", text}]}`; items are verbatim from `recall` and `search_memory` (scoped by the student's conversation id, so another student's memories are dropped). `meko_enabled=False` returns empty items |
+| `correct_memory(memory_id, text)` | `bool`; replaces a memory's text (`update_memory`); the new text passes the PII guard first |
+| `forget_memory(memory_id)` | `bool`; deletes a memory (`delete_memory`) |
+| `delete_journey(student)` | `bool`; deletes the whole conversation (not its extracted memories) |
+
+HTTP routes for these are specified in `blueprint/05-api-specification.md` §4.7 (not yet implemented).
+
+**Correct / forget and Meko on/off (hackathon rules A1 and A4).** Staff can correct or delete a wrong or stale memory. The briefing can be fetched with Meko on or off (`meko=on|off`) to show the same student with and without the recalled history side by side.
+
+### Privacy
+
+* Student ids are hashed with `MEKO_PII_SALT`. **The salt is required**: without it `journey_ready` is false, a warning is logged, and nothing is written (an unsalted hash of a roll number is guessable). `journey_hash` accepts an already hashed `s_<12 hex>`.
+* PII guard: every turn text passes `journey_clean` (raw id replaced by the hash, emails, phone numbers and id-like tokens removed). Mentor notes are also stripped in `mentor_note_turn`, keeping the course code.
+* No tables: `looks_like_table` rejects text with 3+ numeric-heavy lines or many `|`/tabs (mentor notes return `None`). Counselling notes never go to Meko; they stay in the ERP.
+
+### Quota
+
+The free Meko tier allows about 1,000 conversations a month. One student = one conversation, so `MEKO_JOURNEY_MAX_STUDENTS` (default 200) caps the students touched per client/run; when over the cap, students with a tier change or drift event come first, then highest risk. Already-open journeys can still be appended to. Production needs a paid tier or the upcoming local open-source Meko.
+
+### Timeline
+
+```mermaid
+timeline
+    title One student's journey:s_ab12cd34ef56
+    Admission : admission_baseline (strong entry profile)
+    Term 1 : assessment_update TMA1 (on track) : assessment_update TMA2 (on watch)
+    Term 1 mid : drift_event SCORE_DROP : tier_change on watch to high risk
+    Support : case_event opened : intervention started
+    Term 2 : outcome improved : term_summary
+```
+
+**Live extraction check (2026-11-01, real Meko `disha` datapack, one synthetic student):**
+- 4 turns posted (admission baseline, two assessment updates, a mentor note) in 17 s; the timeline returned all 4.
+- Meko extracted memories from the turns within about 2 minutes, e.g. *"the CS201 student now commutes 2 hours each way and has been missing the 9:00 AM CS201 lab"* and *"prefers to be contacted via WhatsApp rather than email"*.
+- `journey_briefing` returned those memories verbatim with their Meko ids; with `meko_enabled=False` it returned nothing (the on/off comparison).
+- Scoping held: other synthetic students' memories were in the datapack at the time and none appeared in this student's briefing.
+- Note for cleanup and tooling: extracted memories carry `agent_id="disha-journey"` and `run_id=<journey conversation id>` (not `conversation_id`). `memory_get_all` did not list them; `memory_search` (and `context_search`) did. Deleting a journey conversation does **not** delete its extracted memories, so `erase_student(student)` (and `delete_journey`, which now calls it) finds them with `memory_search` scoped by `run_id`, deletes them by id, repeats until none are left, and only then deletes the conversation. This is the right-to-erasure path (India's DPDP Act).
+
+## Course memories (CLO insights)
+
+`meko_hooks.record_course_learnings(payload)` runs after `python -m disha_ml.clo.analyze` (skip with `--no-meko`; a missing key makes it a no-op). It writes **aggregate-only** memories, never student ids or marks: one per course-term and one per section, for example "CS201 2026-odd: CO3 Recursion attainment level 0; teaching gap on Q4; misconception Q7 option B 58%.", plus a learning when a recorded teaching action raised a CO level ("... CO3 Recursion improved from level 0 to 3 after re-teach with worked examples ..."). Tags: `course-summary` or `course-learning`, `course:<id>`, `term:<id>`, `sec:<s>`, and for learnings `co:<id>`, `action:<slug>`, `outcome:improved`.
+
+* **Promotion:** when the same course + CO + action improved in at least 2 distinct terms or sections, the matching memories are promoted with `memory_promote` (same mechanism as the outcome loop; owner/maintainer only).
+* **Recall:** `recall_course_history(course_id)` runs before recommendations are built and returns `[{id, source, text}]` (memory search plus knowledge search, so promoted learnings appear), exactly as Meko returned them. They are shown in the payload as `context.recalled`, so the UI can display what Meko recalled and nothing is displayed that Meko did not return. A CO weak now and also at level 0-1 in a recalled past term yields a `RECURRING` recommendation. Payload and UI: [CLO_SPEC.md](CLO_SPEC.md) §6.
 
 ## Client modules (`meko/disha_meko`)
 

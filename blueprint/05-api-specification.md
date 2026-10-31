@@ -332,3 +332,32 @@ from Postgres, calls `score_snapshot`, stores the payload, and turns tier change
 `/cases/flags/review`. §2.4 and §2.10 stay as the target for per-student prediction; the backend team should agree
 whether those routes return `StudentInsight` entries from the payload.
 
+### 4.6 CLO insights contract (backend to expose)
+
+Course-outcome insights for faculty, as a library call and CLI in `ml/` (not yet an HTTP route):
+
+```python
+from disha_ml.clo.analyze import analyze_course
+payload = analyze_course(tables, course_id, term_id)     # -> CloPayload; payload.to_dict()
+```
+
+```bash
+python -m disha_ml.clo.analyze --tables <dir> --course <id> --term <id> [--as-of <day>] [--out f.json] [--no-meko]
+```
+
+Suggested routes: `GET /api/v1/courses/{course_id}/terms/{term_id}/clo` (faculty roles; everything except `student_gaps`) and `GET .../clo/student-gaps` (mentor role only, `audience: mentor`). Top-level fields: `co_attainment`, `items`, `bloom`, `misconceptions`, `trends`, `section_comparison`, `muddiest`, `learnings`, `recommendations`, `student_gaps`, `context` (`context.recalled` = Meko hits verbatim for display), `suppressed`. Every field, threshold and visual: [`docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md). Input tables: [18](18-dataset-requirements.md) §10.
+
+### 4.7 Student journey in Meko (Backend to expose)
+
+Wrappers over `MekoClient` (`meko/disha_meko`); not yet HTTP routes. Spec: [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTEGRATION.md) "Student academic journey". The student id in the path is the raw ERP id; the backend hashes it (needs `MEKO_PII_SALT`). Without Meko or a salt, reads return empty results.
+
+| Method | Path | Request | Response |
+|---|---|---|---|
+| GET | `/api/v1/students/{id}/journey` | `limit` (default 100) | `{"turns": [{input, output, reasoning, metadata: {event_type, kind, student, course?, term?, day?, tier?, ...}, ...}]}` in order, as Meko returned them (`client.journey_timeline`) |
+| GET | `/api/v1/students/{id}/briefing` | `meko=on\|off` (default on), `q?` | `{"enabled": bool, "student": "s_<12 hex>", "question": str\|null, "items": [{"id": str, "source": "memory"\|"conversation", "text": str}]}`; `meko=off` gives empty `items` (`client.journey_briefing`) |
+| PATCH | `/api/v1/meko/memories/{memory_id}` | `{"text": str}` | `{"ok": bool}`; the text passes the PII guard; 422 if empty after cleaning |
+| DELETE | `/api/v1/meko/memories/{memory_id}` | | `{"ok": bool}` |
+| DELETE | `/api/v1/students/{id}/meko` | | `{"student": hash, "memories_deleted": int, "conversation_deleted": bool}`; right to erasure (DPDP Act): `erase_student` deletes every memory extracted from the journey, then the conversation. Admin or data-protection officer only; audit-logged |
+
+Roles: the mentor or counsellor assigned to that student only (campus membership checked); other staff get 403. Briefing items are returned verbatim with their Meko `id` and `source`, never rewritten, so the UI can show provenance and offer correct/forget on each item.
+

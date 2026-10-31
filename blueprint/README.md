@@ -68,8 +68,8 @@ truth), [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTE
 * **Legacy semester models** (`cp0`/`cp1`/`cp2`, UCI and UPV) are secondary. The 94.5% and 97.6% figures are alert
   precision after the capacity cap, not accuracy (accuracy about 84% and 88% vs a 69% majority baseline); most `cp2`
   alerts were students who had passed zero semester-2 subjects.
-* **Meko:** academic-story memories (`record_assessment_updates`) only on a tier change or drift event, hashed ids,
-  `journey:<hash>` tags, no raw marks. Repo docs are no longer synced to Meko (`sync.py` and the nightly knowledge
+* **Meko:** academic-story memories (`record_assessment_updates`): superseded by the student academic journey below
+  (a turn for every scored assessment, one conversation per student), hashed ids, no raw marks. Repo docs are no longer synced to Meko (`sync.py` and the nightly knowledge
   job were removed). The Meko client gained `guard.py`, `catalog.py`, `playbook.py`.
 * **Backend already built** (documented, not changed): case lifecycle with `case_events`, campus membership checks
   (403), outbox with retries and dead-letter, deadline escalation, Alembic migration `0001` (07 §8); translate
@@ -81,6 +81,7 @@ truth), [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTE
   or fairness bound for the rolling model; `meko_weekly_outcomes` has no data source; `anchor_confirmation`,
   `retention_purge`, `model_drift_report` are log-only stubs; identity, roster, ingestion, analytics, wellbeing and
   ml routers are stubs.
+* **Student academic journey in Meko**: one conversation per student (`journey:<hash>`), a turn per academic event, correct/forget and Meko on/off briefing; see `docs/architecture/MEKO_INTEGRATION.md` and 05 §4.7.
 
 ## Facts about the current repository (for scale reference)
 
@@ -100,3 +101,7 @@ From `docs/audit/AUDIT.md`, "Scope and method":
 | Smart contracts | `contracts/` | 553 | Solidity |
 
 Built by 6 contributors in 157 commits over 3 days (11–13 Oct 2026).
+* **CLO insights module** (`ml/disha_ml/clo/`): CO attainment, item analysis, teaching vs student gap, Bloom matrix,
+  misconceptions, trends, section comparison and recommendations from question-wise marks; optional CO tables in the
+  canonical schema; per-student weak-CO reason in the rolling payload; Meko course memories. Docs: 05 §4.6, 08 §0.1,
+  18 §10, `docs/architecture/CLO_SPEC.md`.

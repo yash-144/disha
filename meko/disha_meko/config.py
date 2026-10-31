@@ -28,6 +28,8 @@ class MekoConfig:
     pii_salt: str = ""
     promote_min: int = 3  # same intervention + reason codes improving this often -> promote to the playbook
     timeout: float = 8.0  # seconds per Meko call; never block training or requests longer
+    journey_max_students: int = 200  # cap on student journeys (= Meko conversations) touched per client/run; free tier ~1,000 a month
+    journey_delay: float = 0.25  # seconds between journey writes in one batch (rate limit)
 
     @classmethod
     def from_env(cls) -> "MekoConfig":
@@ -48,6 +50,8 @@ class MekoConfig:
             pii_salt=os.getenv("MEKO_PII_SALT", ""),
             promote_min=int(os.getenv("MEKO_PROMOTE_MIN", "3")),
             timeout=float(os.getenv("MEKO_TIMEOUT", "8")),
+            journey_max_students=int(os.getenv("MEKO_JOURNEY_MAX_STUDENTS", "200")),
+            journey_delay=float(os.getenv("MEKO_JOURNEY_DELAY", "0.25")),
         )
 
     @property
