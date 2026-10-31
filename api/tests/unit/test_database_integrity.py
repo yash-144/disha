@@ -36,12 +36,14 @@ class TestDatabaseIntegrity(unittest.IsolatedAsyncioTestCase):
 
         heads = script_dir.get_heads()
         self.assertEqual(len(heads), 1, f"Expected exactly 1 migration head, found: {heads}")
-        self.assertEqual(heads[0], "002_student_faculty_module")
+        self.assertEqual(heads[0], "003_ml_pipeline")
 
         # Verify revision metadata and lineage
         head_rev = script_dir.get_revision(heads[0])
-        self.assertEqual(head_rev.down_revision, "001_counsellor_module")
-        self.assertEqual(head_rev.revision, "002_student_faculty_module")
+        self.assertEqual(head_rev.down_revision, "002_student_faculty_module")
+        self.assertEqual(head_rev.revision, "003_ml_pipeline")
+        mid_rev = script_dir.get_revision("002_student_faculty_module")
+        self.assertEqual(mid_rev.down_revision, "001_counsellor_module")
 
         init_rev = script_dir.get_revision("001_counsellor_module")
         self.assertIsNone(init_rev.down_revision, "Initial migration must have down_revision = None")

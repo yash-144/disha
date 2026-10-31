@@ -46,6 +46,9 @@ from app.modules.documents.models import Document
 from app.modules.student_identity.models import StudentIdentity, WalletChallenge
 from app.modules.ai.models import AiCallLog
 
+from app.modules.ingestion.models import ImportBatch, MlStudent, MlEnrolment, MlAssessment, MlResult, MlActivity, MlWithdrawal
+from app.modules.ml.models import MlScoringRun, MlRiskScore
+
 # Alembic Config object
 config = context.config
 
