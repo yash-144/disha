@@ -24,3 +24,4 @@ def test_cannot_read_another_users_notification(client, other_counselor_auth_hea
     resp = client.patch("/api/v1/notifications/notif-001/read", headers=other_counselor_auth_headers)
     assert resp.status_code == 403
     assert "another user" in resp.json()["error"]
+

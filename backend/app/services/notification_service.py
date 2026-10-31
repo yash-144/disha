@@ -63,3 +63,4 @@ class NotificationService:
             }
             db.notifications[notif_id] = notif
             return notif
+

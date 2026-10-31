@@ -8,7 +8,7 @@ from app.shared.utils import compute_hash, utc_now
 
 class DataStore:
     _instance = None
-    _lock = threading.RLock()
+    _lock = threading.Lock()
 
     def __new__(cls):
         with cls._lock:

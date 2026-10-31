@@ -44,3 +44,4 @@ def test_view_student_support_history(client, counselor_auth_headers):
     history = resp.json()
     assert len(history) >= 1
     assert history[0]["case_id"] == "case-101"
+

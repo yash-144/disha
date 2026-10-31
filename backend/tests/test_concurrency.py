@@ -33,3 +33,4 @@ def test_optimistic_concurrency_case_status_update(client, counselor_auth_header
         "expected_version": 2
     })
     assert resp2.status_code == 409
+

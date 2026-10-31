@@ -103,3 +103,4 @@ class StudentSupportHistoryItem(BaseModel):
     closed_at: Optional[datetime] = None
     outcome: Optional[Dict[str, Any]] = None
     follow_up_count: int = 0
+

@@ -45,3 +45,4 @@ def test_record_intervention_outcome(client, counselor_auth_headers):
     # Verify state advanced to outcome_reviewed
     detail_resp = client.get("/api/v1/cases/case-102", headers=counselor_auth_headers)
     assert detail_resp.json()["state"] == "outcome_reviewed"
+

@@ -14,6 +14,7 @@ from app.api.cases import router as cases_router
 from app.api.interventions import router as interventions_router
 from app.api.followups import router as followups_router
 from app.api.notifications import router as notifications_router
+from app.api.admin import router as admin_router
 
 setup_logging()
 
@@ -69,6 +70,7 @@ app.include_router(cases_router, prefix="/api/v1")
 app.include_router(interventions_router, prefix="/api/v1")
 app.include_router(followups_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
 
 if __name__ == "__main__":
     import uvicorn

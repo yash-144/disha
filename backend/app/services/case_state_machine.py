@@ -80,3 +80,4 @@ def validate_case_transition(from_state: str, to_state: str) -> None:
             to_state=to_state,
             reason=f"Permitted next states from '{from_state}' are: {sorted(list(allowed_targets))}"
         )
+

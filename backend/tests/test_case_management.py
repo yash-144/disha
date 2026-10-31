@@ -106,3 +106,4 @@ def test_close_case(client, counselor_auth_headers):
     assert closed_case["state"] == "closed"
     assert closed_case["closed_at"] is not None
     assert closed_case["closed_by"] == "user-counselor-01"
+

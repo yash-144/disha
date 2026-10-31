@@ -43,3 +43,4 @@ class InterventionOutcomeResponse(BaseModel):
     outcome_notes: str
     completed_at: datetime
     created_at: datetime
+

@@ -79,3 +79,4 @@ class CaseDetailResponse(BaseModel):
     notes: List[CaseNoteResponse] = []
     timeline: List[CaseTimelineEventResponse] = []
     outcome: Optional[Dict[str, Any]] = None
+

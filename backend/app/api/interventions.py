@@ -37,3 +37,4 @@ async def record_intervention_outcome(
         outcome_notes=payload.outcome_notes,
         completion_date=payload.completion_date
     )
+

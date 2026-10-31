@@ -45,3 +45,4 @@ async def mark_notification_read(
         is_read=notif["is_read"],
         updated_at=notif.get("updated_at", notif.get("created_at"))
     )
+

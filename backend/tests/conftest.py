@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+backend_dir = Path(__file__).resolve().parent.parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
 import pytest
 from starlette.testclient import TestClient
 from app.main import app
@@ -57,3 +64,4 @@ def faculty_auth_headers(client):
         "Authorization": f"Bearer {token}",
         "X-Campus-ID": campus_id
     }
+

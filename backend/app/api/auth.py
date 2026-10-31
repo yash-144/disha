@@ -56,3 +56,4 @@ async def get_my_identity(current_user: dict = Depends(get_current_user)):
         campus_id=user.get("campus_id"),
         created_at=user.get("created_at")
     )
+

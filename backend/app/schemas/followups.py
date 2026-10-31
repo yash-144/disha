@@ -30,3 +30,4 @@ class FollowUpResponse(BaseModel):
     proof_kind: Optional[str] = None
     status: str
     created_at: datetime
+

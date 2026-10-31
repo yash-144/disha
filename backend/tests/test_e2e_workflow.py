@@ -145,3 +145,4 @@ def test_full_counsellor_crm_lifecycle_e2e(client):
         prev_evt = audit_data["events"][i - 1]
         curr_evt = audit_data["events"][i]
         assert curr_evt["prev_hash"] == prev_evt["curr_hash"]
+

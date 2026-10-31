@@ -22,3 +22,4 @@ class UserProfileResponse(BaseModel):
     roles: List[str]
     campus_id: str
     created_at: datetime
+

@@ -58,3 +58,4 @@ def test_counsellor_followup_history(client, counselor_auth_headers):
     assert resp.status_code == 200
     data = resp.json()
     assert data["total"] >= 1
+

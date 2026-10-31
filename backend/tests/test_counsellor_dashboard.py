@@ -56,3 +56,4 @@ def test_update_counsellor_profile(client, counselor_auth_headers):
     assert data["designation"] == "Principal Lead Student Counsellor"
     assert data["phone"] == "+351-999-888-777"
     assert "Neurodiversity Guidance" in data["specializations"]
+

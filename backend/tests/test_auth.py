@@ -35,3 +35,4 @@ def test_get_current_user_profile(client, counselor_auth_headers):
 def test_unauthenticated_request_rejected(client):
     resp = client.get("/api/v1/auth/me")
     assert resp.status_code == 401
+

@@ -41,3 +41,4 @@ def test_missing_campus_identifier_rejected(client):
     # Valid token structure without campus
     resp = client.get("/api/v1/counsellor/dashboard", headers={"Authorization": "Bearer invalid"})
     assert resp.status_code == 401
+

@@ -241,3 +241,4 @@ async def list_case_followups(
     counsellor_id = current_user.get("sub")
     campus_id = current_user.get("active_campus_id")
     return FollowUpService.list_case_followups(case_id, counsellor_id, campus_id)
+

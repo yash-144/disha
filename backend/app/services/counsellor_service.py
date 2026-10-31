@@ -281,3 +281,4 @@ class CounsellorService:
                     "follow_up_count": fu_count
                 })
             return history
+

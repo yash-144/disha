@@ -17,3 +17,4 @@ class NotificationMarkReadResponse(BaseModel):
     id: str
     is_read: bool
     updated_at: datetime
+

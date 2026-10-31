@@ -403,3 +403,4 @@ async def change_admin_password(
     campus_id = current_user.get("active_campus_id")
     user_id = current_user.get("sub")
     return AdminService.change_password(campus_id, user_id, payload)
+
