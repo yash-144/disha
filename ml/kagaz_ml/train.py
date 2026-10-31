@@ -31,7 +31,7 @@ import sklearn
 from sklearn.model_selection import StratifiedKFold, cross_val_predict, train_test_split
 
 from .config import CHECKPOINTS, RULES, TrainConfig
-from .data import AUDIT_COLUMNS, available_checkpoints, file_sha256, load_dataset, load_mapping
+from .data import AUDIT_COLUMNS, available_checkpoints, eligible_rows, file_sha256, load_dataset, load_mapping
 from .evaluate import calibration_table, fairness_report, score_metrics, signal_metrics
 from .explain import reference_values
 from .features import build_features, explanation_groups, feature_columns
@@ -72,6 +72,14 @@ def _release_check(cfg: TrainConfig, cutoffs: Dict, test_signal: Dict, test_metr
 
 def train_checkpoint(df: pd.DataFrame, checkpoint: str, cfg: TrainConfig, train_idx, test_idx) -> Dict:
     t0 = time.time()
+    # Only students with a record for every semester this checkpoint uses.
+    ok = eligible_rows(df, checkpoint).to_numpy()
+    excluded = int((~ok).sum())
+    if excluded:
+        print(f"[{checkpoint}] {excluded} students have no record for a semester this checkpoint needs; "
+              f"excluded here (they are covered by cp0).")
+    train_idx = train_idx[ok[train_idx]]
+    test_idx = test_idx[ok[test_idx]]
     y = make_label(df, cfg.label).to_numpy()
     X = build_features(df, checkpoint)
     cols = feature_columns(checkpoint)
@@ -134,6 +142,8 @@ def train_checkpoint(df: pd.DataFrame, checkpoint: str, cfg: TrainConfig, train_
         "baselines_test": baselines,
         "fairness_test": fairness,
         "release": release,
+        "excluded": excluded,
+        "cleaning": dict(df.attrs.get("cleaning", {})),
         "seconds": round(time.time() - t0, 1),
     }
 
@@ -182,6 +192,8 @@ def save(result: Dict, cfg: TrainConfig, out_dir: Path, data_sha: str, n_rows: i
         "baselines_test": result["baselines_test"],
         "fairness_test": result["fairness_test"],
         "release": result["release"],
+        "excluded_no_record": result["excluded"],
+        "cleaning": result["cleaning"],
         "train_seconds": result["seconds"],
     }
     (cp_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
@@ -206,6 +218,11 @@ def render_report(m: Dict) -> str:
     ]
     lines += [f"- {r}" for r in m["release"]["reasons"]]
     lines += [f"- Note: {a}" for a in m["release"].get("advisories", [])]
+    if m.get("excluded_no_record"):
+        lines += ["", f"Students excluded because they have no record for a semester this checkpoint "
+                      f"needs: {m['excluded_no_record']} (assessed by cp0 instead)."]
+    if m.get("cleaning"):
+        lines += ["", f"Data cleaning applied: {m['cleaning']}"]
     lines += [
         "",
         "## Test split (never used for training or cutoffs)",
@@ -262,6 +279,7 @@ def run(data: str, out: str, checkpoints: List[str], cfg: TrainConfig, mapping: 
     y = make_label(df, cfg.label)
     print(f"Rows: {len(df)}  outcomes: {df['target'].value_counts().to_dict()}  "
           f"label '{cfg.label}' positive rate: {y.mean():.1%}")
+    print(f"Cleaning: {df.attrs.get('cleaning', {})}")
     supported = available_checkpoints(df)
     skipped = [cp for cp in checkpoints if cp not in supported]
     if skipped:

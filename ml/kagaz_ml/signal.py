@@ -15,7 +15,7 @@ from typing import Dict, Optional
 
 import numpy as np
 
-TIERS = ("HIGH", "MEDIUM", "WATCH", "ON_TRACK")
+TIERS = ("HIGH", "MEDIUM", "WATCH", "ON_TRACK")  # plus NO_DATA, set by score.py
 
 
 def _t(cut: Optional[Dict]) -> float:

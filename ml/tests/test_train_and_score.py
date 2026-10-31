@@ -56,6 +56,14 @@ def test_score_output_has_tiers_and_reasons(trained, sample_csv, tmp_path):
     scored = score_frame(bundle, raw)
     assert set(scored["tier"]) <= {"HIGH", "MEDIUM", "WATCH", "ON_TRACK"}
     assert scored["risk_probability"].between(0, 1).all()
+
+    # A student with no semester-1 record is not scored by cp1.
+    gap = raw.copy()
+    gap.loc[gap.index[0], [f"s1_{k}" for k in ("credited", "enrolled", "evaluations", "approved", "grade", "without_eval")]] = float("nan")
+    gap_scored = score_frame(bundle, gap)
+    assert gap_scored.iloc[0]["tier"] == "NO_DATA" and not gap_scored.iloc[0]["signal"]
+    assert pd.isna(gap_scored.iloc[0]["risk_probability"])
+    assert (gap_scored.iloc[1:]["tier"] != "NO_DATA").all()
     flagged = scored[scored["signal"]]
     assert (flagged["rule_reasons"].str.len() + flagged["model_factors"].str.len() > 0).all()
 

@@ -56,6 +56,7 @@ MODEL_SOURCE_COLUMNS = [
     "s2_credited", "s2_enrolled", "s2_evaluations", "s2_approved", "s2_grade", "s2_without_eval",
 ]
 AUDIT_COLUMNS = ["gender", "age_at_enrollment", "displaced", "special_needs"]
+SEMESTER_FIELDS = ("credited", "enrolled", "evaluations", "approved", "grade", "without_eval")
 # Minimum a dataset must have. Everything else may be missing (filled as NaN).
 CORE_REQUIRED = ["s1_enrolled", "s1_approved"]
 
@@ -140,16 +141,33 @@ def map_columns(raw: pd.DataFrame, require_target: bool = True, mapping: Optiona
 
 
 def clean(df: pd.DataFrame, mapping: Optional[Dict] = None) -> pd.DataFrame:
-    """Type conversion, grade rescaling, target mapping, and the grade-0 quirk.
+    """Type conversion, data-quality fixes, grade rescaling, target mapping.
 
-    A semester grade of 0 (or any grade when no subject was passed) means
-    'no average', not a real mark of zero. It becomes NaN; features.py adds a flag.
+    - A semester with every field 0 has no record: its fields become NaN and
+      the student is assessed only by checkpoints that do not need it.
+    - Subjects without an exam are capped at subjects enrolled.
+    - A semester grade of 0 (or any grade when no subject was passed) means
+      'no average', not a real mark of zero. It becomes NaN; features.py adds a flag.
+    Counts of rows changed are stored in df.attrs["cleaning"].
     """
     df = df.copy()
     mapping = mapping or {}
     for c in [c for c in MODEL_SOURCE_COLUMNS if c != "course"]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
     df["course"] = df["course"].astype(str).str.strip().replace({"nan": "unknown", "": "unknown"})
+
+    report: Dict[str, int] = {}
+    for s in ("s1", "s2"):
+        cols = [f"{s}_{k}" for k in SEMESTER_FIELDS]
+        # A semester whose fields are all zero has no record, not a student who
+        # registered for nothing (in UCI: 180 rows, all one course, incl. graduates).
+        no_record = (df[cols].fillna(0) == 0).all(axis=1) & df[cols].notna().any(axis=1)
+        df.loc[no_record, cols] = np.nan
+        report[f"{s}_no_record_rows"] = int(no_record.sum())
+        # Subjects without an exam cannot exceed subjects enrolled.
+        over = df[f"{s}_without_eval"] > df[f"{s}_enrolled"]
+        df.loc[over, f"{s}_without_eval"] = df.loc[over, f"{s}_enrolled"]
+        report[f"{s}_without_eval_capped_rows"] = int(over.sum())
 
     scale = float(mapping.get("grade_scale", DEFAULT_GRADE_SCALE))
     for s in ("s1", "s2"):
@@ -169,11 +187,22 @@ def clean(df: pd.DataFrame, mapping: Optional[Dict] = None) -> pd.DataFrame:
                 f"Outcome values not understood: {sorted(df.loc[bad, 'target'].astype(str).unique())[:10]}. "
                 f"Map each one to {sorted(CANONICAL_TARGETS)} in the mapping file's 'target_values'."
             )
+    df.attrs["cleaning"] = report
     return df
 
 
 def load_dataset(path: str | Path, require_target: bool = True, mapping: Optional[Dict] = None) -> pd.DataFrame:
     return clean(map_columns(read_csv(path), require_target=require_target, mapping=mapping), mapping)
+
+
+def eligible_rows(df: pd.DataFrame, checkpoint: str) -> pd.Series:
+    """Students a checkpoint can assess: they need a record for each semester it uses."""
+    ok = pd.Series(True, index=df.index)
+    if checkpoint in ("cp1", "cp2"):
+        ok &= df["s1_enrolled"].notna()
+    if checkpoint == "cp2":
+        ok &= df["s2_enrolled"].notna()
+    return ok
 
 
 def available_checkpoints(df: pd.DataFrame, min_coverage: float = 0.9) -> List[str]:

@@ -51,11 +51,37 @@ def test_protected_columns_never_model_inputs(sample_csv, cp):
 
 
 def test_rates_are_missing_when_no_units_enrolled():
-    df = load_dataset_from(generate(20, seed=2))
-    df.loc[0, ["s1_enrolled", "s1_approved", "s1_evaluations", "s1_without_eval"]] = 0
+    # Registered for nothing but has a credited subject: a real record, not a gap.
+    raw = generate(20, seed=2)
+    for k in ("enrolled", "approved", "evaluations", "without evaluations", "grade"):
+        raw.loc[0, f"Curricular units 1st sem ({k})"] = 0
+    raw.loc[0, "Curricular units 1st sem (credited)"] = 1
+    df = load_dataset_from(raw)
     X = build_features(df, "cp1")
     assert np.isnan(X.loc[0, "s1_pass_rate"])
     assert X.loc[0, "s1_no_units"] == 1
+
+
+def test_all_zero_semester_is_no_record_and_not_eligible():
+    from kagaz_ml.data import eligible_rows
+    raw = generate(20, seed=4)
+    for s in ("1st", "2nd"):
+        for k in ("credited", "enrolled", "approved", "evaluations", "without evaluations", "grade"):
+            raw.loc[0, f"Curricular units {s} sem ({k})"] = 0
+    df = load_dataset_from(raw)
+    assert df.loc[0, ["s1_enrolled", "s1_approved", "s2_enrolled"]].isna().all()
+    assert df.attrs["cleaning"]["s1_no_record_rows"] == 1
+    assert eligible_rows(df, "cp0")[0] and not eligible_rows(df, "cp1")[0] and not eligible_rows(df, "cp2")[0]
+    assert eligible_rows(df, "cp1")[1:].all()
+
+
+def test_without_evaluation_capped_at_enrolled():
+    raw = generate(20, seed=5)
+    raw.loc[0, "Curricular units 2nd sem (enrolled)"] = 5
+    raw.loc[0, "Curricular units 2nd sem (without evaluations)"] = 7
+    df = load_dataset_from(raw)
+    assert df.loc[0, "s2_without_eval"] == 5
+    assert df.attrs["cleaning"]["s2_without_eval_capped_rows"] == 1
 
 
 def test_labels():

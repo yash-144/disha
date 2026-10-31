@@ -15,9 +15,10 @@ import json
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 
-from .data import clean, load_mapping, map_columns, read_csv
+from .data import clean, eligible_rows, load_mapping, map_columns, read_csv
 from .explain import group_contributions, top_factors
 from .features import build_features
 from .rules import evaluate_rules
@@ -39,26 +40,44 @@ def load_bundle(model_dir: str | Path) -> dict:
 
 
 def score_frame(bundle: dict, raw: pd.DataFrame) -> pd.DataFrame:
-    """raw: cleaned dataframe with canonical column names."""
+    """raw: cleaned dataframe with canonical column names.
+
+    Students without a record for a semester this checkpoint needs get tier
+    NO_DATA and no score; they should be assessed with cp0.
+    """
     cp = bundle["checkpoint"]
     feats = bundle["features"]
-    X = build_features(raw, cp)[feats["numeric"] + feats["categorical"]]
     model = bundle["model"]
-    p = model.predict_proba(X)[:, 1]
-    fired = [evaluate_rules(raw.loc[i], cp, bundle["rules"]) for i in raw.index]
-    tier, signal, capped = assign_tiers(p, [len(f) for f in fired], bundle["cutoffs"], bundle["capacity_share"])
-    contrib = group_contributions(model, X, bundle["groups"], bundle["reference"])
+    ok = eligible_rows(raw, cp)
+    sub = raw[ok]
+
     out = pd.DataFrame(index=raw.index)
     out["checkpoint"] = cp
-    out["risk_probability"] = p.round(3)
-    out["tier"] = tier
-    out["signal"] = signal
-    out["capacity_capped"] = capped
-    out["rule_reasons"] = ["; ".join(r["text"] for r in f) for f in fired]
-    out["rule_codes"] = [",".join(r["code"] for r in f) for f in fired]
-    out["model_factors"] = ["; ".join(top_factors(contrib.loc[i])) for i in raw.index]
+    out["risk_probability"] = np.nan
+    out["tier"] = "NO_DATA"
+    out["signal"] = False
+    out["capacity_capped"] = False
+    out["rule_reasons"] = ""
+    out["rule_codes"] = ""
+    out["model_factors"] = ""
+    out["note"] = ""
+    out.loc[~ok, "note"] = "no record for a semester this checkpoint needs; use cp0"
+
+    if len(sub):
+        X = build_features(sub, cp)[feats["numeric"] + feats["categorical"]]
+        p = model.predict_proba(X)[:, 1]
+        fired = [evaluate_rules(sub.loc[i], cp, bundle["rules"]) for i in sub.index]
+        tier, signal, capped = assign_tiers(p, [len(f) for f in fired], bundle["cutoffs"], bundle["capacity_share"])
+        contrib = group_contributions(model, X, bundle["groups"], bundle["reference"])
+        out.loc[sub.index, "risk_probability"] = p.round(3)
+        out.loc[sub.index, "tier"] = tier
+        out.loc[sub.index, "signal"] = signal
+        out.loc[sub.index, "capacity_capped"] = capped
+        out.loc[sub.index, "rule_reasons"] = ["; ".join(r["text"] for r in f) for f in fired]
+        out.loc[sub.index, "rule_codes"] = [",".join(r["code"] for r in f) for f in fired]
+        out.loc[sub.index, "model_factors"] = ["; ".join(top_factors(contrib.loc[i])) for i in sub.index]
     if not bundle.get("approved", False):
-        out["note"] = "model not approved by release check; show for review only"
+        out.loc[ok, "note"] = "model not approved by release check; show for review only"
     return out
 
 
