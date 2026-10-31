@@ -43,6 +43,11 @@ capability satisfy the requirement.
 | 13 | [13-quality-and-operations.md](13-quality-and-operations.md) | Testing strategy, CI/CD, environments, observability, dependencies |
 | 14 | [14-audit-traceability.md](14-audit-traceability.md) | Every audit finding mapped to the requirements that close it |
 | 15 | [15-build-sequence.md](15-build-sequence.md) | Order of construction with exit criteria per stage |
+| 16 | [16-risk-signal-pipeline.md](16-risk-signal-pipeline.md) | How a student gets flagged: data, checkpoints, features, calibrated model, precision cutoffs, tiers, reasons |
+| 17 | [17-model-training-guide.md](17-model-training-guide.md) | Step-by-step training on Kaggle or locally, reports, release check, scoring |
+| 18 | [18-dataset-requirements.md](18-dataset-requirements.md) | First dataset (UCI), columns used, requirements and checklist for any dataset, privacy rules |
+
+The ML training code that implements 16–18 is in `../ml/` (see `ml/README.md`).
 
 ## Facts about the current repository (for scale reference)
 
