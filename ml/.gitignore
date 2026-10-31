@@ -1,0 +1,5 @@
+artifacts/
+data/*.csv
+scored*.csv
+__pycache__/
+.pytest_cache/
