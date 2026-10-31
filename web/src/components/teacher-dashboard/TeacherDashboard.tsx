@@ -3,9 +3,10 @@ import { Users, Activity, Flag } from 'lucide-react'
 import { TeacherSidebar } from './TeacherSidebar'
 import { TeacherHeader } from './TeacherHeader'
 import { StatCard } from './StatCard'
-import { RecentMessages } from './RecentMessages'
+import { NotAvailable } from '../common/NotAvailable'
+import { QueryState } from '../common/QueryState'
+import { useFacultyDashboard } from '../../lib/api/endpoints/faculty.hooks'
 import { MyCases } from './MyCases'
-import { ActiveInterventions } from './ActiveInterventions'
 import { TeacherProfilePanel } from './TeacherProfilePanel'
 import { ScheduleCallsPage } from './ScheduleCallsPage'
 import { MyCasesPage } from './MyCasesPage'
@@ -16,6 +17,21 @@ import { useApp } from '../../context/AppContext'
 
 interface TeacherDashboardProps {
   initialTab?: string
+}
+
+function Stats() {
+  const dash = useFacultyDashboard()
+  return (
+    <QueryState query={dash}>
+      {(d) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <StatCard title="Students in Scope" value={d.metrics.total_students_monitored} icon={Users} variant="yellow" />
+          <StatCard title="Active Sections" value={d.metrics.active_sections} icon={Activity} variant="blue" />
+          <StatCard title="Signals Pending Review" value={d.metrics.unreviewed_signals} icon={Flag} variant="purple" />
+        </div>
+      )}
+    </QueryState>
+  )
 }
 
 export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
@@ -60,40 +76,17 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
 
               {/* Statistics Cards Row */}
               <section aria-label="Key statistics">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <StatCard
-                    title="Students in Scope"
-                    value={128}
-                    icon={Users}
-                    variant="yellow"
-                  />
-                  <StatCard
-                    title="Active Support Cases"
-                    value={24}
-                    icon={Activity}
-                    variant="blue"
-                  />
-                  <StatCard
-                    title="Signals Pending Review"
-                    value={6}
-                    icon={Flag}
-                    variant="purple"
-                  />
-                </div>
+                <Stats />
               </section>
 
               {/* Middle Row: Recent Messages and My Cases */}
               <section aria-label="Messages and cases">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <RecentMessages />
+                  <NotAvailable title="Messages" />
                   <MyCases onViewAll={() => handleTabChange('cases')} />
                 </div>
               </section>
 
-              {/* Bottom Row: Active Interventions Table */}
-              <section aria-label="Active interventions table">
-                <ActiveInterventions onViewAll={() => handleTabChange('interventions')} />
-              </section>
             </main>
 
             {/* Right: Teacher Profile & Agenda Panel */}

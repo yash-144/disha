@@ -17,7 +17,7 @@ export const counsellorApi = {
     api.get<FollowUp[]>('/api/v1/counselling/followups', { query: { upcoming_only: true, limit: 50 }, signal }),
   sessions: (signal?: AbortSignal) =>
     api.get<CounsellingSession[]>('/api/v1/counselling/sessions', { query: { limit: 50 }, signal }),
-  mlStudents: (tier: string, signal?: AbortSignal) =>
+  mlStudents: (tier: string | undefined, signal?: AbortSignal) =>
     api.get<RiskScorePage>('/api/v1/ml/students', { query: { tier, page_size: 50 }, signal }),
   cases: (state?: string, signal?: AbortSignal) =>
     api.get<CaseDetail[]>('/api/v1/cases/', { query: { state, limit: 100 }, signal }),
