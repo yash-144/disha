@@ -27,7 +27,7 @@ NO_PSI = {"term_frac", "assessment_idx",  # progress moves with the calendar by 
 # ---- output schema ---------------------------------------------------------
 @dataclass
 class Reason:
-    group: str            # score_level | score_trend | submissions | engagement | baseline | load_history
+    group: str            # score_level | score_trend | submissions | engagement | baseline | load_history | co_attainment
     text: str
     effect_pts: float     # change in risk (percentage points) if this group looked typical; negative = protective
     values: Dict[str, Optional[float]] = field(default_factory=dict)
@@ -360,7 +360,7 @@ def cohort_insight(c: Cohort, hist: pd.DataFrame, as_of: int) -> CohortInsight:
 
 # ---- student insights -----------------------------------------------------------------
 SNAP_KEYS = ["mean_score", "class_median_score", "standing_pct", "gap_to_median", "share_submitted", "n_missed",
-             "activity_vs_median", "engagement_ratio", "term_frac"]
+             "activity_vs_median", "engagement_ratio", "term_frac", "last_score", "n_late", "consecutive_misses"]
 
 
 def student_insights(hist: pd.DataFrame, contrib: pd.DataFrame, cohorts: Dict, as_of: int) -> List[StudentInsight]:

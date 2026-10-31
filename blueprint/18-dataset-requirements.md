@@ -196,3 +196,17 @@ used only for fairness slices. Checklist in §5 still applies; add: at least two
 terms (one to train, one to test) and enough at-risk enrolments for a HIGH
 cutoff to be reachable (§3 item 4).
 
+## 10. Course-outcome (CLO) data
+
+Optional, for the CLO insights ([`docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md)). Colleges already keep this for NBA/NAAC, so there is no answer-sheet scanning: an **NBA attainment sheet plus question-wise marks from the ERP is enough**.
+
+| Table | Columns (required first) | From the college's existing records |
+|---|---|---|
+| `course_outcomes` | `course_id`, `co_id`; `description`, `target_pct` (default 60) | the CO list and target in the course file |
+| `questions` | `question_id`, `assessment_id`, `co_id`, `max_marks`; `bloom_level` (1-6), `type` (mcq/descriptive/rubric), `correct_option` | the question-to-CO (and Bloom) mapping of each paper |
+| `question_results` | `student_id`, `question_id`, `marks`; `selected_option` (MCQ) | question-wise marks entered in the ERP |
+| `topic_feedback` | `student_id`, `course_id`, `term_id`, `day`; `co_id` or `topic` | optional "muddiest point" poll |
+| `teaching_actions` | `course_id`, `term_id`, `co_id`, `day`; `section`, `action` | optional log of re-teach / remedial classes |
+| `enrolments.section` | optional column | class section |
+
+Mark internal (CIE) and end-semester (SEE) assessments through `assessments.type` (`Exam` or a name containing `SEE`/`End`/`Final` is end-semester). Privacy rules in §6 apply; class-level views hide groups under 5 students. The OULAD model has no question-level data, so these tables are not used to train it.

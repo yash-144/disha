@@ -69,6 +69,7 @@ Deeper design documents: [`../blueprint/16-risk-signal-pipeline.md`](../blueprin
 32. [Rolling model: scoring and the insights payload](#32-rolling-model-scoring-and-the-insights-payload)
 33. [Rolling model: results](#33-rolling-model-results)
 34. [Rolling model: Meko memories, limits and gaps](#34-rolling-model-meko-memories-limits-and-gaps)
+35. [CLO (course outcome) insights](#35-clo-course-outcome-insights)
 
 ---
 
@@ -894,3 +895,37 @@ band 1.94, IMD band 2.02. Demographics are not inputs; the slices are in `report
   `term_start`; school and PG data (the schema allows them, only OULAD has been run); any backend endpoint or worker
   job that calls `score_snapshot` (the API has no insights route yet).
 * The MEDIUM tier is almost empty on test (1.2%) because HIGH fills the 25% capacity cap first.
+
+---
+
+## 35. CLO (course outcome) insights
+
+`disha_ml/clo/` tells faculty which course outcomes (COs) and topics students struggle with and whether it is a
+**teaching gap** or a **student gap**. Input is what Indian colleges already keep for NBA/NAAC: each exam question
+mapped to a CO (and Bloom level) plus question-wise marks. No ML and no answer-sheet scanning; every number is traceable.
+Full contract, thresholds, JSON paths and visuals: [`../docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md).
+
+```bash
+python -m disha_ml.clo.synthetic --out /tmp/clo_demo            # demo course with planted patterns
+python -m disha_ml.clo.analyze --tables /tmp/clo_demo --course CS201 --term 2026-odd --no-meko
+```
+
+```python
+from disha_ml.clo.analyze import analyze_course
+payload = analyze_course(tables, "CS201", "2026-odd")          # CloPayload; .to_dict() is plain JSON
+```
+
+* **Schema:** optional tables `course_outcomes`, `questions`, `question_results`, `topic_feedback`, `teaching_actions`
+  and an optional `enrolments.section` column, validated in `rolling/schema.py`.
+* **Outputs:** CO attainment with an NBA-style level 0 to 3 (internal 0.4 / end-semester 0.6), item difficulty and
+  discrimination, gap type per question and CO, Bloom matrix, MCQ misconceptions, trend, section comparison,
+  muddiest points, recommendations, and a mentor-only `student_gaps` section. Groups under 5 students are suppressed.
+* **Rolling link:** `clo/link.py` adds "Weak on CO3 (Recursion): 35%" to a student's reasons in the rolling payload when
+  CO data exists (nothing changes without it). The OULAD model is **not retrained**: OULAD has no question-level data.
+  `weakest_co_pct` and `n_cos_below_target` can join a model only once a college supplies CO data.
+* **Meko:** aggregate-only course memories, recalled history in `context.recalled`, recurring learnings promoted
+  (`MEKO_INTEGRATION.md`). `--no-meko` disables it.
+* **Demo output:** `examples/clo_demo_output.json`. **Tests:** `tests/test_clo.py`.
+* **Gaps:** no API route or worker job calls it yet; thresholds are defaults from the NBA convention and item-analysis
+  practice, not tuned on real campus data; one CO per question; the gap type needs at least 5 students per top/bottom
+  group (about 19 students).

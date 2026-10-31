@@ -48,7 +48,9 @@ def score_snapshot(tables: Union[Dict[str, pd.DataFrame], str, Path], as_of: int
     drift = I.drift_report(bundle["psi_reference"], cur[FEATURES])
     model_info = {"bundle_version": bundle["version"], "trained_terms": list(bundle["trained_terms"]),
                   "cutoffs": {k: (v or {}).get("threshold") for k, v in bundle["cutoffs"].items()}}
-    return I.InsightsPayload(I.SCHEMA_VERSION, as_of, model_info, len(students), students, cohort_out, drift)
+    payload = I.InsightsPayload(I.SCHEMA_VERSION, as_of, model_info, len(students), students, cohort_out, drift)
+    from ..clo.link import add_co_reasons   # optional: only acts when the CO tables are present
+    return add_co_reasons(payload, tables)
 
 
 def main(argv=None) -> None:

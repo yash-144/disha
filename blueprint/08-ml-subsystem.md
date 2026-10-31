@@ -67,6 +67,18 @@ promotion gate or release check (the legacy `train.py` has one), no
 worker job `model_drift_report` only logs a line. The PSI drift report exists
 inside the payload (`data_drift`) but nothing stores it.
 
+### 0.1 CLO (course outcome) insights (implemented)
+
+Beside the risk model, `ml/disha_ml/clo/` turns question-wise marks mapped to COs into faculty insights: CO attainment
+(NBA level 0 to 3), item difficulty and discrimination, teaching gap versus student gap, Bloom matrix, MCQ
+misconceptions, trends, section comparison, muddiest points and recommendations. It is deterministic (no ML), with all
+thresholds in `CloConfig`. Contract: `analyze_course(tables, course_id, term_id) -> CloPayload` and
+`python -m disha_ml.clo.analyze`; details: [`docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md). Inputs:
+[18](18-dataset-requirements.md) §10. It adds a "Weak on CO3 (Recursion): 35%" reason to the rolling payload when CO data
+exists. The OULAD model is not retrained on CO features (OULAD has no question-level data); `weakest_co_pct` and
+`n_cos_below_target` join a model only once a college supplies CO data. Course memories go to Meko
+([MEKO_INTEGRATION.md](../docs/architecture/MEKO_INTEGRATION.md)). Not yet implemented: an API route or worker job.
+
 ## 1. Facts about the current model
 
 Sources: `ml/artifacts/models/v1.0.0/model_metadata.json`,
