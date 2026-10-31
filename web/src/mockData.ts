@@ -22,6 +22,27 @@ export const STUDENT_USER: UserProfile = {
   bio: 'Enthusiastic CS learner focused on Web Development, Cloud Computing, and AI Fundamentals.'
 }
 
+
+export const COUNSELLOR_USER: UserProfile = {
+  id: 'couns-1',
+  name: 'Dr. Meera Nambiar',
+  role: 'counsellor',
+  title: 'Lead Student Counsellor & Wellbeing Specialist',
+  email: 'meera.nambiar@apex.edu.in',
+  avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+  bio: 'Specialist in student psychological wellbeing, stress regulation, and academic retention coaching.'
+}
+
+export const ADMIN_USER: UserProfile = {
+  id: 'admin-1',
+  name: 'Dean Rajesh Malhotra',
+  role: 'admin',
+  title: 'Dean of Student Affairs & Institutional Compliance',
+  email: 'dean.affairs@apex.edu.in',
+  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+  bio: 'Overseeing campus welfare protocols, cross-departmental interventions, and compliance audits.'
+}
+
 export const COURSES_DATA: Course[] = [
   {
     id: 'course-1',
