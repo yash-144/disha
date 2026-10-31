@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.core.database import Base
 from app.modules.identity.models import User, Membership
 from app.modules.roster.models import Student, Observation
-from app.modules.counselling.models import CounsellorProfile, CounsellorAssignment
+from app.modules.counselling.models import CounsellorProfile, CounsellorAssignment, CounsellingSession, CounsellingNote
 from app.modules.cases.models import (
     Signal,
     Case,
@@ -27,7 +27,9 @@ from app.modules.cases.models import (
     FollowUp,
     FollowUpNote,
 )
-from app.modules.notifications.models import Notification
+from app.modules.notifications.models import Notification, NotificationOutbox, OutboxDeliveryAttempt
+from app.modules.campus.models import Campus, MembershipInvite
+from app.shared.idempotency_store import IdempotencyRecord
 from app.modules.audit.models import AuditEvent
 from app.modules.faculty.models import (
     FacultyProfile,

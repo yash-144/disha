@@ -37,7 +37,7 @@ from app.modules.identity.models import User, Membership
 from app.modules.roster.models import Student
 from app.modules.cases.models import Case, CaseNote, CaseEvent
 from app.modules.audit.models import AuditEvent
-from app.modules.notifications.models import Notification
+from app.modules.notifications.models import Notification, NotificationOutbox
 from app.modules.cases.schemas import (
     CaseCreateRequest,
     CaseUpdateRequest,
@@ -158,12 +158,13 @@ class TestCasesPersistenceAndIntegrity(unittest.IsolatedAsyncioTestCase):
 
             # Check Notification outbox
             notif_res = await session.execute(
-                select(Notification).where(Notification.reference_id == case.id)
+                select(NotificationOutbox).where(NotificationOutbox.case_id == case.id)
             )
             notifs = notif_res.scalars().all()
             self.assertEqual(len(notifs), 1)
             self.assertEqual(notifs[0].recipient_id, self.counsellor_id)
-            self.assertFalse(notifs[0].is_read)
+            self.assertEqual(notifs[0].status, "pending")
+            self.assertEqual(notifs[0].adapter_key, "in_app")
 
     async def test_case_retrieval_after_session_reload(self):
         """Verify case data and relationships reload accurately across session boundaries."""
@@ -551,17 +552,15 @@ class TestCasesPersistenceAndIntegrity(unittest.IsolatedAsyncioTestCase):
 
             # Verify notification record
             notif_res = await session.execute(
-                select(Notification).where(
-                    Notification.reference_id == case.id,
-                    Notification.notification_type == "case_lifecycle",
-                )
+                select(NotificationOutbox).where(NotificationOutbox.case_id == case.id)
             )
             notifs = notif_res.scalars().all()
             self.assertEqual(len(notifs), 1)
             notif = notifs[0]
             self.assertEqual(notif.recipient_id, self.counsellor_id)
-            self.assertFalse(notif.is_read)
+            self.assertEqual(notif.status, "pending")
             self.assertIsNone(notif.sent_at)
+            self.assertEqual(notif.template_key, "CASE_ASSIGNED")
             self.assertIn("v2-assigned", notif.idempotency_key)
 
     async def test_authorization_and_confidentiality(self):
@@ -616,10 +615,10 @@ class TestCasesPersistenceAndIntegrity(unittest.IsolatedAsyncioTestCase):
 
             # 3. Verify Notification does NOT leak confidential note
             notif_res = await session.execute(
-                select(Notification).where(Notification.reference_id == case.id)
+                select(NotificationOutbox).where(NotificationOutbox.case_id == case.id)
             )
             notif = notif_res.scalar_one()
-            self.assertNotIn("Student discussed acute family distress", notif.body)
+            self.assertNotIn("Student discussed acute family distress", str(notif.safe_payload))
 
             # 4. Verify unauthorized role (e.g. Student) is forbidden from transitioning
             with self.assertRaises(PermissionDeniedError):

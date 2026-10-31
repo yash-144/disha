@@ -36,14 +36,16 @@ class TestDatabaseIntegrity(unittest.IsolatedAsyncioTestCase):
 
         heads = script_dir.get_heads()
         self.assertEqual(len(heads), 1, f"Expected exactly 1 migration head, found: {heads}")
-        self.assertEqual(heads[0], "003_ml_pipeline")
-
-        # Verify revision metadata and lineage
-        head_rev = script_dir.get_revision(heads[0])
-        self.assertEqual(head_rev.down_revision, "002_student_faculty_module")
-        self.assertEqual(head_rev.revision, "003_ml_pipeline")
-        mid_rev = script_dir.get_revision("002_student_faculty_module")
-        self.assertEqual(mid_rev.down_revision, "001_counsellor_module")
+        # walk the chain from the single head back to the initial migration: no gaps, 001 -> 002 in order
+        chain, rev = [], script_dir.get_revision(heads[0])
+        while rev is not None:
+            chain.append(rev.revision)
+            rev = script_dir.get_revision(rev.down_revision) if rev.down_revision else None
+        self.assertEqual(list(reversed(chain)), [
+            "001_counsellor_module", "002_student_faculty_module", "003_ml_pipeline",
+            "004_counselling_interventions", "005_policy_analytics_wellbeing", "006_documents_identity_ai"])
+        self.assertEqual(chain[-1], "001_counsellor_module")
+        self.assertEqual(script_dir.get_revision("002_student_faculty_module").down_revision, "001_counsellor_module")
 
         init_rev = script_dir.get_revision("001_counsellor_module")
         self.assertIsNone(init_rev.down_revision, "Initial migration must have down_revision = None")

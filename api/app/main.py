@@ -21,6 +21,10 @@ from app.modules.documents.routes import router as documents_router
 from app.modules.student_identity.routes import router as student_identity_router
 from app.modules.ai.routes import router as ai_router
 from app.modules.ml.routes import router as ml_router
+from app.modules.counselling.routes import router as counselling_router
+from app.modules.interventions.routes import router as interventions_router, case_router as case_children_router
+from app.modules.notifications.routes import router as notifications_router
+from app.modules.campus.routes import router as campus_router
 
 app = FastAPI(
     title="DISHA API",
@@ -73,3 +77,8 @@ app.include_router(documents_router, prefix="/api/v1/documents", tags=["Document
 app.include_router(student_identity_router, prefix="/api/v1/student-identity", tags=["Student identity"])
 app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI"])
 app.include_router(ml_router, prefix="/api/v1/ml", tags=["ML"])
+app.include_router(counselling_router, prefix="/api/v1/counselling", tags=["Counselling"])
+app.include_router(interventions_router, prefix="/api/v1/interventions", tags=["Interventions"])
+app.include_router(case_children_router, prefix="/api/v1/cases", tags=["Cases"])
+app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["Notifications"])
+app.include_router(campus_router, prefix="/api/v1/campus", tags=["Campus"])

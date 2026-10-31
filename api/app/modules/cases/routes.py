@@ -48,6 +48,7 @@ async def create_case(
         actor_roles=actor_roles,
         data=payload,
     )
+    await db.commit()
     return case_to_detail_response(case)
 
 
@@ -120,6 +121,7 @@ async def update_case(
         data=payload,
         is_platform_admin=ctx.is_platform_admin,
     )
+    await db.commit()
     return case_to_detail_response(updated_case)
 
 
@@ -148,11 +150,13 @@ async def transition_case_state(
         notes=payload.notes,
         new_owner_id=payload.new_owner_id,
         due_at=payload.due_at,
-        has_follow_up=bool(payload.has_follow_up),
-        has_outcome=bool(payload.has_outcome),
+        # guard facts are read from the database; client flags are not trusted
+        has_follow_up=False,
+        has_outcome=False,
         is_platform_admin=ctx.is_platform_admin,
     )
 
+    await db.commit()
     return {
         "status": "success",
         "case": result["case"],
@@ -180,6 +184,7 @@ async def assign_case(
         data=payload,
         is_platform_admin=ctx.is_platform_admin,
     )
+    await db.commit()
     return case_to_detail_response(case)
 
 
@@ -202,6 +207,7 @@ async def reopen_case(
         data=payload,
         is_platform_admin=ctx.is_platform_admin,
     )
+    await db.commit()
     return case_to_detail_response(case)
 
 
@@ -224,6 +230,7 @@ async def dismiss_case(
         data=payload,
         is_platform_admin=ctx.is_platform_admin,
     )
+    await db.commit()
     return case_to_detail_response(case)
 
 
