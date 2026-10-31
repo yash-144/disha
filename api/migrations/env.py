@@ -42,6 +42,9 @@ from app.modules.student.models import SupportRequest
 from app.modules.policy.models import PolicyVersion, PolicyEvaluation, PolicyDecision
 from app.modules.wellbeing.models import PulseQuestionnaire, PulsePeriod, PulseSubmission
 from app.modules.rewards.models import LedgerEntry, RewardItem, Redemption
+from app.modules.documents.models import Document
+from app.modules.student_identity.models import StudentIdentity, WalletChallenge
+from app.modules.ai.models import AiCallLog
 
 # Alembic Config object
 config = context.config

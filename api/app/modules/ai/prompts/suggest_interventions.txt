@@ -1,0 +1,4 @@
+# version: 1
+TASK: Rank up to 3 interventions from the CATALOG that could suit this case.
+Schema: {"suggestions": [{"key": string (must be a CATALOG key), "rationale": string (max 300 characters)}]}
+Use only keys that appear in CATALOG. Return an empty list if none fits.
