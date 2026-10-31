@@ -1,7 +1,8 @@
 import React from 'react'
 import { CircleHelp, Bell } from 'lucide-react'
-import { RoleSwitcher } from '../common/RoleSwitcher'
-import { ADMIN_USER } from '../../mockData'
+import { useSession } from '../../lib/auth/SessionProvider'
+import { UserAvatar } from '../common/UserAvatar'
+import { roleLabel } from '../../lib/auth/portals'
 
 interface AdminHeaderProps {
   pageTitle?: string
@@ -9,20 +10,19 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ pageTitle, subtitle }: AdminHeaderProps) {
+  const { user, role } = useSession()
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 font-sans select-none">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-[#1E2433]">
-          {pageTitle || `Welcome, ${ADMIN_USER.name}!`}
+          {pageTitle || `Welcome, ${user?.full_name ?? ''}!`}
         </h1>
         <p className="text-xs text-[#717E95] font-medium mt-1">
-          {subtitle || ADMIN_USER.title}
+          {subtitle || roleLabel(role)}
         </p>
       </div>
 
       <div className="flex items-center gap-2.5">
-        {/* Role Switcher across all 4 portals */}
-        <RoleSwitcher />
 
         {/* Help icon button */}
         <button
@@ -45,11 +45,7 @@ export function AdminHeader({ pageTitle, subtitle }: AdminHeaderProps) {
 
         {/* Profile Avatar */}
         <div className="relative ml-0.5">
-          <img
-            src={ADMIN_USER.avatar}
-            alt={ADMIN_USER.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-2xs"
-          />
+          <UserAvatar name={user?.full_name} />
           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
         </div>
       </div>

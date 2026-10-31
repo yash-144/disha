@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { CircleHelp, Bell, ChevronDown } from 'lucide-react'
-import { RoleSwitcher } from '../common/RoleSwitcher'
-import { COUNSELLOR_USER } from '../../mockData'
+import { useSession } from '../../lib/auth/SessionProvider'
+import { UserAvatar } from '../common/UserAvatar'
+import { roleLabel } from '../../lib/auth/portals'
 import { DemoMode } from '../student-portal/studentDemoData'
 
 interface CounsellorHeaderProps {
@@ -25,6 +26,7 @@ export function CounsellorHeader({
   subtitle,
   showPageTitle = false,
 }: CounsellorHeaderProps) {
+  const { user } = useSession()
   const [demoDropdownOpen, setDemoDropdownOpen] = useState(false)
   const demoRef = useRef<HTMLDivElement>(null)
 
@@ -43,12 +45,8 @@ export function CounsellorHeader({
 
   return (
     <header className="flex flex-col gap-3 font-sans select-none mb-4">
-      {/* Top Utility Bar matching exact visual reference: Role Switcher & Demo Mode on Left, Help & Bell & Avatar on Right */}
       <div className="flex items-center justify-between gap-3">
-        {/* Left: Role Switcher & Demo Mode Switcher */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Unified Role Switcher across all 4 portals */}
-          <RoleSwitcher align="left" />
 
           {/* Vertical Divider */}
           <div className="h-4 w-px bg-gray-300/70 hidden sm:block" />
@@ -129,11 +127,7 @@ export function CounsellorHeader({
 
           {/* Counsellor Profile Avatar */}
           <div className="relative ml-0.5 cursor-pointer">
-            <img
-              src={COUNSELLOR_USER.avatar}
-              alt={COUNSELLOR_USER.name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-2xs"
-            />
+            <UserAvatar name={user?.full_name} />
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           </div>
         </div>

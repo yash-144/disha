@@ -1,16 +1,16 @@
 import React from 'react'
 import { CircleHelp, Bell } from 'lucide-react'
-import { RoleSwitcher } from '../common/RoleSwitcher'
+import { useSession } from '../../lib/auth/SessionProvider'
+import { roleLabel } from '../../lib/auth/portals'
 
 interface TeacherHeaderProps {
-  name?: string
   subtitle?: string
 }
 
-export function TeacherHeader({
-  name = 'Prof. Sharma',
-  subtitle = 'Course Instructor & Faculty Mentor at Apex University',
-}: TeacherHeaderProps) {
+export function TeacherHeader({ subtitle }: TeacherHeaderProps) {
+  const { user, role } = useSession()
+  const name = user?.full_name ?? ''
+  subtitle = subtitle ?? roleLabel(role)
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 font-sans select-none">
       <div>
@@ -23,8 +23,6 @@ export function TeacherHeader({
       </div>
 
       <div className="flex items-center gap-2.5">
-        {/* Role Switcher supporting all 4 portals */}
-        <RoleSwitcher />
 
         {/* Help icon button */}
         <button

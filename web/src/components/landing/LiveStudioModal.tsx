@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { useSession } from '../../lib/auth/SessionProvider'
 
 interface ChatMessage {
   id: string
@@ -23,7 +24,8 @@ interface ChatMessage {
 }
 
 export function LiveStudioModal() {
-  const { activeLiveModal, setActiveLiveModal, addToast, currentUser } = useApp()
+  const { activeLiveModal, setActiveLiveModal, addToast } = useApp()
+  const { user, role } = useSession()
   const [isMuted, setIsMuted] = useState(false)
   const [handRaised, setHandRaised] = useState(false)
   const [chatInput, setChatInput] = useState('')
@@ -58,29 +60,13 @@ export function LiveStudioModal() {
 
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
-      sender: currentUser.name,
+      sender: user?.full_name ?? 'Guest',
       text: chatInput,
       time: 'Just now',
-      isInstructor: currentUser.role === 'instructor',
+      isInstructor: (role === 'faculty' || role === 'mentor' || role === 'hod'),
     }
     setMessages((prev) => [...prev, newMsg])
     setChatInput('')
-
-    // Simulate occasional live instructor reply
-    if (currentUser.role === 'student') {
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `msg-${Date.now() + 1}`,
-            sender: activeLiveModal.instructor,
-            text: `Great point @${currentUser.name}! Let me demonstrate that on the whiteboard right now.`,
-            time: 'Just now',
-            isInstructor: true,
-          },
-        ])
-      }, 2500)
-    }
   }
 
   const toggleHandRaise = () => {
