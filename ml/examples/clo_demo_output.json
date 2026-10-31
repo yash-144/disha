@@ -1,0 +1,2979 @@
+{
+ "schema_version": "1.0",
+ "course_id": "CS201",
+ "term_id": "2026-odd",
+ "as_of_day": null,
+ "n_students": 60,
+ "sections": [
+  "A",
+  "B"
+ ],
+ "config": {
+  "default_target_pct": 60.0,
+  "level_cuts": [
+   70.0,
+   60.0,
+   50.0
+  ],
+  "kind_weights": {
+   "internal": 0.4,
+   "end_sem": 0.6
+  },
+  "end_sem_keywords": [
+   "see",
+   "end",
+   "exam",
+   "final"
+  ],
+  "top_bottom_frac": 0.27,
+  "teaching_gap_p_top": 0.5,
+  "student_gap_p_top": 0.7,
+  "student_gap_p_bottom": 0.4,
+  "low_discrimination": 0.15,
+  "ceiling_p": 0.9,
+  "misconception_share": 0.3,
+  "min_group_size": 5,
+  "trend_delta_pts": 10.0,
+  "section_gap_pts": 15.0,
+  "bloom_low_max": 2,
+  "bloom_gap_pts": 20.0,
+  "max_recommendations": 12
+ },
+ "co_attainment": [
+  {
+   "co_id": "CO1",
+   "description": "Arrays and complexity",
+   "target_pct": 60.0,
+   "n_students": 60,
+   "attainment_pct": 65.0,
+   "level": 2,
+   "mean_pct": 68.3,
+   "by_kind": {
+    "internal": 60.0,
+    "end_sem": 71.7
+   },
+   "p_top": 0.863,
+   "p_bottom": 0.529,
+   "gap_type": "ok",
+   "questions": [
+    "Q1",
+    "Q2",
+    "Q7",
+    "Q15",
+    "Q16",
+    "Q21",
+    "Q29",
+    "Q30",
+    "Q35"
+   ],
+   "weak_questions": [
+    "Q1",
+    "Q15",
+    "Q21"
+   ]
+  },
+  {
+   "co_id": "CO2",
+   "description": "Stacks and queues",
+   "target_pct": 60.0,
+   "n_students": 60,
+   "attainment_pct": 45.0,
+   "level": 0,
+   "mean_pct": 55.7,
+   "by_kind": {
+    "internal": 48.3,
+    "end_sem": 51.7
+   },
+   "p_top": 0.835,
+   "p_bottom": 0.269,
+   "gap_type": "student_gap",
+   "questions": [
+    "Q3",
+    "Q6",
+    "Q17",
+    "Q20",
+    "Q31",
+    "Q34"
+   ],
+   "weak_questions": [
+    "Q3",
+    "Q6",
+    "Q17",
+    "Q20",
+    "Q31",
+    "Q34"
+   ]
+  },
+  {
+   "co_id": "CO3",
+   "description": "Recursion",
+   "target_pct": 60.0,
+   "n_students": 60,
+   "attainment_pct": 1.7,
+   "level": 0,
+   "mean_pct": 36.7,
+   "by_kind": {
+    "internal": 3.3,
+    "end_sem": 8.3
+   },
+   "p_top": 0.443,
+   "p_bottom": 0.299,
+   "gap_type": "teaching_gap",
+   "questions": [
+    "Q4",
+    "Q5",
+    "Q18",
+    "Q19",
+    "Q32",
+    "Q33"
+   ],
+   "weak_questions": [
+    "Q4",
+    "Q5",
+    "Q32",
+    "Q33"
+   ]
+  },
+  {
+   "co_id": "CO4",
+   "description": "Trees and graphs",
+   "target_pct": 60.0,
+   "n_students": 60,
+   "attainment_pct": 23.3,
+   "level": 0,
+   "mean_pct": 52.9,
+   "by_kind": {
+    "internal": 23.3,
+    "end_sem": 33.3
+   },
+   "p_top": 0.636,
+   "p_bottom": 0.417,
+   "gap_type": "ok",
+   "questions": [
+    "Q8",
+    "Q9",
+    "Q10",
+    "Q11",
+    "Q22",
+    "Q23",
+    "Q24",
+    "Q25",
+    "Q36",
+    "Q37",
+    "Q38",
+    "Q39"
+   ],
+   "weak_questions": [
+    "Q10",
+    "Q11",
+    "Q24",
+    "Q25",
+    "Q38",
+    "Q39"
+   ]
+  },
+  {
+   "co_id": "CO5",
+   "description": "Sorting and searching",
+   "target_pct": 60.0,
+   "n_students": 60,
+   "attainment_pct": 63.3,
+   "level": 2,
+   "mean_pct": 63.3,
+   "by_kind": {
+    "internal": 91.7,
+    "end_sem": 41.7
+   },
+   "p_top": 0.732,
+   "p_bottom": 0.536,
+   "gap_type": "ok",
+   "questions": [
+    "Q12",
+    "Q13",
+    "Q14",
+    "Q26",
+    "Q27",
+    "Q28",
+    "Q40",
+    "Q41",
+    "Q42"
+   ],
+   "weak_questions": []
+  }
+ ],
+ "items": [
+  {
+   "question_id": "Q1",
+   "assessment_id": "IA1",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.6,
+   "p_top": 0.812,
+   "p_bottom": 0.312,
+   "discrimination": 0.5,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q2",
+   "assessment_id": "IA1",
+   "co_id": "CO1",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.747,
+   "p_top": 0.863,
+   "p_bottom": 0.637,
+   "discrimination": 0.225,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q3",
+   "assessment_id": "IA1",
+   "co_id": "CO2",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.557,
+   "p_top": 0.875,
+   "p_bottom": 0.263,
+   "discrimination": 0.613,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q4",
+   "assessment_id": "IA1",
+   "co_id": "CO3",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.268,
+   "p_top": 0.362,
+   "p_bottom": 0.206,
+   "discrimination": 0.156,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q5",
+   "assessment_id": "IA1",
+   "co_id": "CO3",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.265,
+   "p_top": 0.369,
+   "p_bottom": 0.188,
+   "discrimination": 0.181,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q6",
+   "assessment_id": "IA1",
+   "co_id": "CO2",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.533,
+   "p_top": 0.812,
+   "p_bottom": 0.225,
+   "discrimination": 0.588,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q7",
+   "assessment_id": "IA1",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.25,
+   "p_top": 0.562,
+   "p_bottom": 0.062,
+   "discrimination": 0.5,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q8",
+   "assessment_id": "IA1",
+   "co_id": "CO4",
+   "bloom_level": 1,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.76,
+   "p_top": 0.863,
+   "p_bottom": 0.637,
+   "discrimination": 0.225,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q9",
+   "assessment_id": "IA1",
+   "co_id": "CO4",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.79,
+   "p_top": 0.931,
+   "p_bottom": 0.65,
+   "discrimination": 0.281,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q10",
+   "assessment_id": "IA1",
+   "co_id": "CO4",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.282,
+   "p_top": 0.394,
+   "p_bottom": 0.15,
+   "discrimination": 0.244,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q11",
+   "assessment_id": "IA1",
+   "co_id": "CO4",
+   "bloom_level": 4,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.283,
+   "p_top": 0.419,
+   "p_bottom": 0.138,
+   "discrimination": 0.281,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q12",
+   "assessment_id": "IA1",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.783,
+   "p_top": 0.9,
+   "p_bottom": 0.662,
+   "discrimination": 0.238,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q13",
+   "assessment_id": "IA1",
+   "co_id": "CO5",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.795,
+   "p_top": 0.912,
+   "p_bottom": 0.656,
+   "discrimination": 0.256,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q14",
+   "assessment_id": "IA1",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.803,
+   "p_top": 0.912,
+   "p_bottom": 0.7,
+   "discrimination": 0.213,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q15",
+   "assessment_id": "IA2",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.633,
+   "p_top": 0.812,
+   "p_bottom": 0.375,
+   "discrimination": 0.438,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q16",
+   "assessment_id": "IA2",
+   "co_id": "CO1",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.735,
+   "p_top": 0.831,
+   "p_bottom": 0.619,
+   "discrimination": 0.213,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q17",
+   "assessment_id": "IA2",
+   "co_id": "CO2",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.558,
+   "p_top": 0.812,
+   "p_bottom": 0.275,
+   "discrimination": 0.537,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q18",
+   "assessment_id": "IA2",
+   "co_id": "CO3",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.438,
+   "p_top": 0.544,
+   "p_bottom": 0.331,
+   "discrimination": 0.212,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q19",
+   "assessment_id": "IA2",
+   "co_id": "CO3",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.465,
+   "p_top": 0.544,
+   "p_bottom": 0.394,
+   "discrimination": 0.15,
+   "gap_type": "ok",
+   "flag": "low_discrimination"
+  },
+  {
+   "question_id": "Q20",
+   "assessment_id": "IA2",
+   "co_id": "CO2",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.567,
+   "p_top": 0.844,
+   "p_bottom": 0.263,
+   "discrimination": 0.581,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q21",
+   "assessment_id": "IA2",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.683,
+   "p_top": 0.812,
+   "p_bottom": 0.375,
+   "discrimination": 0.438,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q22",
+   "assessment_id": "IA2",
+   "co_id": "CO4",
+   "bloom_level": 1,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.777,
+   "p_top": 0.85,
+   "p_bottom": 0.656,
+   "discrimination": 0.194,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q23",
+   "assessment_id": "IA2",
+   "co_id": "CO4",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.778,
+   "p_top": 0.85,
+   "p_bottom": 0.688,
+   "discrimination": 0.162,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q24",
+   "assessment_id": "IA2",
+   "co_id": "CO4",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.302,
+   "p_top": 0.381,
+   "p_bottom": 0.225,
+   "discrimination": 0.156,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q25",
+   "assessment_id": "IA2",
+   "co_id": "CO4",
+   "bloom_level": 4,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.27,
+   "p_top": 0.356,
+   "p_bottom": 0.163,
+   "discrimination": 0.194,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q26",
+   "assessment_id": "IA2",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.668,
+   "p_top": 0.762,
+   "p_bottom": 0.544,
+   "discrimination": 0.219,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q27",
+   "assessment_id": "IA2",
+   "co_id": "CO5",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.658,
+   "p_top": 0.719,
+   "p_bottom": 0.537,
+   "discrimination": 0.181,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q28",
+   "assessment_id": "IA2",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.667,
+   "p_top": 0.756,
+   "p_bottom": 0.606,
+   "discrimination": 0.15,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q29",
+   "assessment_id": "SEE",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.55,
+   "p_top": 0.812,
+   "p_bottom": 0.438,
+   "discrimination": 0.375,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q30",
+   "assessment_id": "SEE",
+   "co_id": "CO1",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.778,
+   "p_top": 0.9,
+   "p_bottom": 0.669,
+   "discrimination": 0.231,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q31",
+   "assessment_id": "SEE",
+   "co_id": "CO2",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.555,
+   "p_top": 0.863,
+   "p_bottom": 0.263,
+   "discrimination": 0.6,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q32",
+   "assessment_id": "SEE",
+   "co_id": "CO3",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.358,
+   "p_top": 0.412,
+   "p_bottom": 0.3,
+   "discrimination": 0.112,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q33",
+   "assessment_id": "SEE",
+   "co_id": "CO3",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.385,
+   "p_top": 0.456,
+   "p_bottom": 0.325,
+   "discrimination": 0.131,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q34",
+   "assessment_id": "SEE",
+   "co_id": "CO2",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.563,
+   "p_top": 0.806,
+   "p_bottom": 0.294,
+   "discrimination": 0.512,
+   "gap_type": "student_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q35",
+   "assessment_id": "SEE",
+   "co_id": "CO1",
+   "bloom_level": 1,
+   "type": "mcq",
+   "max_marks": 2.0,
+   "n": 60,
+   "difficulty_p": 0.667,
+   "p_top": 1.0,
+   "p_bottom": 0.438,
+   "discrimination": 0.562,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q36",
+   "assessment_id": "SEE",
+   "co_id": "CO4",
+   "bloom_level": 1,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.782,
+   "p_top": 0.887,
+   "p_bottom": 0.656,
+   "discrimination": 0.231,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q37",
+   "assessment_id": "SEE",
+   "co_id": "CO4",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.78,
+   "p_top": 0.894,
+   "p_bottom": 0.694,
+   "discrimination": 0.2,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q38",
+   "assessment_id": "SEE",
+   "co_id": "CO4",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.275,
+   "p_top": 0.381,
+   "p_bottom": 0.163,
+   "discrimination": 0.219,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q39",
+   "assessment_id": "SEE",
+   "co_id": "CO4",
+   "bloom_level": 4,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.275,
+   "p_top": 0.394,
+   "p_bottom": 0.169,
+   "discrimination": 0.225,
+   "gap_type": "teaching_gap",
+   "flag": null
+  },
+  {
+   "question_id": "Q40",
+   "assessment_id": "SEE",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.56,
+   "p_top": 0.662,
+   "p_bottom": 0.481,
+   "discrimination": 0.181,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q41",
+   "assessment_id": "SEE",
+   "co_id": "CO5",
+   "bloom_level": 3,
+   "type": "descriptive",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.57,
+   "p_top": 0.662,
+   "p_bottom": 0.487,
+   "discrimination": 0.175,
+   "gap_type": "ok",
+   "flag": null
+  },
+  {
+   "question_id": "Q42",
+   "assessment_id": "SEE",
+   "co_id": "CO5",
+   "bloom_level": 2,
+   "type": "rubric",
+   "max_marks": 5.0,
+   "n": 60,
+   "difficulty_p": 0.578,
+   "p_top": 0.681,
+   "p_bottom": 0.475,
+   "discrimination": 0.206,
+   "gap_type": "ok",
+   "flag": null
+  }
+ ],
+ "bloom": {
+  "levels": {
+   "1": "remember",
+   "2": "understand",
+   "3": "apply",
+   "4": "analyse",
+   "5": "evaluate",
+   "6": "create"
+  },
+  "cells": [
+   {
+    "co_id": "CO1",
+    "bloom_level": 1,
+    "bloom_name": "remember",
+    "n_students": 60,
+    "attainment_pct": 56.7
+   },
+   {
+    "co_id": "CO1",
+    "bloom_level": 2,
+    "bloom_name": "understand",
+    "n_students": 60,
+    "attainment_pct": 91.7
+   },
+   {
+    "co_id": "CO2",
+    "bloom_level": 2,
+    "bloom_name": "understand",
+    "n_students": 60,
+    "attainment_pct": 45.0
+   },
+   {
+    "co_id": "CO2",
+    "bloom_level": 3,
+    "bloom_name": "apply",
+    "n_students": 60,
+    "attainment_pct": 46.7
+   },
+   {
+    "co_id": "CO3",
+    "bloom_level": 2,
+    "bloom_name": "understand",
+    "n_students": 60,
+    "attainment_pct": 6.7
+   },
+   {
+    "co_id": "CO3",
+    "bloom_level": 3,
+    "bloom_name": "apply",
+    "n_students": 60,
+    "attainment_pct": 1.7
+   },
+   {
+    "co_id": "CO4",
+    "bloom_level": 1,
+    "bloom_name": "remember",
+    "n_students": 60,
+    "attainment_pct": 95.0
+   },
+   {
+    "co_id": "CO4",
+    "bloom_level": 2,
+    "bloom_name": "understand",
+    "n_students": 60,
+    "attainment_pct": 96.7
+   },
+   {
+    "co_id": "CO4",
+    "bloom_level": 3,
+    "bloom_name": "apply",
+    "n_students": 60,
+    "attainment_pct": 0.0
+   },
+   {
+    "co_id": "CO4",
+    "bloom_level": 4,
+    "bloom_name": "analyse",
+    "n_students": 60,
+    "attainment_pct": 0.0
+   },
+   {
+    "co_id": "CO5",
+    "bloom_level": 2,
+    "bloom_name": "understand",
+    "n_students": 60,
+    "attainment_pct": 68.3
+   },
+   {
+    "co_id": "CO5",
+    "bloom_level": 3,
+    "bloom_name": "apply",
+    "n_students": 60,
+    "attainment_pct": 65.0
+   }
+  ],
+  "insights": [
+   {
+    "co_id": "CO4",
+    "low_pct": 96.7,
+    "high_pct": 0.0,
+    "text": "CO4: fine on remember/understand (97% reach the target), weak on apply/analyse (0%)"
+   }
+  ]
+ },
+ "misconceptions": [
+  {
+   "question_id": "Q7",
+   "co_id": "CO1",
+   "correct_option": "A",
+   "option": "B",
+   "share_pct": 58.3,
+   "n_answered": 60,
+   "flagged": true,
+   "top_pct": 25.0,
+   "bottom_pct": 93.8
+  },
+  {
+   "question_id": "Q29",
+   "co_id": "CO1",
+   "correct_option": "C",
+   "option": "D",
+   "share_pct": 20.0,
+   "n_answered": 60,
+   "flagged": false,
+   "top_pct": 6.2,
+   "bottom_pct": 31.2
+  },
+  {
+   "question_id": "Q1",
+   "co_id": "CO1",
+   "correct_option": "C",
+   "option": "A",
+   "share_pct": 18.3,
+   "n_answered": 60,
+   "flagged": false,
+   "top_pct": 0.0,
+   "bottom_pct": 37.5
+  },
+  {
+   "question_id": "Q15",
+   "co_id": "CO1",
+   "correct_option": "C",
+   "option": "A",
+   "share_pct": 16.7,
+   "n_answered": 60,
+   "flagged": false,
+   "top_pct": 6.2,
+   "bottom_pct": 31.2
+  },
+  {
+   "question_id": "Q35",
+   "co_id": "CO1",
+   "correct_option": "A",
+   "option": "B",
+   "share_pct": 16.7,
+   "n_answered": 60,
+   "flagged": false,
+   "top_pct": 0.0,
+   "bottom_pct": 31.2
+  },
+  {
+   "question_id": "Q21",
+   "co_id": "CO1",
+   "correct_option": "A",
+   "option": "B",
+   "share_pct": 11.7,
+   "n_answered": 60,
+   "flagged": false,
+   "top_pct": 0.0,
+   "bottom_pct": 25.0
+  }
+ ],
+ "trends": [
+  {
+   "co_id": "CO1",
+   "points": [
+    {
+     "assessment_id": "IA1",
+     "due_day": 30,
+     "kind": "internal",
+     "attainment_pct": 58.3,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "IA2",
+     "due_day": 60,
+     "kind": "internal",
+     "attainment_pct": 70.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "SEE",
+     "due_day": 110,
+     "kind": "end_sem",
+     "attainment_pct": 71.7,
+     "n_students": 60
+    }
+   ],
+   "status": "improving",
+   "delta_pts": 13.4
+  },
+  {
+   "co_id": "CO2",
+   "points": [
+    {
+     "assessment_id": "IA1",
+     "due_day": 30,
+     "kind": "internal",
+     "attainment_pct": 45.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "IA2",
+     "due_day": 60,
+     "kind": "internal",
+     "attainment_pct": 50.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "SEE",
+     "due_day": 110,
+     "kind": "end_sem",
+     "attainment_pct": 51.7,
+     "n_students": 60
+    }
+   ],
+   "status": "steady",
+   "delta_pts": 6.7
+  },
+  {
+   "co_id": "CO3",
+   "points": [
+    {
+     "assessment_id": "IA1",
+     "due_day": 30,
+     "kind": "internal",
+     "attainment_pct": 0.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "IA2",
+     "due_day": 60,
+     "kind": "internal",
+     "attainment_pct": 40.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "SEE",
+     "due_day": 110,
+     "kind": "end_sem",
+     "attainment_pct": 8.3,
+     "n_students": 60
+    }
+   ],
+   "status": "steady",
+   "delta_pts": 8.3
+  },
+  {
+   "co_id": "CO4",
+   "points": [
+    {
+     "assessment_id": "IA1",
+     "due_day": 30,
+     "kind": "internal",
+     "attainment_pct": 28.3,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "IA2",
+     "due_day": 60,
+     "kind": "internal",
+     "attainment_pct": 30.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "SEE",
+     "due_day": 110,
+     "kind": "end_sem",
+     "attainment_pct": 33.3,
+     "n_students": 60
+    }
+   ],
+   "status": "steady",
+   "delta_pts": 5.0
+  },
+  {
+   "co_id": "CO5",
+   "points": [
+    {
+     "assessment_id": "IA1",
+     "due_day": 30,
+     "kind": "internal",
+     "attainment_pct": 96.7,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "IA2",
+     "due_day": 60,
+     "kind": "internal",
+     "attainment_pct": 80.0,
+     "n_students": 60
+    },
+    {
+     "assessment_id": "SEE",
+     "due_day": 110,
+     "kind": "end_sem",
+     "attainment_pct": 41.7,
+     "n_students": 60
+    }
+   ],
+   "status": "declining",
+   "delta_pts": -55.0
+  }
+ ],
+ "section_comparison": [
+  {
+   "co_id": "CO1",
+   "sections": [
+    {
+     "section": "A",
+     "n_students": 30,
+     "attainment_pct": 56.7,
+     "level": 1,
+     "trend": "improving",
+     "delta_pts": 13.3
+    },
+    {
+     "section": "B",
+     "n_students": 30,
+     "attainment_pct": 73.3,
+     "level": 3,
+     "trend": "improving",
+     "delta_pts": 13.3
+    }
+   ],
+   "insight": "CO1: 73% of section B reached the target vs 57% in section A. See what worked in section B."
+  },
+  {
+   "co_id": "CO2",
+   "sections": [
+    {
+     "section": "A",
+     "n_students": 30,
+     "attainment_pct": 40.0,
+     "level": 0,
+     "trend": "steady",
+     "delta_pts": 6.7
+    },
+    {
+     "section": "B",
+     "n_students": 30,
+     "attainment_pct": 50.0,
+     "level": 1,
+     "trend": "steady",
+     "delta_pts": 6.6
+    }
+   ],
+   "insight": null
+  },
+  {
+   "co_id": "CO3",
+   "sections": [
+    {
+     "section": "A",
+     "n_students": 30,
+     "attainment_pct": 3.3,
+     "level": 0,
+     "trend": "improving",
+     "delta_pts": 16.7
+    },
+    {
+     "section": "B",
+     "n_students": 30,
+     "attainment_pct": 0.0,
+     "level": 0,
+     "trend": "steady",
+     "delta_pts": 0.0
+    }
+   ],
+   "insight": null
+  },
+  {
+   "co_id": "CO4",
+   "sections": [
+    {
+     "section": "A",
+     "n_students": 30,
+     "attainment_pct": 23.3,
+     "level": 0,
+     "trend": "steady",
+     "delta_pts": 10.0
+    },
+    {
+     "section": "B",
+     "n_students": 30,
+     "attainment_pct": 23.3,
+     "level": 0,
+     "trend": "steady",
+     "delta_pts": 0.0
+    }
+   ],
+   "insight": null
+  },
+  {
+   "co_id": "CO5",
+   "sections": [
+    {
+     "section": "A",
+     "n_students": 30,
+     "attainment_pct": 66.7,
+     "level": 2,
+     "trend": "declining",
+     "delta_pts": -60.0
+    },
+    {
+     "section": "B",
+     "n_students": 30,
+     "attainment_pct": 60.0,
+     "level": 2,
+     "trend": "declining",
+     "delta_pts": -50.0
+    }
+   ],
+   "insight": null
+  }
+ ],
+ "muddiest": {
+  "items": [
+   {
+    "key": "CO3",
+    "label": "CO3 (Recursion)",
+    "n_students": 24
+   },
+   {
+    "key": "CO4",
+    "label": "CO4 (Trees and graphs)",
+    "n_students": 9
+   },
+   {
+    "key": "base cases",
+    "label": "base cases",
+    "n_students": 6
+   }
+  ],
+  "suppressed": 1
+ },
+ "learnings": [
+  {
+   "co_id": "CO3",
+   "section": "A",
+   "action": "re-teach with worked examples",
+   "day": 40,
+   "before_pct": 0.0,
+   "after_pct": 80.0,
+   "before_level": 0,
+   "after_level": 3,
+   "improved": true
+  }
+ ],
+ "recommendations": [
+  {
+   "code": "RETEACH",
+   "severity": "high",
+   "co_id": "CO3",
+   "text": "Re-teach CO3 (Recursion): only 2% reached the target; even the top quarter averaged 36% on Q4 \u2014 teaching gap",
+   "evidence": {
+    "attainment_pct": 1.7,
+    "p_top": 0.362,
+    "questions": [
+     "Q4",
+     "Q5",
+     "Q32",
+     "Q33"
+    ]
+   }
+  },
+  {
+   "code": "MISCONCEPTION",
+   "severity": "medium",
+   "co_id": "CO1",
+   "text": "Q7 (CO1): 58% chose option B (correct: A) \u2014 address this distractor",
+   "evidence": {
+    "question_id": "Q7",
+    "option": "B",
+    "share_pct": 58.3
+   }
+  },
+  {
+   "code": "REMEDIAL",
+   "severity": "medium",
+   "co_id": "CO2",
+   "text": "CO2 (Stacks and queues): top students are fine (84%), 16 students below 40% \u2014 schedule remedial support",
+   "evidence": {
+    "p_top": 0.835,
+    "p_bottom": 0.269,
+    "n_below": 16
+   }
+  },
+  {
+   "code": "BLOOM",
+   "severity": "medium",
+   "co_id": "CO4",
+   "text": "CO4: fine on remember/understand (97% reach the target), weak on apply/analyse (0%) \u2014 add worked, applied problems",
+   "evidence": {
+    "low_pct": 96.7,
+    "high_pct": 0.0
+   }
+  },
+  {
+   "code": "DECLINING",
+   "severity": "medium",
+   "co_id": "CO5",
+   "text": "CO5 (Sorting and searching): attainment fell from 97% to 42% across assessments \u2014 check what changed",
+   "evidence": {
+    "delta_pts": -55.0
+   }
+  },
+  {
+   "code": "SECTION",
+   "severity": "low",
+   "co_id": "CO1",
+   "text": "CO1: 73% of section B reached the target vs 57% in section A. See what worked in section B.",
+   "evidence": {}
+  },
+  {
+   "code": "AMBIGUOUS_ITEM",
+   "severity": "low",
+   "co_id": "CO3",
+   "text": "Q19 may be ambiguous (low discrimination, D=0.15) \u2014 check its wording and key",
+   "evidence": {
+    "question_id": "Q19",
+    "d": 0.15
+   }
+  },
+  {
+   "code": "MUDDIEST",
+   "severity": "low",
+   "co_id": "CO3",
+   "text": "24 students named CO3 (Recursion) as their muddiest point",
+   "evidence": {
+    "n_students": 24
+   }
+  },
+  {
+   "code": "WORKED",
+   "severity": "low",
+   "co_id": "CO3",
+   "text": "CO3 in section A: re-teach with worked examples on day 40 was followed by attainment 0% \u2192 80% (level 0 \u2192 3)",
+   "evidence": {
+    "action": "re-teach with worked examples"
+   }
+  },
+  {
+   "code": "MUDDIEST",
+   "severity": "low",
+   "co_id": "CO4",
+   "text": "9 students named CO4 (Trees and graphs) as their muddiest point",
+   "evidence": {
+    "n_students": 9
+   }
+  },
+  {
+   "code": "MUDDIEST",
+   "severity": "low",
+   "co_id": null,
+   "text": "6 students named base cases as their muddiest point",
+   "evidence": {
+    "n_students": 6
+   }
+  }
+ ],
+ "student_gaps": {
+  "audience": "mentor",
+  "students": [
+   {
+    "student_id": "S027",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 0.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 0.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 31.1,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 32.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 35.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 43.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S019",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 4.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 4.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 33.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 35.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 43.3,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 47.8,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S021",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 10.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 10.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 30.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 35.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 47.3,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 47.8,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S046",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 15.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 15.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 23.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 40.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 41.1,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 58.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S010",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 18.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 18.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 41.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 47.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 57.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S020",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 18.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 18.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 41.1,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 43.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 48.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S032",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 18.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 18.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 43.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 46.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 58.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S004",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 19.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 19.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 37.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 41.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 54.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S022",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 20.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 20.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 53.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S028",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 20.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 20.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 48.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 50.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 58.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S036",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 21.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 21.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 33.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 41.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S014",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 22.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 22.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 33.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 48.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 56.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S018",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 22.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 22.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 47.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 56.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S060",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 22.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 22.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 38.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 56.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S026",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 23.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 23.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 51.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 53.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 54.4,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S040",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 23.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 23.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 52.2,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 55.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 55.3,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 59.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S006",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 24.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 24.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 32.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 48.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 48.9,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 56.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S024",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 58.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S031",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 35.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 40.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 56.7,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 56.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S034",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 46.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 47.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 55.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S044",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 53.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S048",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 57.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S052",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 25.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 25.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 36.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 41.1,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 42.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 57.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S042",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 27.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 27.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 57.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S017",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 29.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 29.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 42.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 43.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 54.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S030",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 29.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 29.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 47.8,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 55.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S043",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 29.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 29.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 43.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 58.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S056",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 29.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 29.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S058",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 29.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 29.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 59.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S002",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 32.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 32.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S012",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 32.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 32.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S054",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 32.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 32.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 58.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S033",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 34.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 34.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 41.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 47.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 52.7,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 56.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S023",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 35.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 35.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 38.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 43.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 53.3,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 53.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S016",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 37.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 37.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S038",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 37.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 37.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S008",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 40.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 40.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S050",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 41.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 41.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S005",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 42.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 42.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 44.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 54.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 59.3,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S009",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 43.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 43.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 46.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 51.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 55.6,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S011",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 45.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 45.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S015",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 45.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 45.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 47.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S039",
+    "weakest_co": "CO2",
+    "weakest_co_pct": 45.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 45.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 49.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 50.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S049",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 45.0,
+    "n_cos_below_target": 5,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 45.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 46.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 47.8,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 49.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO5",
+      "description": "Sorting and searching",
+      "pct": 58.7,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S055",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 46.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 46.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 59.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S007",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 47.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 47.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 59.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S057",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 47.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 47.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 49.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 58.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 58.9,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S029",
+    "weakest_co": "CO1",
+    "weakest_co_pct": 47.8,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 47.8,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 53.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S003",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 49.0,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 49.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 52.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 55.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 57.8,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S053",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 49.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 49.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 51.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S025",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 50.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 55.5,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S041",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 50.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 50.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 58.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 59.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S037",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 51.0,
+    "n_cos_below_target": 3,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 51.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 52.5,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 57.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S045",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 53.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 53.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S001",
+    "weakest_co": "CO1",
+    "weakest_co_pct": 53.3,
+    "n_cos_below_target": 4,
+    "weak_cos": [
+     {
+      "co_id": "CO1",
+      "description": "Arrays and complexity",
+      "pct": 53.3,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 55.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO2",
+      "description": "Stacks and queues",
+      "pct": 59.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 59.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S035",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 54.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 54.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S013",
+    "weakest_co": "CO4",
+    "weakest_co_pct": 55.0,
+    "n_cos_below_target": 2,
+    "weak_cos": [
+     {
+      "co_id": "CO4",
+      "description": "Trees and graphs",
+      "pct": 55.0,
+      "target_pct": 60.0
+     },
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 56.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S051",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 56.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 56.0,
+      "target_pct": 60.0
+     }
+    ]
+   },
+   {
+    "student_id": "S047",
+    "weakest_co": "CO3",
+    "weakest_co_pct": 57.0,
+    "n_cos_below_target": 1,
+    "weak_cos": [
+     {
+      "co_id": "CO3",
+      "description": "Recursion",
+      "pct": 57.0,
+      "target_pct": 60.0
+     }
+    ]
+   }
+  ]
+ },
+ "context": {
+  "meko": "off",
+  "recalled": []
+ },
+ "suppressed": {
+  "min_group_size": 5,
+  "sections_hidden": 0,
+  "muddiest_hidden": 1
+ }
+}

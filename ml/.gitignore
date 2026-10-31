@@ -1,6 +1,12 @@
 artifacts/
+artifacts_upv/
+data/raw/upv/
 scored*.csv
 demo_scored_*.csv
 mapping.json
 __pycache__/
 .pytest_cache/
+artifacts_rolling/
+data/raw/oulad/*
+!data/raw/oulad/SOURCE.md
+data/processed/oulad/

@@ -36,6 +36,7 @@ from .evaluate import calibration_table, fairness_report, score_metrics, signal_
 from .explain import reference_values
 from .features import build_features, explanation_groups, feature_columns
 from .labels import make_label
+from . import meko_hooks
 from .models import build_estimator, calibrated
 from .rules import rule_count
 from .signal import assign_tiers
@@ -227,6 +228,10 @@ def render_report(m: Dict) -> str:
         "",
         "## Test split (never used for training or cutoffs)",
         "",
+        ("Time-based split: trained on earlier cohorts, tested on cohort "
+         f"{m['config']['test_cohort']}." if m["config"].get("test_cohort")
+         else f"Random stratified split: {m['config']['test_size']:.0%} of students held out."),
+        "",
         f"| Students | At-risk rate | ROC AUC | PR AUC | Brier |",
         f"|---|---|---|---|---|",
         f"| {t['n']} | {_pct(t['base_rate'])} | {_num(t['roc_auc'])} | {_num(t['pr_auc'])} | {_num(t['brier'])} |",
@@ -274,6 +279,24 @@ def render_report(m: Dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def split_indices(df: pd.DataFrame, y: pd.Series, cfg: TrainConfig):
+    """Random stratified split, or a time-based split on cohort_year."""
+    if cfg.test_cohort is None:
+        tr, te = train_test_split(df.index.to_numpy(), test_size=cfg.test_size, stratify=y, random_state=cfg.seed)
+        return tr, te, f"random stratified, {cfg.test_size:.0%} test"
+    if "cohort_year" not in df.columns:
+        raise ValueError("--test-cohort needs a cohort_year column in the data.")
+    years = pd.to_numeric(df["cohort_year"], errors="coerce")
+    target = float(cfg.test_cohort)
+    te = df.index[years == target].to_numpy()
+    tr = df.index[years < target].to_numpy()
+    if len(te) == 0 or len(tr) == 0:
+        raise ValueError(f"Time split needs students before and in cohort {cfg.test_cohort}; "
+                         f"found {len(tr)} before and {len(te)} in it.")
+    train_years = sorted({int(v) for v in years[years < target].dropna()})
+    return tr, te, f"time-based: train on cohorts {train_years}, test on cohort {cfg.test_cohort}"
+
+
 def run(data: str, out: str, checkpoints: List[str], cfg: TrainConfig, mapping: Dict | None = None) -> List[Dict]:
     df = load_dataset(data, mapping=mapping).reset_index(drop=True)
     y = make_label(df, cfg.label)
@@ -285,9 +308,9 @@ def run(data: str, out: str, checkpoints: List[str], cfg: TrainConfig, mapping: 
     if skipped:
         print(f"Skipping {skipped}: the data lacks that semester's results for most students.")
     checkpoints = [cp for cp in checkpoints if cp in supported]
-    train_idx, test_idx = train_test_split(
-        df.index.to_numpy(), test_size=cfg.test_size, stratify=y, random_state=cfg.seed
-    )
+    train_idx, test_idx, split_note = split_indices(df, y, cfg)
+    print(f"Split: {split_note}")
+    meko_hooks.recall_prior_runs(cfg.label, cfg.model, Path(data).name)
     out_dir = Path(out)
     data_sha = file_sha256(data)
     results = []
@@ -305,6 +328,7 @@ def run(data: str, out: str, checkpoints: List[str], cfg: TrainConfig, mapping: 
             print(f"      - {reason}")
         for note in r["release"]["advisories"]:
             print(f"      note: {note}")
+    meko_hooks.record_training(results, cfg, data, out)
     return results
 
 
@@ -319,8 +343,13 @@ def main(argv=None) -> None:
     ap.add_argument("--calibration", default="isotonic", choices=["isotonic", "sigmoid"])
     ap.add_argument("--high-precision", type=float, default=None)
     ap.add_argument("--capacity-share", type=float, default=None)
+    ap.add_argument("--test-cohort", default=None,
+                    help="time-based test: train on earlier cohort_year values, test on this one")
+    ap.add_argument("--no-meko", action="store_true", help="do not read from or write to Meko")
     a = ap.parse_args(argv)
-    cfg = TrainConfig(label=a.label, model=a.model, calibration=a.calibration)
+    if a.no_meko:
+        meko_hooks.disable()
+    cfg = TrainConfig(label=a.label, model=a.model, calibration=a.calibration, test_cohort=a.test_cohort)
     if a.high_precision is not None:
         cfg.tiers.high_precision = a.high_precision
     if a.capacity_share is not None:

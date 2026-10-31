@@ -9,6 +9,9 @@ from app.modules.roster.routes import router as roster_router
 from app.modules.ingestion.routes import router as ingestion_router
 from app.modules.analytics.routes import router as analytics_router
 from app.modules.wellbeing.routes import router as wellbeing_router
+from app.modules.meko.routes import router as meko_router
+from app.modules.translate.routes import router as translate_router
+from app.core.meko import meko_lifespan
 from app.modules.student.routes import router as student_router
 from app.modules.faculty.routes import router as faculty_router
 from app.modules.audit.routes import router as audit_router
@@ -18,7 +21,8 @@ app = FastAPI(
     description="DISHA — Student Early-Warning & Intervention Platform API",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=meko_lifespan,
 )
 
 # Middleware
@@ -54,4 +58,6 @@ app.include_router(roster_router, prefix="/api/v1/roster", tags=["Roster"])
 app.include_router(ingestion_router, prefix="/api/v1/ingestion", tags=["Ingestion"])
 app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["Analytics"])
 app.include_router(wellbeing_router, prefix="/api/v1/wellbeing", tags=["Wellbeing"])
+app.include_router(meko_router, prefix="/api/v1/meko", tags=["Meko"])
+app.include_router(translate_router, prefix="/api/v1/translate", tags=["Translate"])
 app.include_router(audit_router, prefix="/api/v1/audit", tags=["Audit"])

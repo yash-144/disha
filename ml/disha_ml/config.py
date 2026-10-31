@@ -6,7 +6,7 @@ in each model manifest.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 # Checkpoints: what is known at each point in time.
@@ -35,6 +35,9 @@ class TrainConfig:
     model: str = "hgb"                 # "hgb" or "logreg"
     calibration: str = "isotonic"      # "isotonic" or "sigmoid"
     test_size: float = 0.20
+    # Time-based test: if set, students whose cohort_year equals this value are the
+    # test set and all earlier cohorts are the training set (test_size is ignored).
+    test_cohort: Optional[str] = None
     cv_folds: int = 5
     seed: int = 42
     # Release check: test precision at the HIGH cutoff may fall short of the

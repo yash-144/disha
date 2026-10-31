@@ -19,10 +19,18 @@ class Settings(BaseSettings):
     DISHA_JWT_ALGORITHM: str = os.getenv("DISHA_JWT_ALGORITHM", "HS256")
     DISHA_JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("DISHA_JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
     DISHA_LOG_LEVEL: str = os.getenv("DISHA_LOG_LEVEL", "INFO")
+    # Outbox / escalation (blueprint 07 OUT-07)
+    DISHA_OUTBOX_BATCH_SIZE: int = int(os.getenv("DISHA_OUTBOX_BATCH_SIZE", "50"))
+    DISHA_OUTBOX_MAX_ATTEMPTS: int = int(os.getenv("DISHA_OUTBOX_MAX_ATTEMPTS", "5"))
+    DISHA_OUTBOX_BASE_BACKOFF_SECONDS: int = int(os.getenv("DISHA_OUTBOX_BASE_BACKOFF_SECONDS", "5"))
+    DISHA_ESCALATION_TARGET: str = os.getenv("DISHA_ESCALATION_TARGET", "role:hod")
+    # Local IndicTrans2 translation (optional extra: pip install -e "api[translate]")
+    DISHA_TRANSLATE_ENABLED: bool = os.getenv("DISHA_TRANSLATE_ENABLED", "false").lower() in ("1", "true", "yes")
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # shared .env also holds MEKO_*, web and worker keys
         case_sensitive = True
 
 settings = Settings()

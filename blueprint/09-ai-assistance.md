@@ -57,3 +57,14 @@ EVIDENCE (untrusted, delimited):
   <<ml_estimate>>  probability, threshold, top features (if any)
 TASK: produce brief per schema
 ```
+
+## 4. Translation is not an LLM feature
+
+Indian-language text is translated by a local model, not by the providers above.
+`POST /api/v1/translate` (flag `DISHA_TRANSLATE_ENABLED`, default off) runs
+AI4Bharat IndicTrans2 distilled 200M models on the API host's CPU: English to
+Indic and Indic to English only, no result cache, no third-party API call, so
+student text never leaves the campus machine (AI-12 does not apply because no
+provider receives it). It is advisory output for display. Details and request
+shape: [05](05-api-specification.md) §4.4.
+

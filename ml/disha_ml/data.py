@@ -10,7 +10,8 @@ Your own dataset: describe it in a mapping JSON (see mapping.py and the README):
       "grade_scale":   10
     }
 - "columns" maps a canonical name to your header. null = you don't have it.
-- "target_values" maps your outcome values to Dropout / Graduate / Enrolled.
+- "target_values" maps your outcome values to Dropout / Graduate / Enrolled
+  (or Retained, meaning "did not drop out", when graduated vs enrolled is unknown).
 - "grade_scale" is the maximum of your semester grade (10 for SGPA, 100 for
   percentage). Grades are rescaled to 0-20 so rule thresholds keep their meaning.
 """
@@ -48,19 +49,32 @@ COLUMN_ALIASES: Dict[str, List[str]] = {
     "displaced": ["displaced"],
     "special_needs": ["educational special needs"],
     "target": ["target", "output"],
+    # Optional: an attendance measure per semester (attendance %, or days present).
+    "s1_attendance": [],
+    "s2_attendance": [],
+    # Optional: intake year, used for a time-based train/test split.
+    "cohort_year": [],
 }
+# Every canonical name is also accepted as a header (used by converters).
+for _name, _aliases in COLUMN_ALIASES.items():
+    if _name not in _aliases:
+        _aliases.append(_name)
 
 MODEL_SOURCE_COLUMNS = [
     "prev_qual_grade", "admission_grade", "course",
     "s1_credited", "s1_enrolled", "s1_evaluations", "s1_approved", "s1_grade", "s1_without_eval",
     "s2_credited", "s2_enrolled", "s2_evaluations", "s2_approved", "s2_grade", "s2_without_eval",
+    "s1_attendance", "s2_attendance",
 ]
+EXTRA_COLUMNS = ["cohort_year"]
 AUDIT_COLUMNS = ["gender", "age_at_enrollment", "displaced", "special_needs"]
 SEMESTER_FIELDS = ("credited", "enrolled", "evaluations", "approved", "grade", "without_eval")
 # Minimum a dataset must have. Everything else may be missing (filled as NaN).
 CORE_REQUIRED = ["s1_enrolled", "s1_approved"]
 
-TARGET_VALUES = {"dropout": "Dropout", "graduate": "Graduate", "enrolled": "Enrolled"}
+# "Retained" = did not drop out, when a dataset does not say whether the student
+# graduated or is still enrolled (e.g. UPV). It cannot be used with label not_on_time.
+TARGET_VALUES = {"dropout": "Dropout", "graduate": "Graduate", "enrolled": "Enrolled", "retained": "Retained"}
 CANONICAL_TARGETS = set(TARGET_VALUES.values())
 DEFAULT_GRADE_SCALE = 20.0
 
@@ -132,7 +146,7 @@ def map_columns(raw: pd.DataFrame, require_target: bool = True, mapping: Optiona
     out = pd.DataFrame(index=raw.index)
     for c in MODEL_SOURCE_COLUMNS:
         out[c] = raw[src[c]] if src[c] is not None else np.nan
-    for c in AUDIT_COLUMNS:
+    for c in AUDIT_COLUMNS + EXTRA_COLUMNS:
         if src[c] is not None:
             out[c] = raw[src[c]]
     if src["target"] is not None:
