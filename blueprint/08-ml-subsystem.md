@@ -4,15 +4,68 @@ The ML subsystem is optional. The rules engine ([06](06-ingestion-and-rules-engi
 is the primary source of signals. A model adds a supplementary risk estimate
 to a signal; it never opens a case (INV-01).
 
-**First implementation:** the pipeline built on the public UCI dropout dataset
-(academic columns only), with calibrated probabilities, precision-based tier
-cutoffs, rule corroboration and a capacity cap, is specified in
-[16-risk-signal-pipeline.md](16-risk-signal-pipeline.md), with the training
-procedure in [17-model-training-guide.md](17-model-training-guide.md) and data
-requirements in [18-dataset-requirements.md](18-dataset-requirements.md).
-Code: `ml/disha_ml/`. Sections 2–8 below remain the requirements for moving
-that pipeline to real campus data. Section 1 describes the earlier OULAD model
-in the SUTRA repository, kept as reference.
+**Primary implementation (2026-11-01): the rolling risk model.** It scores a
+student at every assessment due date ("whenever marks reach the ERP"), excludes
+enrolments already withdrawn, and returns an insights payload. It is specified
+in section 0 below, in [16](16-risk-signal-pipeline.md) §12 and in
+[`docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md)
+(source of truth for the payload). Code: `ml/disha_ml/rolling/`. Data:
+[18](18-dataset-requirements.md); training:
+[17](17-model-training-guide.md) §13.
+
+**Legacy semester models:** the checkpoint pipeline (`cp0`/`cp1`/`cp2`) on the
+Portugal (UCI) and Spain (UPV) datasets is still in `ml/artifacts/` and
+`ml/artifacts_upv/`. It is secondary. Its published 94.5% and 97.6% are alert
+**precision** after the capacity cap, not accuracy (real accuracy about 84% and
+88% against a 69% majority baseline), and most `cp2` alerts were students who
+had passed zero semester-2 subjects, i.e. already gone. See `ml/README.md` §18.
+
+Sections 2 to 8 below remain the requirements for moving either pipeline to
+real campus data. Section 1 describes the earlier OULAD model in the SUTRA
+repository, kept as reference only.
+
+## 0. The rolling risk model (implemented)
+
+| Item | Value (source: `ml/artifacts_rolling/manifest.json`) |
+|---|---|
+| Label | `at_risk` = final result Fail or Withdrawn |
+| Data | OULAD (CC BY 4.0), 22 course presentations, 4 terms; `ml/data/raw/oulad/SOURCE.md` |
+| Split | temporal: train 2013B, 2013J, 2014B; test 2014J; `GroupKFold` by student for CV and calibration |
+| Model | HistGradientBoosting + isotonic calibration; 23 features; 44,340 parameters; 4.09 MB |
+| Test result | ROC AUC 0.857, PR AUC 0.794, Brier 0.145, ECE 0.037, accuracy 79.0% vs 64.6% majority; rules-only AUC 0.689 |
+| Earliness | AUC 0.727 / 0.809 / 0.881 / 0.933 at 10 / 25 / 50 / 75% of the term; 70.5% of withdrawn students signalled first, median 54 days ahead |
+| Overfit gaps | train 0.894, grouped CV 0.883, test 0.857 |
+| Fairness | demographics are not inputs; false-positive-rate ratios: gender 1.20, disability 1.21, region 1.87, age 1.94, IMD 2.02 (no bound enforced) |
+
+**Input contract (level-agnostic: school, UG, PG).** Six canonical tables, marks
+as percentages 0 to 100, days relative to term start: `students`, `enrolments`,
+`assessments`, `results`, `activity`, `withdrawals`. Columns:
+[18](18-dataset-requirements.md) §7 and `docs/architecture/INSIGHTS_SPEC.md` §2. Validation:
+`ml/disha_ml/rolling/schema.py`.
+
+**Scoring contract.**
+
+```
+score_snapshot(tables, as_of) -> InsightsPayload
+python -m disha_ml.rolling.score --tables <dir> --as-of <day> [--model <dir>] [--out file.json] [--no-meko]
+```
+
+`tables` is a dict of DataFrames or a folder of `<table>.csv[.gz]`; `as_of` is a
+day number since term start and applies to every course-term in `tables`. The
+payload has `schema_version`, `as_of_day`, `model`, `n_students`, `students[]`,
+`cohorts[]`, `data_drift`; see INSIGHTS_SPEC for every field. The backend calls
+it once per assessment due date. The artifact is
+`ml/artifacts_rolling/model.joblib` with `manifest.json` (config, rules,
+metrics, dataset SHA-256).
+
+**Not yet implemented (gaps against this document):** no API route or worker job
+calls `score_snapshot` (`api/app/modules/ml/routes.py` only returns
+`{"module": "ml", "status": "active"}` and is not mounted in `main.py`); the
+rolling model has no SHA-256 check on load (the legacy scorer has one), no
+promotion gate or release check (the legacy `train.py` has one), no
+`ml_inference_logs`, and the
+worker job `model_drift_report` only logs a line. The PSI drift report exists
+inside the payload (`data_drift`) but nothing stores it.
 
 ## 1. Facts about the current model
 

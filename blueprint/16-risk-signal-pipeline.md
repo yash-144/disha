@@ -7,6 +7,12 @@ written for reviewers and judges as well as engineers. Code lives in
 [17-model-training-guide.md](17-model-training-guide.md); data requirements
 are in [18-dataset-requirements.md](18-dataset-requirements.md).
 
+> **Status (2026-11-01).** Sections 1 to 11 describe the **legacy semester
+> models** (`cp0`/`cp1`/`cp2`, UCI Portugal and UPV Spain). The **primary model
+> is the rolling risk model**, described in section 12: it scores at every
+> assessment due date instead of three fixed points. The tier logic, cutoff
+> method, capacity cap and human-review rule are shared by both.
+
 ## 1. One-paragraph summary
 
 At three points in a student's first year (admission, end of semester 1, end
@@ -190,6 +196,12 @@ grade 10.8, admission grade 118.
 
 - All reported figures come from `artifacts/<checkpoint>/report.md`, generated
   by the training run on the held-out test split. No figure is written by hand.
+- Published legacy figures (94.5% at `cp1`, 97.6% at `cp2`) are **alert
+  precision** after the capacity cap, not accuracy. Accuracy over all students
+  is about 84% (`cp1`) and 88% (`cp2`) against a 69% majority baseline
+  (`ml/README.md` §18). Most `cp2` alerts were students who had passed zero
+  semester-2 subjects, so `cp2` is late by construction; the rolling model
+  (section 12) excludes already-withdrawn enrolments and scores earlier.
 - Precision 85% at HIGH means roughly 15 of every 100 HIGH signals are false
   alarms. That is why a human reviews every signal.
 - A high precision cutoff catches only part of all at-risk students (recall).
@@ -211,3 +223,53 @@ grade 10.8, admission grade 118.
 | ML risk tier attached as an evidence card | this document, [08](08-ml-subsystem.md) §6 |
 | Human review, case, follow-up, outcome | [07](07-case-workflow-and-worker.md) |
 | Outcomes used as future training labels | [17](17-model-training-guide.md) §9 |
+
+## 12. The rolling risk model (primary)
+
+Code: `ml/disha_ml/rolling/`; numbers: `ml/artifacts_rolling/manifest.json` and
+`report.md`; payload contract:
+[`docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md)
+(source of truth, not repeated here).
+
+```mermaid
+flowchart TD
+  A[Canonical tables<br/>students, enrolments, assessments,<br/>results, activity, withdrawals] --> B[Snapshot at day t<br/>only rows dated <= t<br/>withdrawn enrolments dropped]
+  B --> C[23 features<br/>scores, submissions, engagement,<br/>baseline, load]
+  C --> D[HGB + isotonic<br/>P of Fail or Withdrawn]
+  B --> E[Academic rules]
+  D --> F{Tier logic<br/>capacity cap 25%<br/>per course-term-day}
+  E --> F
+  F --> G[InsightsPayload<br/>tier, change, history, reasons,<br/>drift events, next check, cohort views, PSI]
+  G --> H[Human review → case]
+  G -.-> I[Meko: tier-change memory]
+```
+
+| Step | Rule |
+|---|---|
+| When it scores | At every non-exam assessment due date (when marks reach the ERP), at 10 / 25 / 50 / 75% of the term for training and drift reference, and at the requested `as_of` day |
+| Who it scores | Enrolments still active at day t. Enrolments withdrawn at or before t get no row, so the model cannot "predict" a withdrawal that has already happened |
+| Label | `at_risk` = final result Fail or Withdrawn |
+| Split | Temporal: train 2013B, 2013J, 2014B; test 2014J. Cross-validation grouped by student |
+| Model | Histogram gradient boosting, isotonic calibration, 23 features, 44,340 parameters |
+| Tiers | Cutoffs from out-of-fold probabilities at precision 0.85 / 0.70 / 0.50; MEDIUM needs a rule; signals capped at 25% of active students per course-term and day (the OULAD at-risk base rate is 35 to 42% of snapshot rows, so the cap is looser than the legacy 15%) |
+| Reasons | Up to 3 feature groups whose replacement by a typical student's values lowers risk by at least 2 points, worded from the student's own numbers; up to 2 protective groups |
+| Drift | Student events (`SCORE_DROP`, `ENGAGEMENT_COLLAPSE`, `FIRST_MISSED_SUBMISSION`) and data drift (PSI per feature, retrain flag above 0.2) |
+| Human in the loop | Unchanged: nothing opens a case without a person (INV-01) |
+
+Inputs the model never uses: `gender`, `region`, `imd_band`, `disability`,
+`age_band` (fairness slices only).
+
+**Measured on the held-out term 2014J** (80,411 snapshot rows, 8,931 students):
+ROC AUC 0.857, PR AUC 0.794, Brier 0.145, accuracy 79.0% against a 64.6%
+majority baseline, rules-only AUC 0.689. AUC rises with the term: 0.727 at 10%,
+0.809 at 25%, 0.881 at 50%, 0.933 at 75%. Of 1,768 withdrawn students, 1,246
+(70.5%) were signalled before they left, a median of 54 days ahead. Train / CV /
+test AUC is 0.894 / 0.883 / 0.857. False-positive-rate ratios across groups:
+gender 1.20, disability 1.21, region 1.87, age band 1.94, IMD band 2.02.
+
+**Limits.** OULAD is a UK distance-learning dataset; it proves the method, not
+accuracy at an Indian campus. HIGH precision on the test term (81.7%) is below
+the 85% training target and there is no automated release check or fairness
+bound for this model yet (**Not yet implemented**). Nothing in `api/` or
+`worker/` calls the scorer yet.
+

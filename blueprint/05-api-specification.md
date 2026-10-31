@@ -221,11 +221,114 @@ accept any `studentId` (audit S5, D2, A4, F5).
 | `GET /datasets/research/oulad/{id}`, `/datasets/research/synthetic/{id}`, `/datasets/provenance` | Research lookups; belong in the offline ML tooling |
 | Root-level ML aliases (`/model-info`, `/predict`, `/predict/batch`) | ADR-005 compatibility aliases; one path per operation |
 | `POST /documents/cbdc/issue-voucher` | Simulated provider only |
-| Next.js `/api/translate`, `/api/shop/*` | Business logic and third-party proxy outside the API (audit S5, F5) |
+| Next.js `/api/translate` (third-party proxy), `/api/shop/*` | Business logic and third-party proxy outside the API (audit S5, F5). Translation is now `POST /api/v1/translate` (section 4.4) |
 | `POST /ml/predict/student/{id}` | Duplicate of `/students/{id}/predict` |
+
+Note: the third-party-backed Next.js `/api/translate` is replaced by the local
+IndicTrans2 route `POST /api/v1/translate` (section 4.4).
 
 ## 3. OpenAPI
 
 The OpenAPI document is generated from code and checked into CI as an
 artifact. A contract test fails when a response model changes without a
 version or changelog entry. Clients (web, CLI) generate their types from it.
+
+## 4. Implementation status (2026-11-01)
+
+Sections 1 and 2 are the target contract. This section lists what the code in
+`api/app/` serves **today** (source: `api/app/main.py` and the module
+`routes.py` files). Where it differs from section 2, the code wins until the
+route is brought in line. Everything is mounted under `/api/v1`.
+
+| Router | Prefix | State |
+|---|---|---|
+| Cases | `/cases` | Built (section 4.2) |
+| Meko | `/meko` | Built (section 4.3) |
+| Translate | `/translate` | Built, behind a flag (section 4.4) |
+| Identity, roster, ingestion, analytics, wellbeing | `/identity`, `/roster`, `/ingestion`, `/analytics`, `/wellbeing` | Stubs: each has only `GET /` |
+| ML | none | `modules/ml/routes.py` is a stub (`GET /` returns `{"module": "ml", "status": "active"}`) and is not mounted. **Not yet implemented:** `/ml/*` and any insights route |
+| System | `GET /health` (outside `/api/v1`) | Built |
+
+### 4.1 Conventions as implemented
+
+| Topic | Today |
+|---|---|
+| Campus context | Header `X-Campus-ID` (header names are case-insensitive). The `campus_role(...)` dependency requires a staff role **and** an active row in `disha_campus_memberships` for the token's `sub` and that campus; otherwise 403 `Not a member of this campus`, and 400 if the header is missing. Applied to the cases and Meko routes (not to `/translate`) |
+| Auth | HS256 JWT (`DISHA_JWT_SECRET`); roles from the `roles` claim; staff roles are faculty, mentor, hod, counsellor, finance, placement, leadership, institution_admin |
+| Concurrency | `version` in the request body (not `If-Match`); the check is part of the `UPDATE`; mismatch → 409 |
+| Idempotency | Not via `Idempotency-Key`: case creation is idempotent per `(campus, flag_id)` |
+| Errors | `DishaBaseException` and `HTTPException`; the envelope in §1.1 is **not** uniform yet |
+| Migrations | `cd api && alembic upgrade head` (`api/migrations/versions/0001_cases_outbox_membership.py`, reads `DISHA_DATABASE_URL`) |
+
+### 4.2 Cases (`/api/v1/cases`, staff + campus membership)
+
+| Method | Path | Body / notes |
+|---|---|---|
+| GET | `/` | Query `state`. List of the campus's cases |
+| GET | `/outcomes/stats` | Outcome counts per `(intervention_id, reason_pattern)` for the campus |
+| POST | `/` (201) | `{flag_id, student_id, intervention_id?, reason_codes[], tier?}`. Creates a case in `action_planned`; a second call with the same `flag_id` returns the existing case |
+| GET | `/{case_id}` | `{case, next_states[], events[], tasks[]}` |
+| POST | `/{case_id}/transition` | `{to_state, version, reason_code?}`. Table in `cases/services.py`; invalid → 409 with the valid targets; `assigned` must use `/assign` (422) |
+| POST | `/{case_id}/assign` | `{owner_id, due_at, version, reason_code?}`; also handles reassignment and re-arms escalation |
+| POST | `/{case_id}/tasks` (201) | `{domain, generic_label, assignee_id?, due_at?, restricted_details?}`; domain is academic, attendance, finance, counselling or other; restricted details only for finance and counselling |
+| POST | `/tasks/{task_id}/state` | `{to_state}`: accepted, in_progress, completed, cancelled (task state table) |
+| POST | `/flags/review` | `{flag_id, student_id, action, reason_codes[], tier?, note?, intervention_id?}`, `action` ∈ accept, dismiss, open_case, start_intervention. `open_case` and `start_intervention` create the case (idempotent). Always writes a Meko decision trace in the background. Returns `{flag_id, action, recorded, case_id}` |
+| POST | `/{case_id}/outcome` | `{outcome, intervention_id, reason_codes[], tier?, checkpoint?}`, `outcome` ∈ improved, no_change, worse. One outcome per case cycle (409 on a second); moves `follow_up_due → outcome_reviewed`; 422 if `intervention_id` is not active in the campus catalogue (when a catalogue is configured); then writes a Meko outcome memory and may promote it. Returns `{case_id, outcome, recorded}` |
+
+Differences from §2.7: no `/cases/mine`, `/history` (events come with `GET /{id}`), `/accept-assignment`
+(acceptance is `transition` to `accepted`, owner or institution_admin only), `/follow-ups`, `/override`, `/reopen`
+(reopen is `transition` to `reopened`), and the outcome vocabulary is `improved | no_change | worse`.
+Lifecycle, escalation and outbox rules: [07](07-case-workflow-and-worker.md) §8.
+
+### 4.3 Meko (`/api/v1/meko`)
+
+Meko is optional; without `MEKO_API_KEY` reads return empty results and writes are no-ops.
+
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| GET | `/health` | no auth | `{configured, reachable, datapack, tool_count, last_error}`; never fails |
+| GET | `/tools` | staff + campus | Discovered Meko tools and the logical-op mapping |
+| POST | `/recall` | staff + campus | `{query (3-500 chars), k (1-20)}` → `{answer, sources[]}`. The query is redacted first; do not paste student names |
+| POST | `/knowledge` | admin, HoD + campus | Multipart upload of campus knowledge: `file` (pdf, txt, md, json, csv; max `MEKO_KB_MAX_BYTES`, default 5 MiB), `doc_type`, `intervention_id?`, `reason_codes`. 415 wrong type, 413 too large, 422 if the PII guard finds an email, phone number or student id, 503 if Meko is off, 502 if Meko fails. Never used for repo docs |
+| GET | `/knowledge/search` | staff + campus | `q`, `limit` → chunks with `document_id` |
+| DELETE | `/knowledge/{document_id}` | admin, HoD + campus | |
+| GET | `/playbook` | staff + campus | `reason_codes` (comma list), `tier?` → interventions that improved similar profiles, limited to the active campus catalogue (`MEKO_CATALOG_PATH`); advice only |
+
+### 4.4 Translate (`POST /api/v1/translate`)
+
+Local AI4Bharat IndicTrans2 distilled 200M models on CPU, loaded on first use. No result cache, no third-party
+translation API; student text never leaves the machine. Enabled by `DISHA_TRANSLATE_ENABLED=true` (default false →
+503). Needs the extra `pip install -e "api[translate]"` and a Hugging Face token for the gated models (`HF_TOKEN`).
+
+Request: exactly one of `text` (1-2000 chars) or `texts` (1-32 items, each 1-2000 chars); `source_lang`, `target_lang` as
+FLORES codes (`hin_Deva`) or BCP-47 (`hi-IN`). One side must be English (`eng_Latn`); Indic to Indic is rejected (422).
+Response: `{source_lang, target_lang, translations[]}` (FLORES codes). Any valid bearer token works (no campus
+header). 503 when disabled or when the extra is missing.
+
+### 4.5 ML scoring contract and insights payload (library, not yet an endpoint)
+
+The scoring contract is a Python library call and CLI in `ml/`, not an HTTP route:
+
+```python
+from disha_ml.rolling.score import score_snapshot
+payload = score_snapshot(tables, as_of)        # -> InsightsPayload
+```
+
+```bash
+python -m disha_ml.rolling.score --tables <dir> --as-of <day> [--model <dir>] [--out file.json] [--no-meko]
+```
+
+* `tables`: dict of DataFrames in the six canonical tables (`students`, `enrolments`, `assessments`, `results`,
+  `activity`, `withdrawals`; [18](18-dataset-requirements.md) §7) or a folder of `<table>.csv[.gz]`.
+* `as_of`: integer day since term start; applies to every course-term in `tables`.
+* Result `payload.to_dict()`: `schema_version`, `as_of_day`, `model`, `n_students`, `students[]`, `cohorts[]`,
+  `data_drift`. Every field, JSON path and definition:
+  [`docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md) (source of truth).
+* Call once per assessment due date, optionally weekly for engagement. Scoring all 32k OULAD enrolments takes about 15 s.
+* Students are keyed by the caller's `student_id`; hash it before logging elsewhere.
+
+**Not yet implemented:** an HTTP route (for example `POST /ml/insights`) or worker job that loads the canonical tables
+from Postgres, calls `score_snapshot`, stores the payload, and turns tier changes into reviewable flags for
+`/cases/flags/review`. §2.4 and §2.10 stay as the target for per-student prediction; the backend team should agree
+whether those routes return `StudentInsight` entries from the payload.
+
