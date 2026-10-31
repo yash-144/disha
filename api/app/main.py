@@ -15,6 +15,11 @@ from app.core.meko import meko_lifespan
 from app.modules.student.routes import router as student_router
 from app.modules.faculty.routes import router as faculty_router
 from app.modules.audit.routes import router as audit_router
+from app.modules.policy.routes import router as policy_router
+from app.modules.rewards.routes import router as rewards_router
+from app.modules.documents.routes import router as documents_router
+from app.modules.student_identity.routes import router as student_identity_router
+from app.modules.ai.routes import router as ai_router
 
 app = FastAPI(
     title="DISHA API",
@@ -61,3 +66,8 @@ app.include_router(wellbeing_router, prefix="/api/v1/wellbeing", tags=["Wellbein
 app.include_router(meko_router, prefix="/api/v1/meko", tags=["Meko"])
 app.include_router(translate_router, prefix="/api/v1/translate", tags=["Translate"])
 app.include_router(audit_router, prefix="/api/v1/audit", tags=["Audit"])
+app.include_router(policy_router, prefix="/api/v1/policy", tags=["Policy"])
+app.include_router(rewards_router, prefix="/api/v1/rewards", tags=["Rewards"])
+app.include_router(documents_router, prefix="/api/v1/documents", tags=["Documents"])
+app.include_router(student_identity_router, prefix="/api/v1/student-identity", tags=["Student identity"])
+app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI"])
