@@ -4,6 +4,16 @@ The ML subsystem is optional. The rules engine ([06](06-ingestion-and-rules-engi
 is the primary source of signals. A model adds a supplementary risk estimate
 to a signal; it never opens a case (INV-01).
 
+**First implementation:** the pipeline built on the public UCI dropout dataset
+(academic columns only), with calibrated probabilities, precision-based tier
+cutoffs, rule corroboration and a capacity cap, is specified in
+[16-risk-signal-pipeline.md](16-risk-signal-pipeline.md), with the training
+procedure in [17-model-training-guide.md](17-model-training-guide.md) and data
+requirements in [18-dataset-requirements.md](18-dataset-requirements.md).
+Code: `ml/disha_ml/`. Sections 2–8 below remain the requirements for moving
+that pipeline to real campus data. Section 1 describes the earlier OULAD model
+in the SUTRA repository, kept as reference.
+
 ## 1. Facts about the current model
 
 Sources: `ml/artifacts/models/v1.0.0/model_metadata.json`,
@@ -72,7 +82,10 @@ Until these hold, the ML module ships disabled and the API returns
 
 **Requirement ML-FC-01 (audit M1):** features are defined only from data the
 partner institution actually holds and that the ingestion contract can carry.
-Candidate feature families (to be confirmed against partner data):
+The first implemented contract (prior grades, course, per-semester subject
+counts, grades and derived rates) is listed in
+[16](16-risk-signal-pipeline.md) §5. Further feature families to add from
+partner data:
 
 | Family | Example features | Source domain |
 |---|---|---|

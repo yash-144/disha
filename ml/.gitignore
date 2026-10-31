@@ -1,0 +1,6 @@
+artifacts/
+scored*.csv
+demo_scored_*.csv
+mapping.json
+__pycache__/
+.pytest_cache/

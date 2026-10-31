@@ -132,6 +132,13 @@ evaluate(campus, student, cutoff T, policy_version P):
 - The evaluation commits in the request. **Requirement EV-03:** bulk
   evaluation (whole cohort) runs as a background job.
 
+**ML tier combination:** how a calibrated model probability and academic
+rules combine into HIGH / MEDIUM / WATCH / ON_TRACK, with precision-based
+cutoffs and a capacity cap, is defined in
+[16-risk-signal-pipeline.md](16-risk-signal-pipeline.md) §7. Rule-based
+signals from this engine (for example attendance) and ML tiers are recorded as
+separate evidence cards on the same review screen.
+
 ## 5. Signal review
 
 **Current implementation:** `POST /signals/{id}/review` with decision
