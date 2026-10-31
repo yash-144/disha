@@ -39,6 +39,9 @@ from app.modules.faculty.models import (
     AssessmentSubmission,
 )
 from app.modules.student.models import SupportRequest
+from app.modules.policy.models import PolicyVersion, PolicyEvaluation, PolicyDecision
+from app.modules.wellbeing.models import PulseQuestionnaire, PulsePeriod, PulseSubmission
+from app.modules.rewards.models import LedgerEntry, RewardItem, Redemption
 
 # Alembic Config object
 config = context.config
