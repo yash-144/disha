@@ -22,8 +22,22 @@ class EntityNotFoundError(DishaBaseException):
 
 
 class PermissionDeniedError(DishaBaseException):
-    def __init__(self, message: str = "Access denied"):
+    def __init__(self, message: str = "Access denied: insufficient permissions or scope"):
         super().__init__(message=message, code="PERMISSION_DENIED", status_code=403)
+
+
+class ConcurrencyConflictError(DishaBaseException):
+    def __init__(self, message: str = "Resource has been modified by another request (version conflict)"):
+        super().__init__(message=message, code="CONCURRENCY_CONFLICT", status_code=409)
+
+
+class StateTransitionError(DishaBaseException):
+    def __init__(self, from_state: str, to_state: str, reason: str = ""):
+        super().__init__(
+            message=f"Invalid state transition from '{from_state}' to '{to_state}'. {reason}".strip(),
+            code="INVALID_STATE_TRANSITION",
+            status_code=422
+        )
 
 
 def register_exception_handlers(app: FastAPI):

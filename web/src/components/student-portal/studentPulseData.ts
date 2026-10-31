@@ -1,0 +1,673 @@
+import {
+  PulseQuestion,
+  PulseAssignment,
+  Pulse3PartAnalytics,
+  StudentPulseSubmission,
+} from '../../types/studentPulse'
+
+export const PULSE_QUESTION_BANK: PulseQuestion[] = [
+  // =========================================================================
+  // CS201 - Data Structures & Algorithms
+  // =========================================================================
+  
+  // Category A: Academic Assessment
+  {
+    id: 'cs201-acad-01',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which data structure follows the Last-In-First-Out (LIFO) principle and is used for recursive call stack management?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Queue', 'Stack', 'Binary Search Tree', 'Doubly Linked List'],
+    correctOption: 1,
+    correctAnswer: 'Stack',
+    explanation: 'A Stack strictly follows Last-In-First-Out (LIFO), making it the primary structure for activation records and recursive call stacks.',
+    parameterTag: 'stack-basics',
+  },
+  {
+    id: 'cs201-acad-02',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'What is the worst-case time complexity of searching for an element in an unbalanced Binary Search Tree (BST) of n nodes?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 3.0,
+    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'],
+    correctOption: 2,
+    correctAnswer: 'O(n)',
+    explanation: 'When a BST is completely unbalanced (skewed tree resembling a singly linked list), traversal requires O(n) steps.',
+    parameterTag: 'bst-complexity',
+  },
+  {
+    id: 'cs201-acad-03',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'In recursive algorithms, what consequence occurs if the base case termination condition is omitted?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: [
+      'Compilation fails during syntax parsing',
+      'Stack overflow exception due to unbounded call stack frames',
+      'Heap fragmentation with memory leak',
+      'Algorithm terminates immediately in O(1) time',
+    ],
+    correctOption: 1,
+    correctAnswer: 'Stack overflow exception due to unbounded call stack frames',
+    explanation: 'Without a base case, recursive calls cascade infinitely until the memory limit allocated for the call stack is exhausted.',
+    parameterTag: 'recursion-fundamentals',
+  },
+  {
+    id: 'cs201-acad-04',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which tree traversal order visits the Left Subtree, Root Node, and then Right Subtree?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Pre-order Traversal', 'In-order Traversal', 'Post-order Traversal', 'Level-order Traversal'],
+    correctOption: 1,
+    correctAnswer: 'In-order Traversal',
+    explanation: 'In-order traversal visits nodes in (Left, Root, Right) order, yielding naturally sorted keys when applied to a BST.',
+    parameterTag: 'tree-traversal',
+  },
+  {
+    id: 'cs201-acad-05',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Explain the fundamental difference between Depth-First Search (DFS) and Breadth-First Search (BFS) in terms of auxiliary data structures and traversal behavior.',
+    questionType: 'descriptive',
+    difficulty: 'Medium',
+    marks: 5.0,
+    options: [],
+    correctAnswer: 'DFS relies on a Stack (or recursion) to probe along each branch deeply before backtracking. BFS relies on a Queue (FIFO) to explore frontier nodes level by level.',
+    explanation: 'Rubric points: Stack vs Queue, depth exploration vs level-by-level exploration, visited tracking.',
+    parameterTag: 'graph-traversal',
+  },
+  {
+    id: 'cs201-acad-06',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which in-place sorting algorithm guarantees an average and worst-case time complexity of O(n log n) with O(1) auxiliary space?',
+    questionType: 'mcq',
+    difficulty: 'Hard',
+    marks: 3.0,
+    options: ['Merge Sort', 'Heap Sort', 'Quick Sort', 'Counting Sort'],
+    correctOption: 1,
+    correctAnswer: 'Heap Sort',
+    explanation: 'Heap Sort constructs an in-place heap over the existing array and achieves guaranteed O(n log n) worst-case time with O(1) space.',
+    parameterTag: 'sorting-efficiency',
+  },
+  {
+    id: 'cs201-acad-07',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'What data structure provides optimal O(1) amortized insertion and O(log n) minimum extraction for Dijkstra’s algorithm?',
+    questionType: 'mcq',
+    difficulty: 'Hard',
+    marks: 3.0,
+    options: ['Fibonacci / Binary Heap', 'Unsorted Dynamic Array', 'Balanced Red-Black Tree', 'Circular Queue'],
+    correctOption: 0,
+    correctAnswer: 'Fibonacci / Binary Heap',
+    explanation: 'Heaps enable efficient decrease-key and minimum extraction operations needed for shortest-path graph calculations.',
+    parameterTag: 'priority-queues',
+  },
+
+  // Category B: Classroom Feedback
+  {
+    id: 'cs201-feed-01',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How would you describe the lecture pace during recent algorithmic and data structure sessions?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0,
+    options: [
+      'Too fast – challenging to follow code traces during lecture',
+      'Just right – comfortable pace with balanced problem breakdowns',
+      'Too slow – could move through foundational slides faster',
+    ],
+    explanation: 'Calibrates classroom delivery velocity.',
+    parameterTag: 'lecture_pace',
+  },
+  {
+    id: 'cs201-feed-02',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Clarity of algorithmic proofs, dry runs, and whiteboard diagrams:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - Needs Much More Clarification', '2 - Somewhat Unclear', '3 - Moderately Clear', '4 - Clear & Structured', '5 - Exceptionally Lucid'],
+    explanation: 'Evaluates explanation clarity on whiteboard/slides.',
+    parameterTag: 'clarity_explanation',
+  },
+  {
+    id: 'cs201-feed-03',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How comfortable do you feel asking questions or seeking clarification during class?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0,
+    options: [
+      'Very comfortable speaking up right away in class',
+      'Prefer approaching the professor after class or during office hours',
+      'Hesitant to interrupt the class flow in front of peers',
+      'Prefer submitting doubts anonymously through chat or digital channels',
+    ],
+    explanation: 'Measures classroom psychological safety and participation barriers.',
+    parameterTag: 'asking_questions',
+  },
+  {
+    id: 'cs201-feed-04',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Quality and volume of practical hands-on coding demonstrations during class:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - Very Little Code Shown', '2 - Insufficient', '3 - Adequate Balance', '4 - Good Code Walkthroughs', '5 - Excellent Live Coding & Debugging'],
+    explanation: 'Measures theory vs hands-on balance.',
+    parameterTag: 'practical_exposure',
+  },
+  {
+    id: 'cs201-feed-05',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Which topic would you most appreciate a focused tutorial or lab problem-solving clinic for?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0,
+    options: [
+      'Recursion tree recursion stack visualization',
+      'Binary Search Tree balancing & AVL rotations',
+      'Graph BFS/DFS cycles and topological sorting',
+      'Dynamic Programming subproblem state design',
+    ],
+    explanation: 'Actionable topic-level classroom revision focus.',
+    parameterTag: 'revision_needs',
+  },
+
+  // Category C: Student Wellbeing
+  {
+    id: 'cs201-well-01',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How would you rate your motivation and curiosity to learn the algorithms and topics in this course right now?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - Feeling Drained / Low Motivation', '2 - Struggling to Stay Motivated', '3 - Moderate / Managing Well', '4 - Positive & Engaged', '5 - Highly Motivated & Curious'],
+    explanation: 'Measures subject enthusiasm and engagement vitality.',
+    parameterTag: 'course_motivation',
+  },
+  {
+    id: 'cs201-well-02',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How manageable is your current academic workload and assignment deadlines across your enrolled courses?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - Overwhelming pressure / Falling behind', '2 - Heavy strain / Low rest', '3 - Manageable with regular effort', '4 - Well balanced and organized', '5 - Very comfortable workload'],
+    explanation: 'Non-diagnostic academic workload pressure index.',
+    parameterTag: 'academic_pressure',
+  },
+  {
+    id: 'cs201-well-03',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How confident do you feel about your conceptual preparation for the upcoming mid-term exam in this course?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - High exam anxiety / Unprepared', '2 - Unsure on multiple key concepts', '3 - Moderately prepared', '4 - Confident in core problem-solving', '5 - Thoroughly prepared and confident'],
+    explanation: 'Assesses student exam confidence and performance anxiety.',
+    parameterTag: 'exam_confidence',
+  },
+  {
+    id: 'cs201-well-04',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'Would an optional peer study cohort or faculty revision circle be helpful for your academic journey?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0,
+    options: [
+      'No, I am progressing comfortably on my own',
+      'Yes, a peer study circle with classmates would help',
+      'Yes, an instructor-led doubt clearing session would be very beneficial',
+      'Yes, I would appreciate 1-on-1 mentoring support',
+    ],
+    explanation: 'Identifies proactive support interest.',
+    parameterTag: 'support_readiness',
+  },
+
+  // =========================================================================
+  // CS202 - Database Management Systems
+  // =========================================================================
+
+  // Category A: Academic Assessment
+  {
+    id: 'cs202-acad-01',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which normal form guarantees the elimination of partial functional dependencies on composite candidate keys?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 3.0,
+    options: ['1NF (First Normal Form)', '2NF (Second Normal Form)', '3NF (Third Normal Form)', 'BCNF (Boyce-Codd Normal Form)'],
+    correctOption: 1,
+    correctAnswer: '2NF (Second Normal Form)',
+    explanation: '2NF requires relations to be in 1NF and ensures every non-prime attribute is fully functionally dependent on the primary key.',
+    parameterTag: 'normalization',
+  },
+  {
+    id: 'cs202-acad-02',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which ACID property ensures that committed transactions survive subsequent system or server power crashes?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Atomicity', 'Consistency', 'Isolation', 'Durability'],
+    correctOption: 3,
+    correctAnswer: 'Durability',
+    explanation: 'Durability ensures that once a transaction commits, its modifications are permanently recorded via write-ahead logging (WAL) and non-volatile storage.',
+    parameterTag: 'acid-properties',
+  },
+  {
+    id: 'cs202-acad-03',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which SQL clause is utilized to filter grouped rows resulting from an aggregation query?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['WHERE', 'HAVING', 'GROUP FILTER', 'ORDER BY'],
+    correctOption: 1,
+    correctAnswer: 'HAVING',
+    explanation: 'The WHERE clause operates on individual tuples before grouping; HAVING filters rows after grouping aggregates have been calculated.',
+    parameterTag: 'sql-syntax',
+  },
+  {
+    id: 'cs202-acad-04',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Explain the difference between a Clustered Index and a Non-Clustered Index in relational database engines.',
+    questionType: 'descriptive',
+    difficulty: 'Medium',
+    marks: 5.0,
+    options: [],
+    correctAnswer: 'A clustered index determines the physical ordering of records on disk (only one clustered index per table). A non-clustered index creates a separate B+ tree storing pointers to the data rows.',
+    explanation: 'Rubric: Physical storage order vs pointer index structure, single clustered index constraint.',
+    parameterTag: 'indexing',
+  },
+
+  // Category B: Classroom Feedback
+  {
+    id: 'cs202-feed-01',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How would you rate the lecture pace during SQL query optimization and relational schema design?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0,
+    options: [
+      'Too fast – need more time on multi-table joins and indexing',
+      'Just right – balanced explanations with practical queries',
+      'Too slow – could move directly to query execution plans',
+    ],
+    explanation: 'Calibrates DBMS lecture pacing.',
+    parameterTag: 'lecture_pace',
+  },
+
+  // Category C: Student Wellbeing
+  {
+    id: 'cs202-well-01',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How confident do you feel writing complex SQL queries and normalization proofs under exam conditions?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0,
+    options: ['1 - Very anxious / unprepared', '2 - Struggling with query syntax', '3 - Moderately comfortable', '4 - Confident in logic and queries', '5 - Highly confident'],
+    explanation: 'Measures subject confidence and anxiety.',
+    parameterTag: 'exam_confidence',
+  },
+]
+
+// =========================================================================
+// RANDOMIZATION ENGINE (Non-duplicate sampling)
+// =========================================================================
+
+export function generateRandomizedPulseQuestions(
+  courseId: string,
+  academicCount: number = 5,
+  feedbackCount: number = 4,
+  wellbeingCount: number = 3
+): {
+  academic: PulseQuestion[]
+  feedback: PulseQuestion[]
+  wellbeing: PulseQuestion[]
+  allQuestions: PulseQuestion[]
+  totalMarks: number
+} {
+  const pool = PULSE_QUESTION_BANK.filter((q) => q.courseId === courseId)
+  const defaultPool = pool.length > 0 ? pool : PULSE_QUESTION_BANK.filter((q) => q.courseId === 'CS201')
+
+  const acadPool = defaultPool.filter((q) => q.category === 'ACADEMIC')
+  const feedPool = defaultPool.filter((q) => q.category === 'CLASSROOM_FEEDBACK')
+  const wellPool = defaultPool.filter((q) => q.category === 'WELLBEING')
+
+  // Fisher-Yates shuffle
+  const shuffle = <T>(arr: T[]): T[] => {
+    const copy = [...arr]
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
+  }
+
+  const selectedAcad = shuffle(acadPool).slice(0, Math.min(academicCount, acadPool.length))
+  const selectedFeed = shuffle(feedPool).slice(0, Math.min(feedbackCount, feedPool.length))
+  const selectedWell = shuffle(wellPool).slice(0, Math.min(wellbeingCount, wellPool.length))
+
+  const allQuestions = [...selectedAcad, ...selectedFeed, ...selectedWell]
+  const totalMarks = selectedAcad.reduce((sum, q) => sum + q.marks, 0)
+
+  return {
+    academic: selectedAcad,
+    feedback: selectedFeed,
+    wellbeing: selectedWell,
+    allQuestions,
+    totalMarks,
+  }
+}
+
+// =========================================================================
+// INITIAL PRE-SEEDED ASSIGNMENTS FOR DEMO & TESTING
+// =========================================================================
+
+export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
+  {
+    id: 'pulse-cs201-03',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    sectionId: 'Section A (B.Tech 3rd Yr)',
+    title: 'Student Pulse #3: Trees, Recursion & Midterm Pulse',
+    status: 'published',
+    dueAt: '2026-11-06T23:59:59Z',
+    createdAt: '2026-10-28T10:00:00Z',
+    questionIds: [
+      'cs201-acad-01',
+      'cs201-acad-02',
+      'cs201-acad-03',
+      'cs201-acad-04',
+      'cs201-acad-05',
+      'cs201-feed-01',
+      'cs201-feed-02',
+      'cs201-feed-03',
+      'cs201-feed-04',
+      'cs201-well-01',
+      'cs201-well-02',
+      'cs201-well-03',
+    ],
+    academicCount: 5,
+    feedbackCount: 4,
+    wellbeingCount: 3,
+    totalMarks: 14.0,
+    submissionCount: 42,
+    totalStudents: 45,
+    avgScorePercentage: 81.5,
+  },
+  {
+    id: 'pulse-cs202-02',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    sectionId: 'Section B (B.Tech 3rd Yr)',
+    title: 'Student Pulse #2: Relational Schema & Normalization Check',
+    status: 'published',
+    dueAt: '2026-11-08T23:59:59Z',
+    createdAt: '2026-10-29T14:30:00Z',
+    questionIds: [
+      'cs202-acad-01',
+      'cs202-acad-02',
+      'cs202-acad-03',
+      'cs202-acad-04',
+      'cs202-feed-01',
+      'cs202-well-01',
+    ],
+    academicCount: 4,
+    feedbackCount: 1,
+    wellbeingCount: 1,
+    totalMarks: 12.0,
+    submissionCount: 38,
+    totalStudents: 44,
+    avgScorePercentage: 78.2,
+  },
+  {
+    id: 'pulse-cs201-04-draft',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    sectionId: 'Section A (B.Tech 3rd Yr)',
+    title: 'Student Pulse #4: Graph Traversals & Shortest Path (Draft)',
+    status: 'draft',
+    dueAt: '2026-11-15T23:59:59Z',
+    createdAt: '2026-10-31T08:15:00Z',
+    questionIds: [
+      'cs201-acad-05',
+      'cs201-acad-06',
+      'cs201-acad-07',
+      'cs201-feed-01',
+      'cs201-feed-05',
+      'cs201-well-01',
+      'cs201-well-04',
+    ],
+    academicCount: 3,
+    feedbackCount: 2,
+    wellbeingCount: 2,
+    totalMarks: 11.0,
+    submissionCount: 0,
+    totalStudents: 45,
+    avgScorePercentage: 0.0,
+  },
+]
+
+// =========================================================================
+// DEFAULT 3-PART ANALYTICS DATA FOR CS201 DEMO
+// =========================================================================
+
+export const DEMO_PULSE_ANALYTICS: Pulse3PartAnalytics = {
+  pulseId: 'pulse-cs201-03',
+  title: 'Student Pulse #3: Trees, Recursion & Midterm Pulse',
+  courseId: 'CS201',
+  sampleSize: 42,
+  kAnonymityEnforced: true,
+  academicAnalysis: {
+    averageScore: 11.4,
+    maxMarks: 14.0,
+    averagePercentage: 81.4,
+    highestScore: 14.0,
+    lowestScore: 6.5,
+    itemAnalysis: [
+      {
+        questionId: 'cs201-acad-01',
+        prompt: 'Which data structure follows LIFO and is used for recursive call stacks?',
+        difficulty: 'Easy',
+        questionType: 'mcq',
+        marks: 2.0,
+        accuracyRate: 92.8,
+        discriminationIndex: 'Normal',
+      },
+      {
+        questionId: 'cs201-acad-02',
+        prompt: 'Worst-case time complexity of searching in an unbalanced BST with n nodes?',
+        difficulty: 'Medium',
+        questionType: 'mcq',
+        marks: 3.0,
+        accuracyRate: 71.4,
+        discriminationIndex: 'Normal',
+      },
+      {
+        questionId: 'cs201-acad-03',
+        prompt: 'What occurs if the base case in recursion is omitted or incorrect?',
+        difficulty: 'Easy',
+        questionType: 'mcq',
+        marks: 2.0,
+        accuracyRate: 88.1,
+        discriminationIndex: 'Normal',
+      },
+      {
+        questionId: 'cs201-acad-04',
+        prompt: 'Which traversal visits Left Subtree, Root Node, and Right Subtree?',
+        difficulty: 'Easy',
+        questionType: 'mcq',
+        marks: 2.0,
+        accuracyRate: 83.3,
+        discriminationIndex: 'Normal',
+      },
+      {
+        questionId: 'cs201-acad-05',
+        prompt: 'Explain the difference between DFS and BFS in data structures & behavior.',
+        difficulty: 'Medium',
+        questionType: 'descriptive',
+        marks: 5.0,
+        accuracyRate: 76.2,
+        discriminationIndex: 'High',
+      },
+    ],
+  },
+  classroomFeedback: {
+    paceDistribution: {
+      justRightPct: 73.8,
+      tooFastPct: 19.0,
+      tooSlowPct: 7.2,
+    },
+    averageClarityRating: 4.3,
+    averageHandsOnRating: 3.9,
+    askingQuestionsComfortPct: 76.2,
+    privacyStatus: 'Strict Anonymity Preserved (Responses aggregated without individual attribution, k=42 >= 5)',
+  },
+  wellbeingInsights: {
+    cohortMotivationIndex: 78.5,
+    highPressureStudentPct: 33.3,
+    examConfidenceIndex: 69.0,
+    actionableRecommendations: [
+      '33.3% of students report elevated academic pressure before next week’s recursion exam. Consider hosting a 30-min live problem-solving walk-through.',
+      '19.0% felt whiteboard tree tracing pace was too fast. Providing annotated call stack slides will resolve lingering confusion.',
+      '76.2% comfort rate in asking questions is strong; consider keeping 5 minutes of anonymous digital Q&A at the end of each lecture.',
+    ],
+  },
+}
+
+export const INITIAL_STUDENT_SUBMISSION: StudentPulseSubmission = {
+  submissionId: 'sub-cs201-03-asha',
+  pulseId: 'pulse-cs201-03',
+  studentId: 'student-asha',
+  studentName: 'Asha Verma',
+  academicScore: 12.0,
+  academicMaxMarks: 14.0,
+  percentage: 85.7,
+  submittedAt: '2026-10-30T16:45:00Z',
+  isAnonymous: true,
+  objectiveResults: [
+    {
+      questionId: 'cs201-acad-01',
+      prompt: 'Which data structure follows LIFO and is used for recursive call stacks?',
+      selectedOption: 1,
+      correctOption: 1,
+      isCorrect: true,
+      marksAwarded: 2.0,
+      maxMarks: 2.0,
+      explanation: 'Correct! Stack follows LIFO and is used for activation records.',
+    },
+    {
+      questionId: 'cs201-acad-02',
+      prompt: 'Worst-case time complexity of searching in an unbalanced BST with n nodes?',
+      selectedOption: 2,
+      correctOption: 2,
+      isCorrect: true,
+      marksAwarded: 3.0,
+      maxMarks: 3.0,
+      explanation: 'Correct! Skewed binary tree degenerates into linear search O(n).',
+    },
+    {
+      questionId: 'cs201-acad-03',
+      prompt: 'What occurs if the base case in recursion is omitted or incorrect?',
+      selectedOption: 1,
+      correctOption: 1,
+      isCorrect: true,
+      marksAwarded: 2.0,
+      maxMarks: 2.0,
+      explanation: 'Correct! Runaway calls trigger a stack overflow exception.',
+    },
+    {
+      questionId: 'cs201-acad-04',
+      prompt: 'Which traversal visits Left Subtree, Root Node, and Right Subtree?',
+      selectedOption: 1,
+      correctOption: 1,
+      isCorrect: true,
+      marksAwarded: 2.0,
+      maxMarks: 2.0,
+      explanation: 'Correct! In-order traversal produces sorted keys in BSTs.',
+    },
+    {
+      questionId: 'cs201-acad-05',
+      prompt: 'Explain the difference between DFS and BFS in data structures & behavior.',
+      selectedOption: 'DFS uses a Stack to explore deeply along each path. BFS uses a FIFO Queue to search level-by-level across neighbors.',
+      correctOption: undefined,
+      isCorrect: true,
+      marksAwarded: 4.0,
+      maxMarks: 5.0,
+      explanation: 'Descriptive response awarded 4.0/5.0 by Prof. Sharma: Excellent conceptual articulation of queue vs stack mechanisms.',
+    },
+  ],
+}

@@ -16,13 +16,14 @@ export type DashboardTab =
   | 'all-classes' 
   | 'add-class' 
   | 'schedule' 
+  | 'cases'
   | 'roster' 
   | 'quizzes' 
   | 'gradebook' 
   | 'resources' 
   | 'settings';
 
-export type UserRole = 'instructor' | 'student';
+export type UserRole = 'instructor' | 'student' | 'counsellor' | 'admin';
 
 export interface UserProfile {
   id: string;

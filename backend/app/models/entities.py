@@ -553,3 +553,68 @@ class StudentIdentity(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
+
+
+
+# =========================================================================
+# STUDENT PULSE MODULE ENTITIES (Replacing CLO-based assessments)
+# =========================================================================
+
+class PulseQuestionBankItem(Base):
+    """Unified Question Bank for Student Pulse across Academic, Feedback, and Wellbeing."""
+    __tablename__ = "pulse_question_bank"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    course_id = Column(String(50), nullable=False)  # e.g., 'CS201', 'CS202'
+    category = Column(String(50), nullable=False)  # 'ACADEMIC', 'CLASSROOM_FEEDBACK', 'WELLBEING'
+    prompt = Column(Text, nullable=False)
+    question_type = Column(String(50), default="mcq", nullable=False)  # 'mcq', 'descriptive', 'likert', 'single_choice', 'multi_choice'
+    difficulty = Column(String(50), default="Medium", nullable=False)  # 'Easy', 'Medium', 'Hard'
+    marks = Column(Float, default=2.0, nullable=False)
+    options_json = Column(Text, nullable=True)  # JSON array of choice options
+    correct_option = Column(Integer, nullable=True)  # index or key for objective scoring
+    correct_answer = Column(Text, nullable=True)
+    explanation = Column(Text, nullable=True)
+    parameter_tag = Column(String(100), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class StudentPulseAssignment(Base):
+    """Faculty-configured and published Student Pulse assignments with locked randomized questions."""
+    __tablename__ = "student_pulse_assignments"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    institution_id = Column(String(36), ForeignKey("institutions.id"), nullable=False)
+    course_id = Column(String(50), nullable=False)
+    section_id = Column(String(50), nullable=False)
+    title = Column(String(255), nullable=False)
+    status = Column(String(50), default="published", nullable=False)  # 'draft', 'published', 'closed'
+    academic_count = Column(Integer, default=5, nullable=False)
+    feedback_count = Column(Integer, default=4, nullable=False)
+    wellbeing_count = Column(Integer, default=3, nullable=False)
+    total_marks = Column(Float, default=15.0, nullable=False)
+    selected_question_ids_json = Column(Text, nullable=False)  # JSON array of locked randomized question IDs
+    due_at = Column(DateTime(timezone=True), nullable=True)
+    created_by = Column(String(36), ForeignKey("user_profiles.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class StudentPulseSubmission(Base):
+    """Student answers, auto-graded academic score, and anonymized feedback/wellbeing responses."""
+    __tablename__ = "student_pulse_submissions"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    pulse_id = Column(String(36), ForeignKey("student_pulse_assignments.id"), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
+    academic_score = Column(Float, nullable=False)
+    academic_max_marks = Column(Float, nullable=False)
+    percentage = Column(Float, nullable=False)
+    academic_answers_json = Column(Text, nullable=False)
+    feedback_answers_json = Column(Text, nullable=False)
+    wellbeing_answers_json = Column(Text, nullable=False)
+    is_anonymous = Column(Boolean, default=True, nullable=False)
+    submitted_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("pulse_id", "student_id", name="uq_pulse_student_submission"),
+    )
