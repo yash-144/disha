@@ -406,8 +406,8 @@ Append-only. `student_id`, `activity_key`, `points` (signed int),
 | error_message | text | |
 
 ### `student_identities` (current)
-Fields: `user_id` (unique), `institution_id`, `sutra_id` (unique random public
-handle, format `SUTRA-XXXX-XXXX-XXXX`), `display_name`, `avatar_config`
+Fields: `user_id` (unique), `institution_id`, `disha_id` (unique random public
+handle, format `DISHA-XXXX-XXXX-XXXX`), `display_name`, `avatar_config`
 (JSON), `profile_avatar_url`, `art_seed` (private 256-bit hex),
 `collectible_status` (`unminted`, `pending`, `minted`, `failed`),
 `collectible_token_id`, `collectible_tx_hash`, `collectible_error`,

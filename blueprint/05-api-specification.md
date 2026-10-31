@@ -210,8 +210,8 @@ accept any `studentId` (audit S5, D2, A4, F5).
 | PUT | `/identity/avatar` | `identity.self` | Validated against catalogue |
 | POST | `/identity/wallet/challenge` + `/identity/wallet/verify` | `identity.self` | New: signed-message proof of wallet ownership (audit S8) |
 | POST | `/identity/mint` | `identity.self` | Only to verified wallet; rate-limited |
-| GET | `/identity/art/{sutra_id}.png` | none | Public, non-PII |
-| GET | `/identity/metadata/{sutra_id}` | none | Public, non-PII |
+| GET | `/identity/art/{disha_id}.png` | none | Public, non-PII |
+| GET | `/identity/metadata/{disha_id}` | none | Public, non-PII |
 
 ### 2.15 Removed or not carried forward
 

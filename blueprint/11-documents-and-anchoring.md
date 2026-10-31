@@ -8,7 +8,7 @@ be checked later without storing personal data on-chain.
 
 | Item | Fact |
 |---|---|
-| Code | `app/api/v1/documents.py`, `app/services/document_integrity.py`, `app/services/blockchain.py`, `contracts/SutraDocumentRegistry.sol` |
+| Code | `app/api/v1/documents.py`, `app/services/document_integrity.py`, `app/services/blockchain.py`, `contracts/DishaDocumentRegistry.sol` |
 | Chain | Base Sepolia test network, chain id 84532, RPC `https://sepolia.base.org` |
 | Storage | Local disk under `DOCUMENTS_STORAGE_DIR` (`storage/documents`) (audit A4) |
 | PDF generation | `reportlab` |
@@ -60,12 +60,12 @@ works without a blockchain.
 
 | Item | Fact |
 |---|---|
-| Code | `app/api/v1/identity.py`, `app/services/identity_art.py`, `contracts/SutraStudentIdentityNFT.sol` |
-| Public id | `sutra_id`, random, format `SUTRA-XXXX-XXXX-XXXX`, unique |
-| Artwork | Generated from a private 256-bit `art_seed`, not from the avatar; PNG served publicly by `sutra_id` |
-| Metadata | Public JSON by `sutra_id`; no PII |
+| Code | `app/api/v1/identity.py`, `app/services/identity_art.py`, `contracts/DishaStudentIdentityNFT.sol` |
+| Public id | `disha_id`, random, format `DISHA-XXXX-XXXX-XXXX`, unique |
+| Artwork | Generated from a private 256-bit `art_seed`, not from the avatar; PNG served publicly by `disha_id` |
+| Metadata | Public JSON by `disha_id`; no PII |
 | Pinning | Optional IPFS via Pinata |
-| Contract | ERC-721 with a `locked` (soulbound-style) interface; one token per `sutra_id` hash |
+| Contract | ERC-721 with a `locked` (soulbound-style) interface; one token per `disha_id` hash |
 | Minting | Server relayer pays gas for any authenticated account; recipient wallet ownership is not proven (audit S8) |
 
 ### 4.2 Requirements

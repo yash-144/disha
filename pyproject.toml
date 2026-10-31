@@ -1,0 +1,23 @@
+[project]
+name = "disha-monorepo"
+version = "1.0.0"
+description = "DISHA — Student Early-Warning & Intervention Platform"
+authors = [{ name = "DISHA Engineering Team" }]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".git", "__pycache__", "web", "cli", "contracts"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "api/tests", "worker/tests", "ml/tests"]
+python_files = ["test_*.py"]

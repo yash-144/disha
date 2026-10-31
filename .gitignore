@@ -1,5 +1,70 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.pnpm-debug.log*
+
+# Rust / Cargo
+cli/target/
+Cargo.lock
+
+# Foundry / Solidity
+contracts/out/
+contracts/cache/
+
+# Databases & local storage
+*.sqlite3
+*.db
+local_storage/
+
+# Testing & coverage
+.coverage
+htmlcov/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
+Thumbs.db
