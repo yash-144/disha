@@ -360,3 +360,37 @@ async def flags_for_run(session: AsyncSession, run_id: str) -> List[RiskFlag]:
         course_ref=f"{s.course_id}:{s.term_id}", as_of=s.as_of_date or f"day:{s.as_of_day}",
         tier=TIER_FLAG.get(s.tier, "none"), probability=float(s.probability), reasons=list(s.reasons or []),
         model_version=s.model_version, score_id=s.id) for s in res.scalars().all()]
+
+
+@dataclass
+class SystemActor:
+    """Actor for scheduled runs. Audit rows show this id, never a real person."""
+    user_id: str
+    role: str = "platform_admin"
+    is_platform_admin: bool = True
+
+
+async def apply_policy_to_run(db: AsyncSession, run: MlScoringRun, actor: Any) -> Optional[Dict[str, Any]]:
+    """Send a completed run's flags (tier != none) through the campus's active policy.
+
+    Returns a short summary, or None when no policy is published (logged; no cases are created).
+    A policy failure never undoes the scoring run.
+    """
+    from app.modules.policy.services import PolicyError, evaluate_risk_flags
+
+    run_id, campus_id = run.id, run.campus_id  # read now; commits/rollbacks below expire `run`
+    flags = [f for f in await flags_for_run(db, run_id) if f.tier != "none"]
+    if not flags:
+        return {"flags_sent": 0, "cases_created": 0, "skipped": {}}
+    try:
+        result = await evaluate_risk_flags(db, campus_id, flags, actor)
+    except PolicyError as exc:
+        await db.rollback()
+        log.warning("policy not applied to run %s: %s", run_id, getattr(exc, "message", exc))
+        return None
+    except Exception:  # noqa: BLE001
+        await db.rollback()
+        log.exception("policy evaluation crashed for run %s", run_id)
+        return None
+    return {"evaluation_id": result.evaluation_id, "flags_sent": result.flags_received,
+            "cases_created": result.cases_created, "skipped": result.skipped}

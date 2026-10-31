@@ -57,7 +57,10 @@ async def run_scheduled_scoring(session_factory: Callable, today: Optional[date]
             try:
                 run = await services.run_scoring(db, campus_id=t["campus_id"], triggered_by=SCHEDULER,
                                                  req=ScoringRunRequest(as_of_day=t["as_of_day"], term_id=t["term_id"]))
-                created.append(run.id)
+                run_id = run.id
+                created.append(run_id)
+                summary = await services.apply_policy_to_run(db, run, services.SystemActor(user_id=SCHEDULER))
+                log.info("scheduled run %s policy=%s", run_id, summary)
             except services.MlError as exc:
                 log.warning("scheduled scoring campus=%s term=%s not run: %s", t["campus_id"], t["term_id"], exc.message)
             except Exception:  # noqa: BLE001

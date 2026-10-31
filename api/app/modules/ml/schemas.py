@@ -51,6 +51,8 @@ class ScoringRunResponse(BaseModel):
     error: Optional[str] = None
     started_at: datetime
     finished_at: Optional[datetime] = None
+    # Set on POST /runs: result of handing this run's flags to the campus policy (None = no active policy).
+    policy: Optional[Dict[str, Any]] = None
 
 
 class RunPage(BaseModel):

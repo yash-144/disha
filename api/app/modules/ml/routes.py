@@ -28,7 +28,9 @@ async def trigger_run(body: ScoringRunRequest, ctx: TenancyContext = Depends(req
                       db: AsyncSession = Depends(get_db)):
     """Score the campus's ingested data as of a day/date. 409 NO_INGESTED_DATA or MODEL_UNAVAILABLE when inputs are missing."""
     run = await services.run_scoring(db, campus_id=ctx.campus_id, triggered_by=ctx.user_id, req=body)
-    return ScoringRunResponse.model_validate(run)
+    out = ScoringRunResponse.model_validate(run)  # before the policy step commits and expires `run`
+    out.policy = await services.apply_policy_to_run(db, run, ctx)
+    return out
 
 
 @router.get("/runs", response_model=RunPage)
