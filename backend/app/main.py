@@ -4,6 +4,8 @@ from app.core.config import settings
 from app.core.middleware import RequestIdMiddleware, TenancyMiddleware
 from app.core.exceptions import register_exception_handlers
 from app.modules.identity.routes import router as identity_router
+from app.modules.student.routes import router as student_router
+from app.modules.faculty.routes import router as faculty_router
 from app.modules.cases.routes import router as cases_router
 from app.modules.roster.routes import router as roster_router
 from app.modules.ingestion.routes import router as ingestion_router
@@ -12,7 +14,7 @@ from app.modules.wellbeing.routes import router as wellbeing_router
 
 app = FastAPI(
     title="DISHA API",
-    description="DISHA — Student Early-Warning & Intervention Platform API",
+    description="DISHA — Student Academic Risk Prediction & Early Intervention Platform API",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -44,8 +46,11 @@ async def health_check():
 
 # Register Module Routers
 app.include_router(identity_router, prefix="/api/v1/identity", tags=["Identity"])
+app.include_router(student_router, prefix="/api/v1/student", tags=["Student"])
+app.include_router(faculty_router, prefix="/api/v1/faculty", tags=["Faculty"])
 app.include_router(cases_router, prefix="/api/v1/cases", tags=["Cases"])
 app.include_router(roster_router, prefix="/api/v1/roster", tags=["Roster"])
 app.include_router(ingestion_router, prefix="/api/v1/ingestion", tags=["Ingestion"])
 app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["Analytics"])
 app.include_router(wellbeing_router, prefix="/api/v1/wellbeing", tags=["Wellbeing"])
+
