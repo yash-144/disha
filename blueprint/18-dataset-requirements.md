@@ -20,6 +20,17 @@ how to judge any other dataset.
 The training run prints the actual row count and outcome counts; check them
 against the description of the copy you downloaded.
 
+Repository copy: `ml/data/raw/data_raw.csv` (as downloaded) and
+`ml/data/processed/data.csv` (header fixes only; see
+`docs/audit/anomaly_report.md`). Measured on the processed file: 4,424 rows;
+Graduate 2,209, Dropout 1,421, Enrolled 794; no missing values; no duplicates.
+Data issues handled by the loader:
+- 180 students (all in course 171) have every curricular-unit field 0 in both
+  semesters, including 75 graduates. This is treated as "no semester record",
+  so these students are assessed only at admission (`cp0`).
+- 3 students have more semester-2 subjects without evaluation than enrolled;
+  the value is capped at enrolled.
+
 ## 2. Columns used (15 inputs, 4 audit, 1 target)
 
 | Canonical name | Source header | Role |

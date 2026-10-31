@@ -125,8 +125,15 @@ flowchart TD
 
 **Academic data only.** First dataset: UCI *Predict Students' Dropout and
 Academic Success* (4,424 students, one higher-education institution in
-Portugal, outcomes Graduate / Dropout / Enrolled). Of its 37 columns, 15 are
-model inputs, 4 are kept for the fairness check only, and 1 is the outcome.
+Portugal; outcomes Graduate 2,209 / Dropout 1,421 / Enrolled 794). Of its 37
+columns, 15 are model inputs, 4 are kept for the fairness check only, and 1 is
+the outcome.
+
+| File | Contents |
+|---|---|
+| `ml/data/raw/data_raw.csv` | As downloaded (semicolon-separated; header issues) — never edited |
+| `ml/data/processed/data.csv` | Header-corrected copy; **the training default** |
+| `data.csv`, `data_raw_backup.csv` (repo root) | Identical copies of the two files above, used by `tests/test_dataset.py` |
 
 | Model inputs | |
 |---|---|
@@ -172,10 +179,18 @@ protected column reaches any model. If your dataset has no semester-2 columns,
 | Total failed (`cp2`) | sem 1 + sem 2 failed | Cumulative backlog |
 | Raw counts, prior grades, course | as given | Context |
 
-Data quirk handled: the dataset stores grade **0** when no subject was passed.
-That is not a real mark, so it becomes "missing" plus the no-grade flag.
-If a whole feature is absent from your dataset (e.g. no admission grade), it is
-left out of the model and the training log says so.
+### Data cleaning applied at load time
+
+| Issue | In this dataset | Handling |
+|---|---|---|
+| Grade **0** when no subject was passed | Every student with 0 subjects passed | Not a real mark: grade becomes missing, plus the no-grade flag |
+| A semester with **every field 0** | 180 students, all in course 171, in both semesters — 75 of them graduated | A gap in the records, not a student who registered for nothing. Those semester fields become missing; these students are assessed only by `cp0` and get tier `NO_DATA` from `cp1`/`cp2` |
+| Subjects without exam **more than** subjects enrolled | 3 students, semester 2 | Capped at subjects enrolled |
+| Header problems (byte-order mark, stray tab, `Nacionality` spelling) | Raw file `data/raw/data_raw.csv` | Fixed in `data/processed/data.csv` (see `docs/audit/anomaly_report.md`); the loader also tolerates them |
+| Whole feature absent (e.g. no admission grade in your dataset) | — | Left out of the model; the training log says so |
+
+The training log and each `report.md` print how many rows each fix changed.
+No rows are deleted and no values are invented.
 
 ## 7. What the model predicts (label)
 
@@ -215,6 +230,11 @@ left out of the model and the training log says so.
 | **MEDIUM** | MEDIUM cutoff ≤ probability < HIGH cutoff **and** ≥ 1 academic rule fires | Yes |
 | **WATCH** | probability ≥ WATCH cutoff, or MEDIUM band with no rule | No — listed for staff |
 | **ON_TRACK** | below WATCH cutoff | No |
+| **NO_DATA** | no record for a semester this checkpoint needs | No — assess with `cp0` |
+
+If the HIGH tier alone exceeds the capacity cap, the cap fills before MEDIUM is
+reached and MEDIUM shows no students; raise `--capacity-share` if advisors can
+handle more.
 
 **Capacity cap:** if signals exceed 15% of the scored cohort, only the
 highest-probability ones keep their signal; the rest become WATCH with
@@ -279,22 +299,35 @@ python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output sco
 
 ## 16. Training on Kaggle
 
-1. New notebook (CPU; no GPU needed) → **Add input** → your dataset (e.g.
-   "Predict Students' Dropout and Academic Success").
-2. Upload this `ml/` folder (as a Kaggle dataset) or `!git clone` the repo and
-   `%cd` into `ml`.
-3. Run one of:
-   ```bash
-   !python kaggle_train.py                                         # finds the UCI CSV itself
-   !python kaggle_train.py /kaggle/input/<folder>/<file>.csv
-   !python kaggle_train.py /kaggle/input/<folder>/<file>.csv --mapping mapping.json
-   !python kaggle_train.py <file>.csv --label not_on_time --model logreg
-   ```
-4. Download from the Output panel: `artifacts/` (models, manifests, reports)
-   and `demo_scored_cp1.csv`.
+The dataset is committed in this repository (`ml/data/processed/data.csv`), so
+cloning is enough — no Kaggle dataset needs to be attached.
 
-Time: the run takes well under a minute. Plan 1–2 hours to run, read reports
-and try settings; the rest of the time can go to the demo.
+1. New notebook. Settings: accelerator **None** (CPU), **Internet on** (needed
+   to clone; if the repository is private, use a GitHub token or upload the
+   folder as a Kaggle dataset instead).
+2. In a cell:
+   ```bash
+   !git clone https://github.com/yash-144/disha.git
+   %cd disha/ml
+   !python -m pytest tests -q          # optional, ~10 s
+   !python kaggle_train.py             # trains cp0, cp1, cp2 on the repo dataset
+   ```
+3. Other runs:
+   ```bash
+   !python kaggle_train.py --label not_on_time
+   !python kaggle_train.py --model logreg
+   !python kaggle_train.py /kaggle/input/<folder>/<file>.csv --mapping mapping.json
+   ```
+4. Read `/kaggle/working/artifacts/cp1/report.md` (`!cat` it in a cell), then
+   download from the Output panel: `artifacts/` (models, manifests, reports) and
+   `demo_scored_cp1.csv`.
+
+The run prints the scikit-learn version. Load the saved models with the same
+version (Kaggle's version may differ from your laptop's; see §24).
+
+Time: a full run takes under a minute on CPU (about 18 s on a laptop for this
+dataset). Plan 1–2 hours to run, read reports and try settings; the rest of the
+time can go to the demo.
 
 ## 17. Using your own dataset
 
@@ -414,7 +447,11 @@ python -m kagaz_ml.score --model artifacts/cp1 --input students.csv --output sco
 | `capacity_capped` | True if moved to WATCH by the cap |
 | `rule_reasons`, `rule_codes` | Academic rules that fired |
 | `model_factors` | Top three factor contributions |
-| `note` | Present if the model was not approved |
+| `note` | Why a row is `NO_DATA`, or that the model was not approved |
+
+Tier `NO_DATA` means the student has no record for a semester this checkpoint
+needs; score that student with `cp0`. `kaggle_train.py` does this
+automatically in the demo file.
 
 - The scorer checks the model file's SHA-256 against the manifest and refuses a
   modified file.
@@ -493,9 +530,9 @@ python -m pytest tests -q
 
 | Test file | Checks |
 |---|---|
-| `test_data_and_features.py` | Both CSV formats load; missing columns error; grade-0 handling; **no future data in earlier checkpoints**; **protected columns never inputs**; labels |
+| `test_data_and_features.py` | Both CSV formats load; missing columns error; grade-0 handling; all-zero semester treated as no record; no-exam count capped; **no future data in earlier checkpoints**; **protected columns never inputs**; labels |
 | `test_cutoffs_and_tiers.py` | Cutoffs meet the precision target and stop before a weak band; no cutoff when unreachable; ties; tier logic; rule corroboration; capacity cap |
-| `test_train_and_score.py` | Full training on all checkpoints; artifacts and hashes; later checkpoints rank better; capacity respected; tampered model refused; scoring output |
+| `test_train_and_score.py` | Full training on all checkpoints; artifacts and hashes; later checkpoints rank better; capacity respected; tampered model refused; scoring output; `NO_DATA` for students without a semester record |
 | `test_own_dataset.py` | Custom headers, SGPA 0–10 scale, custom outcome labels, missing semester 2; template generator; bad mappings rejected; train + score with saved mapping |
 
 Tests run on **synthetic** data from `synthetic.py`. Synthetic numbers are

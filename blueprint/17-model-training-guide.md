@@ -15,13 +15,13 @@ in `ml/`. The method is explained in [16](16-risk-signal-pipeline.md).
 ## 2. Setup
 
 ### On Kaggle
-1. New notebook → Add input → search "Predict Students' Dropout and Academic
-   Success" → add it.
-2. Upload the `ml/` folder as a dataset or clone the repo:
-   `!git clone <repo-url> && cd <repo>/ml`
+The dataset is committed at `ml/data/processed/data.csv`, so no Kaggle input
+is needed.
+1. New notebook; accelerator None (CPU); Internet on.
+2. `!git clone https://github.com/yash-144/disha.git` then `%cd disha/ml`.
 3. Kaggle images include scikit-learn, pandas, numpy and joblib.
-4. Run: `!python kaggle_train.py`. The script finds the CSV under
-   `/kaggle/input` automatically, or pass its path as an argument.
+4. Run: `!python kaggle_train.py`. It trains on the repository dataset by
+   default; pass another CSV path (and `--mapping`) to use a different file.
 5. Download `/kaggle/working/artifacts/` and `demo_scored_cp1.csv` from the
    Output panel.
 
