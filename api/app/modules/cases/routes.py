@@ -1,143 +1,281 @@
-from typing import List, Literal, Optional
-
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
+from typing import Optional, List
+from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import campus_role
-from app.core.meko import catalog_entries, fire_and_forget, get_meko
-from app.core.permissions import STAFF_ROLES
-from app.modules.cases import schemas as sc
-from app.modules.cases.repository import CaseRepository
-from app.modules.cases.services import CasesService, allowed_targets
-from app.core.exceptions import EntityNotFoundError
+from app.core.dependencies import get_current_user, get_tenancy_context, TenancyContext
+from app.core.permissions import Role
+from app.modules.cases.schemas import (
+    CaseCreateRequest,
+    CaseUpdateRequest,
+    CaseAssignRequest,
+    CaseReopenRequest,
+    CaseDismissRequest,
+    CaseTransitionRequest,
+    CaseDetailResponse,
+    CaseEventResponse,
+)
+from app.modules.cases.services import CaseService, CaseLifecycleService, case_to_detail_response
+from app.shared.enums import CaseState, CaseStatus, map_status_to_state, map_state_to_status
 
-try:
-    from disha_meko import playbook as pb
-except ImportError:  # Meko is optional
-    pb = None
-
-router = APIRouter()
-staff = campus_role(*STAFF_ROLES)  # staff role AND membership of the X-Campus-ID campus
-
-
-def _campus(request: Request) -> str:
-    return request.state.campus_id
+router = APIRouter(tags=["Cases"])
 
 
-def _actor(user: dict) -> Optional[str]:
-    return str(user["sub"]) if user.get("sub") else None
+def _extract_actor_context(current_user: dict, ctx: TenancyContext):
+    actor_id = ctx.user_id
+    roles = [ctx.role.value]
+    if "roles" in current_user and isinstance(current_user["roles"], list):
+        roles.extend(current_user["roles"])
+    if ctx.is_platform_admin and "platform_admin" not in roles:
+        roles.append("platform_admin")
+    return actor_id, list(set(roles))
 
 
-@router.get("/", response_model=List[sc.CaseOut])
-async def list_cases(request: Request, state: Optional[str] = None, db: AsyncSession = Depends(get_db),
-                     _=Depends(staff)):
-    return await CaseRepository(db).list(_campus(request), state)
+@router.post("", response_model=CaseDetailResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CaseDetailResponse, status_code=status.HTTP_201_CREATED)
+async def create_case(
+    payload: CaseCreateRequest,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new case in the persistent database with strict campus isolation."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    case = await CaseService.create_case(
+        db=db,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        data=payload,
+    )
+    return case_to_detail_response(case)
 
 
-@router.get("/outcomes/stats")
-async def outcome_stats(request: Request, db: AsyncSession = Depends(get_db), _=Depends(staff)):
-    """Outcome counts per (intervention, reason-code pattern): the Postgres source for Meko promotion."""
-    return {"stats": await CaseRepository(db).outcome_counts(_campus(request))}
+@router.get("", response_model=List[CaseDetailResponse])
+@router.get("/", response_model=List[CaseDetailResponse])
+async def list_cases(
+    state: Optional[str] = Query(None, description="Filter by canonical CaseState"),
+    status_filter: Optional[str] = Query(None, alias="status", description="Filter by legacy CaseStatus or CaseState"),
+    priority: Optional[str] = Query(None, description="Filter by priority"),
+    student_id: Optional[str] = Query(None, description="Filter by student ID"),
+    assigned_counsellor_id: Optional[str] = Query(None, description="Filter by assigned counsellor ID"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """List cases with strict campus-level tenancy boundary and optional filtering."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    cases = await CaseService.list_cases(
+        db=db,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        is_platform_admin=ctx.is_platform_admin,
+        state=state,
+        status_filter=status_filter,
+        priority=priority,
+        student_id=student_id,
+        assigned_counsellor_id=assigned_counsellor_id,
+        limit=limit,
+        offset=offset,
+    )
+    return [case_to_detail_response(c) for c in cases]
 
 
-@router.post("/", response_model=sc.CaseOut, status_code=201)
-async def create_case(body: sc.CaseCreate, request: Request, db: AsyncSession = Depends(get_db),
-                      user: dict = Depends(staff)):
-    return await CasesService(db).create_from_flag(
-        _campus(request), _actor(user), body.flag_id, body.student_id, body.intervention_id,
-        body.reason_codes, body.tier)
+@router.get("/{case_id}", response_model=CaseDetailResponse)
+async def get_case(
+    case_id: str = Path(...),
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve case details with canonical state and legacy status compatibility from database."""
+    case = await CaseService.get_case(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+    return case_to_detail_response(case)
 
 
-@router.get("/{case_id}")
-async def get_case(case_id: str, request: Request, db: AsyncSession = Depends(get_db), _=Depends(staff)):
-    repo = CaseRepository(db)
-    case = await repo.get(_campus(request), case_id)
-    if not case:
-        raise EntityNotFoundError("Case", case_id)
-    return {"case": sc.CaseOut.model_validate(case), "next_states": allowed_targets(case.state),
-            "events": [sc.EventOut.model_validate(e) for e in await repo.events(case.campus_id, case_id)],
-            "tasks": [sc.TaskOut.model_validate(t) for t in await repo.tasks(case.campus_id, case_id)]}
+@router.patch("/{case_id}", response_model=CaseDetailResponse)
+async def update_case(
+    case_id: str = Path(...),
+    payload: CaseUpdateRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update case metadata using atomic database-level optimistic locking."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    updated_case = await CaseService.update_case(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        data=payload,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+    return case_to_detail_response(updated_case)
 
 
-@router.post("/{case_id}/transition", response_model=sc.CaseOut)
-async def transition_case(case_id: str, body: sc.Transition, request: Request, db: AsyncSession = Depends(get_db),
-                          user: dict = Depends(staff)):
-    return await CasesService(db).transition(_campus(request), case_id, _actor(user), user.get("roles", []),
-                                             body.to_state, body.version, body.reason_code)
-
-
-@router.post("/{case_id}/assign", response_model=sc.CaseOut)
-async def assign_case(case_id: str, body: sc.Assign, request: Request, db: AsyncSession = Depends(get_db),
-                      user: dict = Depends(staff)):
-    return await CasesService(db).assign(_campus(request), case_id, _actor(user), body.owner_id, body.due_at,
-                                         body.version, body.reason_code)
-
-
-@router.post("/{case_id}/tasks", response_model=sc.TaskOut, status_code=201)
-async def add_task(case_id: str, body: sc.TaskCreate, request: Request, db: AsyncSession = Depends(get_db),
-                   user: dict = Depends(staff)):
-    return await CasesService(db).add_task(_campus(request), case_id, _actor(user), body.domain, body.generic_label,
-                                           body.assignee_id, body.due_at, body.restricted_details)
-
-
-@router.post("/tasks/{task_id}/state", response_model=sc.TaskOut)
-async def set_task_state(task_id: str, body: sc.TaskState, request: Request, db: AsyncSession = Depends(get_db),
-                         user: dict = Depends(staff)):
-    return await CasesService(db).set_task_state(_campus(request), task_id, _actor(user), body.to_state)
-
-
-class FlagReview(BaseModel):
-    flag_id: str
-    student_id: str
-    action: Literal["accept", "dismiss", "open_case", "start_intervention"]
-    reason_codes: List[str] = Field(default_factory=list)
-    tier: Optional[str] = None
-    note: Optional[str] = Field(default=None, max_length=500)
-    intervention_id: Optional[str] = None
-
-
-@router.post("/flags/review")
-async def review_flag(body: FlagReview, request: Request, tasks: BackgroundTasks,
-                      db: AsyncSession = Depends(get_db), user: dict = Depends(staff), meko=Depends(get_meko)):
-    """A human decides what to do with an ML flag (No Alert Without Action).
-
-    open_case / start_intervention create the case (idempotent per flag); every decision is also recorded
-    as a Meko decision trace so outcomes can later inform "what worked for similar profiles". IDs are hashed.
+@router.post("/{case_id}/transition")
+async def transition_case_state(
+    case_id: str = Path(...),
+    payload: CaseTransitionRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
     """
-    case_id = None
-    if body.action in ("open_case", "start_intervention"):
-        case = await CasesService(db).create_from_flag(_campus(request), _actor(user), body.flag_id, body.student_id,
-                                                       body.intervention_id, body.reason_codes, body.tier)
-        case_id = case.id
-    role = (user.get("roles") or ["unknown"])[0]
-    evidence = {"flag_id": body.flag_id, "student_id": body.student_id, "tier": body.tier,
-                "reason_codes": body.reason_codes, "campus_id": getattr(request.state, "campus_id", None)}
-    fire_and_forget(tasks, meko.trace_decision(
-        decision=f"{role} chose '{body.action}' on an ML flag",
-        rationale=(body.note or "") + f" Reason codes: {', '.join(body.reason_codes) or 'none'}.",
-        outcome=f"Action '{body.action}' recorded for the flag (tier {body.tier or 'n/a'}).",
-        plan=["Show the ML flag with its reason codes.", f"Human ({role}) chooses '{body.action}'.",
-              "Record the decision so outcomes can inform later recalls."],
-        evidence=evidence, actor=role))
-    return {"flag_id": body.flag_id, "action": body.action, "recorded": True, "case_id": case_id}
-
-
-@router.post("/{case_id}/outcome")
-async def close_case(case_id: str, body: sc.CaseOutcomeIn, request: Request, tasks: BackgroundTasks,
-                     db: AsyncSession = Depends(get_db), user: dict = Depends(staff), meko=Depends(get_meko)):
-    """Persist the case outcome (Postgres is the source of truth), then feed Meko. The outcome becomes a Meko
-    memory (hashed case id only); recurring good outcomes are promoted into the shared playbook (MEKO_PROMOTE_MIN).
+    Execute canonical state transition governed by the 14-state transition matrix
+    with atomic database concurrency, tenancy isolation, and transactional audit logging.
     """
-    entries = catalog_entries()
-    if entries and body.intervention_id not in {str(e["id"]) for e in entries if e.get("active", True)}:
-        raise HTTPException(422, "intervention_id is not an active intervention in the campus catalogue")
-    campus = _campus(request)
-    await CasesService(db).record_outcome(campus, case_id, _actor(user), body.outcome, body.intervention_id,
-                                          body.reason_codes, body.tier, body.checkpoint)
-    if pb is not None and meko.active:
-        fire_and_forget(tasks, pb.record_outcome(
-            meko, case_id=case_id, outcome=body.outcome, intervention_id=body.intervention_id,
-            reason_codes=body.reason_codes, tier=body.tier, checkpoint=body.checkpoint, campus_id=campus))
-    return {"case_id": case_id, "outcome": body.outcome, "recorded": True}
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    result = await CaseService.transition_case_db(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        actor_user_id=actor_id,
+        actor_roles=actor_roles,
+        target_state_raw=payload.target_state,
+        expected_version=payload.expected_version,
+        reason_code=payload.reason_code,
+        notes=payload.notes,
+        new_owner_id=payload.new_owner_id,
+        due_at=payload.due_at,
+        has_follow_up=bool(payload.has_follow_up),
+        has_outcome=bool(payload.has_outcome),
+        is_platform_admin=ctx.is_platform_admin,
+    )
+
+    return {
+        "status": "success",
+        "case": result["case"],
+        "event": result["event"],
+        "notification_intent": result["notification_intent"],
+    }
+
+
+@router.post("/{case_id}/assign", response_model=CaseDetailResponse)
+async def assign_case(
+    case_id: str = Path(...),
+    payload: CaseAssignRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Assign or reassign a case to a counsellor."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    case = await CaseService.assign_case(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        data=payload,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+    return case_to_detail_response(case)
+
+
+@router.post("/{case_id}/reopen", response_model=CaseDetailResponse)
+async def reopen_case(
+    case_id: str = Path(...),
+    payload: CaseReopenRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Formally reopen a closed case."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    case = await CaseService.reopen_case(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        data=payload,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+    return case_to_detail_response(case)
+
+
+@router.post("/{case_id}/dismiss", response_model=CaseDetailResponse)
+async def dismiss_case(
+    case_id: str = Path(...),
+    payload: CaseDismissRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Dismiss a case early with mandatory rationale."""
+    actor_id, actor_roles = _extract_actor_context(current_user, ctx)
+    case = await CaseService.dismiss_case(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        actor_id=actor_id,
+        actor_roles=actor_roles,
+        data=payload,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+    return case_to_detail_response(case)
+
+
+@router.get("/{case_id}/events", response_model=List[CaseEventResponse])
+async def get_case_events(
+    case_id: str = Path(...),
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve audit timeline of lifecycle events for a case."""
+    return await CaseService.get_case_events(
+        db=db,
+        case_id=case_id,
+        campus_id=ctx.campus_id,
+        is_platform_admin=ctx.is_platform_admin,
+    )
+
+
+@router.post("/{case_id}/accept")
+async def accept_case(
+    case_id: str = Path(...),
+    payload: CaseTransitionRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Convenience endpoint to accept an assigned case."""
+    payload.target_state = CaseState.ACCEPTED.value
+    return await transition_case_state(
+        case_id=case_id,
+        payload=payload,
+        current_user=current_user,
+        ctx=ctx,
+        db=db,
+    )
+
+
+@router.post("/{case_id}/close")
+async def close_case(
+    case_id: str = Path(...),
+    payload: CaseTransitionRequest = ...,
+    current_user: dict = Depends(get_current_user),
+    ctx: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    """Convenience endpoint to close a case upon resolution."""
+    payload.target_state = CaseState.CLOSED.value
+    return await transition_case_state(
+        case_id=case_id,
+        payload=payload,
+        current_user=current_user,
+        ctx=ctx,
+        db=db,
+    )

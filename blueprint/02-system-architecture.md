@@ -131,10 +131,7 @@ sequenceDiagram
 | Retention purge | Daily | Delete or redact rows past `expires_at` per retention class |
 | Model drift report | Daily / weekly | Compute score distribution and alert rate from inference log |
 
-**Current implementation:** `OutboxWorker.process_outbox_batch` and
-`scan_and_escalate_overdue_cases` (`app/services/worker.py`) contain the
-logic, but nothing runs them outside tests, and without a dispatcher items are
-marked `sent` without delivery (audit A2).
+**Current implementation:** `worker/scheduler.py` (APScheduler) registers the jobs, but `outbox_dispatch` and `deadline_escalation` are **not yet implemented (stubs)**; the case service writes notification outbox rows and nothing dispatches them ([07](07-case-workflow-and-worker.md) §8).
 
 ## 6. Clients
 

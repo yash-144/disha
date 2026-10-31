@@ -1,87 +1,79 @@
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from app.shared.enums import CaseState, CaseStatus
 
-from pydantic import BaseModel, ConfigDict, Field
+class CaseTransitionRequest(BaseModel):
+    target_state: str = Field(..., description="Canonical CaseState target or compatible legacy CaseStatus")
+    expected_version: int = Field(..., description="Optimistic locking version counter")
+    reason_code: Optional[str] = Field(None, description="Standardized operational reason code")
+    notes: Optional[str] = Field(None, description="Explanatory notes or rationale for transition")
+    new_owner_id: Optional[str] = Field(None, description="Assigned counsellor ID (required when assigning/reassigning)")
+    due_at: Optional[datetime] = Field(None, description="SLA target completion timestamp")
+    has_follow_up: Optional[bool] = Field(False, description="Whether prerequisite follow-up is verified")
+    has_outcome: Optional[bool] = Field(False, description="Whether prerequisite outcome is verified")
 
-Domain = Literal["academic", "attendance", "finance", "counselling", "other"]
+class CaseCreateRequest(BaseModel):
+    student_id: str = Field(..., description="UUID of student from disha_roster")
+    title: str = Field(..., description="Case summary or title")
+    description: Optional[str] = Field(None, description="Detailed case description")
+    priority: Optional[str] = Field("medium", description="Priority level: low, medium, high, urgent")
+    initial_state: Optional[str] = Field(CaseState.ACTION_PLANNED.value, description="Initial canonical case state")
+    assigned_counsellor_id: Optional[str] = Field(None, description="Initial assigned counsellor ID")
+    due_date: Optional[datetime] = Field(None, description="Target SLA completion deadline")
 
+class CaseUpdateRequest(BaseModel):
+    expected_version: int = Field(..., description="Optimistic locking version counter")
+    title: Optional[str] = Field(None, description="Updated case title")
+    description: Optional[str] = Field(None, description="Updated description")
+    priority: Optional[str] = Field(None, description="Updated priority")
+    due_date: Optional[datetime] = Field(None, description="Updated target SLA deadline")
 
-class CaseCreate(BaseModel):
-    flag_id: str = Field(max_length=64)
-    student_id: str = Field(max_length=64)
-    intervention_id: Optional[str] = Field(default=None, max_length=64)
-    reason_codes: List[str] = Field(default_factory=list)
-    tier: Optional[str] = None
+class CaseAssignRequest(BaseModel):
+    expected_version: int = Field(..., description="Optimistic locking version counter")
+    counsellor_id: str = Field(..., description="ID of assigned counsellor")
+    due_date: Optional[datetime] = Field(None, description="Target SLA deadline")
+    notes: Optional[str] = Field(None, description="Assignment rationale or guidance")
 
+class CaseReopenRequest(BaseModel):
+    expected_version: int = Field(..., description="Optimistic locking version counter")
+    reason_code: Optional[str] = Field(None, description="Standardized reopening reason code")
+    notes: Optional[str] = Field(None, description="Detailed rationale for reopening")
 
-class Transition(BaseModel):
-    to_state: str
-    version: int  # clients must send the version they read (CASE-SM-05)
-    reason_code: Optional[str] = Field(default=None, max_length=64)
+class CaseDismissRequest(BaseModel):
+    expected_version: int = Field(..., description="Optimistic locking version counter")
+    reason_code: Optional[str] = Field(None, description="Standardized dismissal reason code")
+    notes: Optional[str] = Field(None, description="Mandatory rationale for dismissing case")
 
-
-class Assign(BaseModel):
-    owner_id: str = Field(max_length=64)
-    due_at: datetime
-    version: int
-    reason_code: Optional[str] = Field(default=None, max_length=64)
-
-
-class TaskCreate(BaseModel):
-    domain: Domain
-    generic_label: str = Field(max_length=200)
-    assignee_id: Optional[str] = None
-    due_at: Optional[datetime] = None
-    restricted_details: Optional[Dict[str, Any]] = None  # stored apart; only for finance/counselling
-
-
-class TaskState(BaseModel):
-    to_state: Literal["accepted", "in_progress", "completed", "cancelled"]
-
-
-class CaseOutcomeIn(BaseModel):
-    outcome: Literal["improved", "no_change", "worse"]
-    intervention_id: str
-    reason_codes: List[str] = Field(default_factory=list)
-    tier: Optional[str] = None
-    checkpoint: Optional[str] = None
-
-
-class CaseOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class CaseDetailResponse(BaseModel):
     id: str
-    flag_id: str
-    student_ref: str
-    intervention_id: Optional[str]
-    tier: Optional[str]
-    reason_codes: list
-    state: str
-    owner_id: Optional[str]
-    due_at: Optional[datetime]
-    is_escalated: bool
+    campus_id: str
+    student_id: str
+    student_name: Optional[str] = None
+    student_ref: Optional[str] = None
+    department: Optional[str] = None
+    state: CaseState
+    legacy_status: CaseStatus
+    priority: str
+    primary_owner_user_id: Optional[str] = None
+    owner_name: Optional[str] = None
+    due_at: Optional[datetime] = None
+    is_overdue: bool = False
+    is_escalated: bool = False
+    selected_intervention_key: Optional[str] = None
     version: int
-    cycle: int
     created_at: datetime
+    updated_at: datetime
+    closed_at: Optional[datetime] = None
+    closed_by: Optional[str] = None
 
-
-class EventOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    event_type: str
-    actor_id: Optional[str]
-    actor_kind: str
-    from_state: Optional[str]
-    to_state: Optional[str]
-    reason_code: Optional[str]
-    created_at: datetime
-
-
-class TaskOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class CaseEventResponse(BaseModel):
     id: str
     case_id: str
-    domain: str
-    generic_label: str
-    state: str
-    assignee_id: Optional[str]
-    due_at: Optional[datetime]
-    is_escalated: bool
+    actor_id: str
+    event_type: str
+    from_state: str
+    to_state: str
+    reason_code: Optional[str] = None
+    metadata: Dict[str, Any] = {}
+    created_at: datetime

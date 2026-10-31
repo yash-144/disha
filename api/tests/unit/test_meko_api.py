@@ -8,6 +8,9 @@ from app.core.config import settings
 from app.main import app
 from .conftest import headers
 
+import pytest  # noqa: E402
+pytestmark = pytest.mark.usefixtures("fake_auth")
+
 
 class FakeMeko:
     active = True
@@ -34,7 +37,7 @@ class FakeMeko:
 
 
 def auth(role="mentor"):
-    return headers(role)  # bearer token + X-Campus-ID of a campus u1 belongs to
+    return headers(role)  # fake tenancy (see conftest.fake_auth)
 
 
 def test_meko_routes_and_flag_trace():
@@ -45,7 +48,7 @@ def test_meko_routes_and_flag_trace():
         assert client.get("/api/v1/meko/tools").status_code == 401
         r = client.post("/api/v1/meko/recall", json={"query": "what worked for similar risk?"}, headers=auth())
         assert r.json()["answer"] == "mentor calls worked"
-        r = client.post("/api/v1/cases/flags/review", headers=auth(), json={
+        r = client.post("/api/v1/meko/flags/review", headers=auth(), json={
             "flag_id": "f1", "student_id": "CS-042", "action": "dismiss", "reason_codes": ["LOW_ATTENDANCE"]})
         assert r.status_code == 200
     assert fake.traces and fake.traces[0]["actor"] == "mentor"

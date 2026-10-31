@@ -12,6 +12,9 @@ from app.modules.translate import service
 from app.modules.translate.languages import to_flores
 from .conftest import headers
 
+import pytest  # noqa: E402
+pytestmark = pytest.mark.usefixtures("fake_auth")
+
 URL = "/api/v1/translate"
 
 

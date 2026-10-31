@@ -253,32 +253,34 @@ route is brought in line. Everything is mounted under `/api/v1`.
 
 | Topic | Today |
 |---|---|
-| Campus context | Header `X-Campus-ID` (header names are case-insensitive). The `campus_role(...)` dependency requires a staff role **and** an active row in `disha_campus_memberships` for the token's `sub` and that campus; otherwise 403 `Not a member of this campus`, and 400 if the header is missing. Applied to the cases and Meko routes (not to `/translate`) |
+| Campus context | Header `X-Campus-ID`. `get_tenancy_context` (`api/app/core/dependencies.py`) checks the user is active and has an active `Membership` for that campus (platform admins excepted); `require_role(...)` / `require_permission(Action)` then gate the route and return a `TenancyContext`. Meko routes use `require_role`; `/translate` needs only a valid token |
 | Auth | HS256 JWT (`DISHA_JWT_SECRET`); roles from the `roles` claim; staff roles are faculty, mentor, hod, counsellor, finance, placement, leadership, institution_admin |
 | Concurrency | `version` in the request body (not `If-Match`); the check is part of the `UPDATE`; mismatch → 409 |
 | Idempotency | Not via `Idempotency-Key`: case creation is idempotent per `(campus, flag_id)` |
 | Errors | `DishaBaseException` and `HTTPException`; the envelope in §1.1 is **not** uniform yet |
-| Migrations | `cd api && alembic upgrade head` (`api/migrations/versions/0001_cases_outbox_membership.py`, reads `DISHA_DATABASE_URL`) |
+| Migrations | `cd api && alembic upgrade head` (`api/migrations/versions/001_counsellor_module_initial.py`, `002_student_faculty_module_initial.py`; reads `DISHA_DATABASE_URL`) |
 
-### 4.2 Cases (`/api/v1/cases`, staff + campus membership)
+### 4.2 Cases (`/api/v1/cases`, backend team's implementation)
 
-| Method | Path | Body / notes |
+Routes in `api/app/modules/cases/routes.py`; lifecycle in `state_machine.py` and `services.py` (14 states,
+`CaseState` in `api/app/shared/enums.py`). Request and response shapes: `cases/schemas.py`.
+
+| Method | Path | Notes |
 |---|---|---|
-| GET | `/` | Query `state`. List of the campus's cases |
-| GET | `/outcomes/stats` | Outcome counts per `(intervention_id, reason_pattern)` for the campus |
-| POST | `/` (201) | `{flag_id, student_id, intervention_id?, reason_codes[], tier?}`. Creates a case in `action_planned`; a second call with the same `flag_id` returns the existing case |
-| GET | `/{case_id}` | `{case, next_states[], events[], tasks[]}` |
-| POST | `/{case_id}/transition` | `{to_state, version, reason_code?}`. Table in `cases/services.py`; invalid → 409 with the valid targets; `assigned` must use `/assign` (422) |
-| POST | `/{case_id}/assign` | `{owner_id, due_at, version, reason_code?}`; also handles reassignment and re-arms escalation |
-| POST | `/{case_id}/tasks` (201) | `{domain, generic_label, assignee_id?, due_at?, restricted_details?}`; domain is academic, attendance, finance, counselling or other; restricted details only for finance and counselling |
-| POST | `/tasks/{task_id}/state` | `{to_state}`: accepted, in_progress, completed, cancelled (task state table) |
-| POST | `/flags/review` | `{flag_id, student_id, action, reason_codes[], tier?, note?, intervention_id?}`, `action` ∈ accept, dismiss, open_case, start_intervention. `open_case` and `start_intervention` create the case (idempotent). Always writes a Meko decision trace in the background. Returns `{flag_id, action, recorded, case_id}` |
-| POST | `/{case_id}/outcome` | `{outcome, intervention_id, reason_codes[], tier?, checkpoint?}`, `outcome` ∈ improved, no_change, worse. One outcome per case cycle (409 on a second); moves `follow_up_due → outcome_reviewed`; 422 if `intervention_id` is not active in the campus catalogue (when a catalogue is configured); then writes a Meko outcome memory and may promote it. Returns `{case_id, outcome, recorded}` |
+| POST | `/` (201) | Create a case |
+| GET | `/` | List cases |
+| GET | `/{case_id}` | Case detail |
+| PATCH | `/{case_id}` | Update case fields |
+| POST | `/{case_id}/transition` | Move to another state (rules in `state_machine.py`) |
+| POST | `/{case_id}/assign` | Assign an owner |
+| POST | `/{case_id}/accept` | Owner accepts the assignment |
+| POST | `/{case_id}/reopen` | Reopen a case |
+| POST | `/{case_id}/dismiss` | Dismiss a case |
+| POST | `/{case_id}/close` | Close a case |
+| GET | `/{case_id}/events` | `CaseEvent` history |
 
-Differences from §2.7: no `/cases/mine`, `/history` (events come with `GET /{id}`), `/accept-assignment`
-(acceptance is `transition` to `accepted`, owner or institution_admin only), `/follow-ups`, `/override`, `/reopen`
-(reopen is `transition` to `reopened`), and the outcome vocabulary is `improved | no_change | worse`.
-Lifecycle, escalation and outbox rules: [07](07-case-workflow-and-worker.md) §8.
+Not implemented: `/outcomes/stats`, `/flags/review` and `/{id}/outcome` under `/cases` (removed in the merge; Meko
+feeds are in §4.3). Escalation and notification dispatch are worker stubs: [07](07-case-workflow-and-worker.md) §8.
 
 ### 4.3 Meko (`/api/v1/meko`)
 
@@ -287,12 +289,14 @@ Meko is optional; without `MEKO_API_KEY` reads return empty results and writes a
 | Method | Path | Who | Notes |
 |---|---|---|---|
 | GET | `/health` | no auth | `{configured, reachable, datapack, tool_count, last_error}`; never fails |
-| GET | `/tools` | staff + campus | Discovered Meko tools and the logical-op mapping |
-| POST | `/recall` | staff + campus | `{query (3-500 chars), k (1-20)}` → `{answer, sources[]}`. The query is redacted first; do not paste student names |
-| POST | `/knowledge` | admin, HoD + campus | Multipart upload of campus knowledge: `file` (pdf, txt, md, json, csv; max `MEKO_KB_MAX_BYTES`, default 5 MiB), `doc_type`, `intervention_id?`, `reason_codes`. 415 wrong type, 413 too large, 422 if the PII guard finds an email, phone number or student id, 503 if Meko is off, 502 if Meko fails. Never used for repo docs |
-| GET | `/knowledge/search` | staff + campus | `q`, `limit` → chunks with `document_id` |
-| DELETE | `/knowledge/{document_id}` | admin, HoD + campus | |
-| GET | `/playbook` | staff + campus | `reason_codes` (comma list), `tier?` → interventions that improved similar profiles, limited to the active campus catalogue (`MEKO_CATALOG_PATH`); advice only |
+| GET | `/tools` | staff (campus from `TenancyContext`) | Discovered Meko tools and the logical-op mapping |
+| POST | `/recall` | staff (campus from `TenancyContext`) | `{query (3-500 chars), k (1-20)}` → `{answer, sources[]}`. The query is redacted first; do not paste student names |
+| POST | `/knowledge` | admin, HoD (campus from `TenancyContext`) | Multipart upload of campus knowledge: `file` (pdf, txt, md, json, csv; max `MEKO_KB_MAX_BYTES`, default 5 MiB), `doc_type`, `intervention_id?`, `reason_codes`. 415 wrong type, 413 too large, 422 if the PII guard finds an email, phone number or student id, 503 if Meko is off, 502 if Meko fails. Never used for repo docs |
+| GET | `/knowledge/search` | staff (campus from `TenancyContext`) | `q`, `limit` → chunks with `document_id` |
+| DELETE | `/knowledge/{document_id}` | admin, HoD (campus from `TenancyContext`) | |
+| POST | `/flags/review` | staff | `{flag_id, student_id, action, reason_codes[], tier?, note?, case_id?}`. Writes a Meko decision trace only (background, IDs hashed); creates no case. Returns `{flag_id, action, recorded, case_id}` |
+| POST | `/outcomes` | staff | `{case_id, outcome, intervention_id, reason_codes[], tier?, checkpoint?}`. 422 if `intervention_id` is not active in the campus catalogue (when configured); writes an outcome memory and may promote it. Returns `{case_id, outcome, recorded}`. The cases module stays the source of truth for outcomes |
+| GET | `/playbook` | staff (campus from `TenancyContext`) | `reason_codes` (comma list), `tier?` → interventions that improved similar profiles, limited to the active campus catalogue (`MEKO_CATALOG_PATH`); advice only |
 
 ### 4.4 Translate (`POST /api/v1/translate`)
 
@@ -329,7 +333,7 @@ python -m disha_ml.rolling.score --tables <dir> --as-of <day> [--model <dir>] [-
 
 **Not yet implemented:** an HTTP route (for example `POST /ml/insights`) or worker job that loads the canonical tables
 from Postgres, calls `score_snapshot`, stores the payload, and turns tier changes into reviewable flags for
-`/cases/flags/review`. §2.4 and §2.10 stay as the target for per-student prediction; the backend team should agree
+`/api/v1/meko/flags/review` or the cases module. §2.4 and §2.10 stay as the target for per-student prediction; the backend team should agree
 whether those routes return `StudentInsight` entries from the payload.
 
 ### 4.6 CLO insights contract (backend to expose)

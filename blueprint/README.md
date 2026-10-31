@@ -55,6 +55,7 @@ truth), [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTE
 
 ## Changelog (2026-11-01)
 
+* **Backend team's `main` merged.** Our SUTRA-port case, outbox and membership implementation was dropped in favour of theirs (`TenancyContext`/`require_role`, 14-state cases, migrations `001`/`002`); the Meko trace endpoints moved to `/api/v1/meko/flags/review` and `/api/v1/meko/outcomes`. Outbox dispatch and deadline escalation worker jobs are stubs again.
 * **Primary model is now the rolling risk model** (`ml/disha_ml/rolling/`, OULAD via
   `ml/disha_ml/converters/oulad.py`). It scores at every assessment due date, excludes already-withdrawn enrolments,
   labels `at_risk` = Fail or Withdrawn, splits temporally (train 2013B/2013J/2014B, test 2014J), uses HGB with
@@ -73,7 +74,7 @@ truth), [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTE
   job were removed). The Meko client gained `guard.py`, `catalog.py`, `playbook.py`.
 * **Backend already built** (documented, not changed): case lifecycle with `case_events`, campus membership checks
   (403), outbox with retries and dead-letter, deadline escalation, Alembic migration `0001` (07 §8); translate
-  endpoint behind `DISHA_TRANSLATE_ENABLED` (local IndicTrans2); `/api/v1/meko/*`; `POST /api/v1/cases/{id}/outcome`
+  endpoint behind `DISHA_TRANSLATE_ENABLED` (local IndicTrans2); `/api/v1/meko/*`; `POST /api/v1/meko/outcomes`
   (05 §4).
 * **Contradictions removed:** accuracy wording; `make meko-sync` and nightly knowledge sync; the third-party
   translation provider as the translation path; "cases not built" in the system-flow status table.

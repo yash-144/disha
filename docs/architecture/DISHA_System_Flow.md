@@ -718,9 +718,9 @@ sequenceDiagram
 | Column matching for a college's own file format (legacy models) | ✅ Built (in the ML tool) | `ml/disha_ml/mapping.py` |
 | Training datasets | ✅ In repo: UCI, UPV converted; OULAD raw files are git-ignored with a tracked source note | `ml/data/` |
 | Design of every module | ✅ Written | `blueprint/` |
-| Cases: state machine, `case_events`, tasks, outcomes, campus membership check | ✅ Built | `api/app/modules/cases/` |
-| Outbox (retries, dead-letter) and deadline escalation | ✅ Built; only the in-app adapter exists | `api/app/modules/cases/outbox.py`, `worker/jobs/` |
-| Database migration for cases, outbox, membership | ✅ Alembic `0001` | `api/migrations/versions/` |
+| Cases: 14-state lifecycle, `case_events`, outcomes, follow-ups, tenancy via `Membership` | ✅ Built (backend team) | `api/app/modules/cases/` |
+| Notification outbox dispatch and deadline escalation (worker jobs) | Not yet implemented (stubs); the case service writes notification outbox rows | `worker/jobs/` |
+| Database migrations | ✅ Alembic `001`, `002` | `api/migrations/versions/` |
 | Translation (local IndicTrans2, flag) | ✅ Built | `api/app/modules/translate/` |
 | Meko routes and memory hooks (optional) | ✅ Built | `api/app/modules/meko/`, `meko/`, `ml/disha_ml/meko_hooks.py` |
 | Run the rolling scorer from the platform (route or job) | 🟨 Not yet implemented | `api/app/modules/ml/` is a stub |

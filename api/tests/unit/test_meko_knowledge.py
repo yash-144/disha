@@ -10,6 +10,9 @@ from app.core.config import settings
 from app.main import app
 from .conftest import headers
 
+import pytest  # noqa: E402
+pytestmark = pytest.mark.usefixtures("fake_auth")
+
 
 class FakeMeko:
     active = True
@@ -53,7 +56,7 @@ class FakeMeko:
 
 
 def auth(role):
-    return headers(role)  # bearer token + X-Campus-ID of a campus u1 belongs to
+    return headers(role)  # fake tenancy (see conftest.fake_auth)
 
 
 CATALOG = {"interventions": [{"id": "mentor_call", "title": "Mentor call"}, {"id": "fee_plan", "active": False}]}
@@ -109,17 +112,14 @@ def test_knowledge_search_returns_document_ids(env):
 def test_outcome_loop_promotes_and_playbook_filters_catalogue(env):
     client, fake = env
     body = {"outcome": "improved", "intervention_id": "mentor_call", "reason_codes": ["FEE_DUES"], "tier": "HIGH", "checkpoint": "mid_sem"}
-    ids = [client.post("/api/v1/cases/", headers=auth("mentor"), json={"flag_id": f"f{i}", "student_id": f"S{i}"}).json()["id"]
-           for i in (1, 2)]
-    assert client.post(f"/api/v1/cases/{ids[0]}/outcome", headers=auth("mentor"), json={**body, "intervention_id": "fee_plan"}).status_code == 422  # inactive
-    assert client.post(f"/api/v1/cases/{ids[0]}/outcome", headers=auth("mentor"), json=body).json()["recorded"] is True
+    url = "/api/v1/meko/outcomes"
+    assert client.post(url, headers=auth("mentor"), json={**body, "case_id": "case-1", "intervention_id": "fee_plan"}).status_code == 422  # inactive
+    assert client.post(url, headers=auth("mentor"), json={**body, "case_id": "case-1"}).json()["recorded"] is True
     assert fake.promoted == []
-    client.post(f"/api/v1/cases/{ids[1]}/outcome", headers=auth("mentor"), json=body)
+    client.post(url, headers=auth("mentor"), json={**body, "case_id": "case-2"})
     assert fake.promoted == [["m1", "m2"]]  # MEKO_PROMOTE_MIN=2 on the fake
-    assert ids[0] not in fake.mem[0]["memory"]
-    stats = client.get("/api/v1/cases/outcomes/stats", headers=auth("mentor")).json()["stats"]
-    assert stats == [{"intervention_id": "mentor_call", "reason_pattern": "FEE_DUES", "improved": 2,
-                      "no_change": 0, "worse": 0, "total": 2}]  # Postgres counts back the promotion
+    assert "case-1" not in fake.mem[0]["memory"]  # only the hashed case id reaches Meko
+    assert client.post(url, json={**body, "case_id": "case-3"}).status_code == 401
     r = client.get("/api/v1/meko/playbook?reason_codes=fee_dues&tier=HIGH", headers=auth("mentor")).json()
     assert [s["intervention_id"] for s in r["suggestions"]] == ["mentor_call"]  # 'ghost' not in catalogue
     assert r["suggestions"][0]["title"] == "Mentor call" and r["dropped_not_in_catalogue"] == 1

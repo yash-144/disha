@@ -9,19 +9,19 @@ DISHA operates on a multi-tiered architecture:
 
 ## Case lifecycle, campus access, outbox and translation
 
-- **Cases** (`api/app/modules/cases`): state machine with an append-only `case_events` audit trail; outcomes are
-  persisted in Postgres and counted per (intervention, reason-code pattern) before anything is promoted in Meko.
+- **Cases** (`api/app/modules/cases`, backend team's implementation): 14-state lifecycle (`state_machine.py`,
+  `services.py`) with `CaseEvent`, `InterventionOutcome` and `FollowUp`, plus the `modules/audit` module.
   Details: `blueprint/07-case-workflow-and-worker.md` section 8.
-- **Campus access**: `X-Campus-ID` is honoured only if the HS256 token's `sub` has an active row in
-  `disha_campus_memberships` (`campus_role` dependency in `core/dependencies.py`; 403 otherwise). Applied to the
-  cases and Meko routes.
-- **Worker**: `worker/scheduler.py` runs APScheduler jobs; `outbox_dispatch` (every 10 s, exponential backoff,
-  dead-letter) and `deadline_escalation` (every 60 s) reuse the API models and services (`api/` is added to `sys.path`).
+- **Auth and campus access**: `get_tenancy_context` in `api/app/core/dependencies.py` honours `X-Campus-ID` only for
+  an active `Membership` (`modules/identity/models.py`); routes use `require_role` / `require_permission`
+  (`Role`/`Action` in `core/permissions.py`).
+- **Worker**: `worker/scheduler.py` runs APScheduler jobs. **Not yet implemented (stubs):** `outbox_dispatch` and
+  `deadline_escalation`; the case service writes notification outbox rows but nothing dispatches them.
 - **Translation** (optional, `DISHA_TRANSLATE_ENABLED`): `POST /api/v1/translate` runs AI4Bharat IndicTrans2
   distilled 200M models locally on CPU, loaded on first use, no result cache. Install with
   `pip install -e "api[translate]"`. The ai4bharat repos are gated: accept the terms on Hugging Face and set `HF_TOKEN`. Student text never leaves the campus machine. English <-> Indic only.
 - **Migrations**: `cd api && alembic upgrade head` (reads `DISHA_DATABASE_URL`;
-  `api/migrations/versions/0001_cases_outbox_membership.py`).
+  `api/migrations/versions/001_counsellor_module_initial.py`, `002_student_faculty_module_initial.py`).
 
 ## ML: rolling risk model (primary)
 
@@ -36,7 +36,7 @@ worker job calls the scorer (`api/app/modules/ml/routes.py` is a stub). See `blu
 ## Meko (optional)
 
 Routes under `/api/v1/meko/*` (health, tools, recall, knowledge upload/search/delete, playbook) and
-`POST /api/v1/cases/{id}/outcome` feed and read the shared memory; the rolling scorer writes tier-change memories.
+`POST /api/v1/meko/flags/review` and `/outcomes` feed and read the shared memory; the rolling scorer writes tier-change memories.
 Repo docs are not synced to Meko. Details: [MEKO_INTEGRATION.md](MEKO_INTEGRATION.md). Full endpoint list:
 `blueprint/05-api-specification.md` §4.
 

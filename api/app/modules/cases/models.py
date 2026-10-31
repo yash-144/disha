@@ -1,134 +1,223 @@
-"""Case lifecycle tables: cases, tasks, restricted details, append-only events, outcomes, outbox."""
 import uuid
-from datetime import datetime
-from typing import Any, Dict, Optional
-
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint, event
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, Float, JSON
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship, validates
 from app.core.database import Base
 from app.shared.utils import utc_now
+from app.shared.enums import CaseStatus, CaseState, map_status_to_state, map_state_to_status
+from app.modules.identity.models import User
+from app.modules.roster.models import Student
+
+# Universal JSON type supporting PostgreSQL JSONB in production and SQLite JSON in tests
+JSONType = JSON().with_variant(JSONB(), "postgresql")
 
 
-def _id() -> str:
-    return str(uuid.uuid4())
+class Signal(Base):
+    __tablename__ = "disha_signals"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    campus_id = Column(String(36), nullable=False, index=True)
+    student_id = Column(String(36), ForeignKey("disha_roster.id"), nullable=False, index=True)
+    rule_key = Column(String(100), nullable=False)
+    result = Column(String(50), default="attention_suggested", nullable=False)
+    ml_risk_probability = Column(Float, nullable=True)
+    ml_tier = Column(String(50), nullable=True)
+    evidence_snapshot = Column(Text, nullable=True)
+    reviewed = Column(Boolean, default=False, nullable=False)
+    reviewed_decision = Column(String(50), nullable=True)
+    review_reason = Column(Text, nullable=True)
+    reviewed_by = Column(String(36), ForeignKey("disha_identity.id"), nullable=True, index=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    student = relationship("Student", foreign_keys=[student_id], lazy="selectin")
+    reviewer = relationship("User", foreign_keys=[reviewed_by], lazy="selectin")
 
 
 class Case(Base):
     __tablename__ = "disha_cases"
-    __table_args__ = (
-        UniqueConstraint("campus_id", "flag_id", name="uq_cases_campus_flag"),
-        Index("idx_cases_queue", "campus_id", "state", "due_at"),
-    )
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    flag_id: Mapped[str] = mapped_column(String(64))  # the ML flag this case answers (idempotent create)
-    student_ref: Mapped[str] = mapped_column(String(64))  # campus-side student id; never sent to Meko unhashed
-    intervention_id: Mapped[Optional[str]] = mapped_column(String(64))
-    tier: Mapped[Optional[str]] = mapped_column(String(16))
-    reason_codes: Mapped[list] = mapped_column(JSON, default=list)
-    state: Mapped[str] = mapped_column(String(32), default="action_planned")
-    owner_id: Mapped[Optional[str]] = mapped_column(String(64))
-    due_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    deadline_version: Mapped[int] = mapped_column(Integer, default=1)  # bumped when due_at changes
-    is_escalated: Mapped[bool] = mapped_column(Boolean, default=False)
-    version: Mapped[int] = mapped_column(Integer, default=1)  # optimistic lock (CASE-SM-04)
-    cycle: Mapped[int] = mapped_column(Integer, default=1)  # reopen starts a new outcome cycle
-    created_by: Mapped[Optional[str]] = mapped_column(String(64))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    campus_id = Column(String(36), nullable=False, index=True)
+    student_id = Column(String(36), ForeignKey("disha_roster.id"), nullable=False, index=True)
+    assigned_counsellor_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=True, index=True)
+    originating_signal_id = Column(String(36), ForeignKey("disha_signals.id"), unique=True, nullable=True)
+    status = Column(String(30), nullable=False, default=CaseStatus.NEW.value, index=True)
+    priority = Column(String(20), nullable=False, default="medium")
+    title = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    version = Column(Integer, nullable=False, default=1)
+    closed_at = Column(DateTime(timezone=True), nullable=True)
+    closed_by = Column(String(36), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+    # Relationships
+    student = relationship("Student", foreign_keys=[student_id], lazy="selectin")
+    assigned_counsellor = relationship("User", foreign_keys=[assigned_counsellor_id], lazy="selectin")
+    signal = relationship("Signal", foreign_keys=[originating_signal_id], lazy="selectin")
+    notes = relationship("CaseNote", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
+    events = relationship("CaseEvent", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
+    interventions = relationship("Intervention", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
+    followups = relationship("FollowUp", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
+
+    @validates("status")
+    def validate_status(self, key, value):
+        if value is None:
+            return value
+        if isinstance(value, CaseState):
+            return value.value
+        if isinstance(value, CaseStatus):
+            return value.value
+        if isinstance(value, str):
+            val_lower = value.strip().lower()
+            if val_lower in {s.value for s in CaseState} or val_lower in {s.value for s in CaseStatus}:
+                return val_lower
+            raise ValueError(
+                f"Invalid case status: '{value}'. Must be a valid canonical CaseState or legacy CaseStatus."
+            )
+        raise ValueError(f"Invalid case status type: {type(value)}")
+
+    # Canonical 14-state machine integration
+    @property
+    def state(self) -> str:
+        """Returns the canonical 14-state machine value as a string."""
+        return map_status_to_state(self.status).value
+
+    @state.setter
+    def state(self, value) -> None:
+        if isinstance(value, CaseState):
+            self.status = value.value
+        elif isinstance(value, str):
+            val_lower = value.strip().lower()
+            if val_lower in {s.value for s in CaseState}:
+                self.status = val_lower
+            elif val_lower in {s.value for s in CaseStatus}:
+                self.status = map_status_to_state(val_lower).value
+            else:
+                raise ValueError(
+                    f"Invalid case state: '{value}'. Must be one of {[s.value for s in CaseState]}"
+                )
+        elif value is not None:
+            raise ValueError(f"Invalid case state type: {type(value)}")
+
+    @property
+    def legacy_status(self) -> str:
+        """Returns the legacy 6-state status for backward compatibility."""
+        return map_state_to_status(self.status).value
 
 
-class CaseTask(Base):
-    __tablename__ = "disha_case_tasks"
-    __table_args__ = (Index("idx_tasks_due", "campus_id", "state", "due_at"),)
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    case_id: Mapped[str] = mapped_column(ForeignKey("disha_cases.id", ondelete="CASCADE"))
-    domain: Mapped[str] = mapped_column(String(32))
-    generic_label: Mapped[str] = mapped_column(String(200))  # restricted context lives in RestrictedTaskDetail
-    state: Mapped[str] = mapped_column(String(16), default="pending")
-    assignee_id: Mapped[Optional[str]] = mapped_column(String(64))
-    due_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    deadline_version: Mapped[int] = mapped_column(Integer, default=1)
-    is_escalated: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+class CaseNote(Base):
+    __tablename__ = "disha_case_notes"
 
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    author_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=False, index=True)
+    campus_id = Column(String(36), nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
-class RestrictedTaskDetail(Base):
-    __tablename__ = "disha_restricted_task_details"
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    task_id: Mapped[str] = mapped_column(ForeignKey("disha_case_tasks.id", ondelete="CASCADE"), unique=True)
-    details: Mapped[Dict[str, Any]] = mapped_column(JSON)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    case = relationship("Case", back_populates="notes", lazy="selectin")
 
 
 class CaseEvent(Base):
-    """Append-only audit trail: updates and deletes are refused (see listeners below)."""
     __tablename__ = "disha_case_events"
-    __table_args__ = (
-        UniqueConstraint("campus_id", "idempotency_key", name="uq_case_events_idem"),
-        Index("idx_case_events_case", "campus_id", "case_id", "created_at"),
-    )
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    case_id: Mapped[str] = mapped_column(ForeignKey("disha_cases.id", ondelete="CASCADE"))
-    actor_id: Mapped[Optional[str]] = mapped_column(String(64))
-    actor_kind: Mapped[str] = mapped_column(String(16), default="user")  # user | system_worker
-    event_type: Mapped[str] = mapped_column(String(48))
-    from_state: Mapped[Optional[str]] = mapped_column(String(32))
-    to_state: Mapped[Optional[str]] = mapped_column(String(32))
-    reason_code: Mapped[Optional[str]] = mapped_column(String(64))
-    event_metadata: Mapped[Dict[str, Any]] = mapped_column("metadata", JSON, default=dict)
-    idempotency_key: Mapped[str] = mapped_column(String(128), default=_id)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    actor_id = Column(String(36), nullable=False, index=True)
+    campus_id = Column(String(36), nullable=False, index=True)
+    event_type = Column(String(100), nullable=False)
+    payload = Column(JSONType, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    case = relationship("Case", back_populates="events", lazy="selectin")
 
 
-@event.listens_for(CaseEvent, "before_update")
-@event.listens_for(CaseEvent, "before_delete")
-def _events_are_append_only(*_):
-    raise ValueError("case_events is append-only")
+class InterventionCatalogue(Base):
+    __tablename__ = "disha_intervention_catalogue"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(200), nullable=False, unique=True)
+    description = Column(Text, nullable=True)
+    category = Column(String(100), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    interventions = relationship("Intervention", back_populates="catalogue_entry", lazy="selectin")
 
 
-class CaseOutcome(Base):
-    """One outcome per case cycle. reason_pattern is the sorted reason codes joined with '+'."""
-    __tablename__ = "disha_case_outcomes"
-    __table_args__ = (
-        UniqueConstraint("case_id", "cycle", name="uq_outcome_case_cycle"),
-        Index("idx_outcome_pattern", "campus_id", "intervention_id", "reason_pattern"),
-    )
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    case_id: Mapped[str] = mapped_column(ForeignKey("disha_cases.id", ondelete="CASCADE"))
-    cycle: Mapped[int] = mapped_column(Integer, default=1)
-    outcome: Mapped[str] = mapped_column(String(16))  # improved | no_change | worse
-    intervention_id: Mapped[str] = mapped_column(String(64))
-    reason_pattern: Mapped[str] = mapped_column(String(255), default="")
-    tier: Mapped[Optional[str]] = mapped_column(String(16))
-    checkpoint: Mapped[Optional[str]] = mapped_column(String(32))
-    recorded_by: Mapped[Optional[str]] = mapped_column(String(64))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+class Intervention(Base):
+    __tablename__ = "disha_interventions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    catalogue_id = Column(String(36), ForeignKey("disha_intervention_catalogue.id"), nullable=False, index=True)
+    counsellor_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=False, index=True)
+    campus_id = Column(String(36), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    target_date = Column(DateTime(timezone=True), nullable=True)
+    progress = Column(String(50), nullable=False, default="not_started")
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+    case = relationship("Case", back_populates="interventions", lazy="selectin")
+    catalogue_entry = relationship("InterventionCatalogue", back_populates="interventions", lazy="selectin")
+    outcome = relationship("InterventionOutcome", back_populates="intervention", uselist=False, lazy="selectin")
 
 
-class OutboxItem(Base):
-    """Transactional outbox: written in the same commit as the case change it announces."""
-    __tablename__ = "disha_outbox"
-    __table_args__ = (
-        UniqueConstraint("campus_id", "idempotency_key", name="uq_outbox_idem"),
-        Index("idx_outbox_due", "status", "next_attempt_at"),
-    )
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    campus_id: Mapped[str] = mapped_column(String(64))
-    case_id: Mapped[Optional[str]] = mapped_column(ForeignKey("disha_cases.id", ondelete="CASCADE"))
-    adapter_key: Mapped[str] = mapped_column(String(32), default="in_app")
-    template_key: Mapped[str] = mapped_column(String(64))
-    destination_ref: Mapped[Optional[str]] = mapped_column(String(64))
-    payload: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)  # IDs and template keys only (OUT-04)
-    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending | sent | dead_letter
-    attempts: Mapped[int] = mapped_column(Integer, default=0)
-    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-    last_error: Mapped[Optional[str]] = mapped_column(String(200))
-    idempotency_key: Mapped[str] = mapped_column(String(128), default=_id)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-    sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+class InterventionOutcome(Base):
+    __tablename__ = "disha_intervention_outcomes"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    intervention_id = Column(String(36), ForeignKey("disha_interventions.id"), nullable=False, unique=True, index=True)
+    counsellor_id = Column(String(36), nullable=False)
+    campus_id = Column(String(36), nullable=False)
+    completion_status = Column(String(50), nullable=False)
+    outcome_notes = Column(Text, nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    intervention = relationship("Intervention", back_populates="outcome", lazy="selectin")
+
+
+class FollowUp(Base):
+    __tablename__ = "disha_followups"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    counsellor_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=False, index=True)
+    campus_id = Column(String(36), nullable=False, index=True)
+    title = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    scheduled_at = Column(DateTime(timezone=True), nullable=False)
+    status = Column(String(30), nullable=False, default="scheduled")
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    completed_by = Column(String(36), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+    case = relationship("Case", back_populates="followups", lazy="selectin")
+    followup_notes = relationship("FollowUpNote", back_populates="followup", cascade="all, delete-orphan", lazy="selectin")
+
+
+class FollowUpNote(Base):
+    __tablename__ = "disha_followup_notes"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    followup_id = Column(String(36), ForeignKey("disha_followups.id"), nullable=False, index=True)
+    case_id = Column(String(36), ForeignKey("disha_cases.id"), nullable=False, index=True)
+    author_id = Column(String(36), nullable=False)
+    campus_id = Column(String(36), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    followup = relationship("FollowUp", back_populates="followup_notes", lazy="selectin")
+
+
+# Backwards compatibility alias for initial scaffold references
+CasesEntity = Case

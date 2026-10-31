@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, Field
 
-from app.core.dependencies import campus_role
-from app.core.meko import catalog_entries, get_meko
+from app.core.dependencies import TenancyContext, require_role
+from app.core.meko import catalog_entries, fire_and_forget, get_meko
 from app.core.permissions import STAFF_ROLES, Role
 
 try:
@@ -15,9 +15,10 @@ except ImportError:  # Meko is optional
     cat = guard = pb = None
 
 router = APIRouter()
-staff = campus_role(*STAFF_ROLES)
+# The campus and role come from the backend's verified tenancy context (membership checked in the DB).
+staff = require_role(*STAFF_ROLES)
 # campus knowledge managers: admins plus HoD as the campus coordinator role
-manager = campus_role(Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN, Role.HOD)
+manager = require_role(Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN, Role.HOD)
 KB_TYPES = {".pdf", ".txt", ".md", ".json", ".csv"}
 KB_MAX_BYTES = int(os.getenv("MEKO_KB_MAX_BYTES", str(5 * 1024 * 1024)))
 
@@ -64,7 +65,7 @@ def _need_meko(meko):
 @router.post("/knowledge")
 async def upload_knowledge(request: Request, file: UploadFile = File(...), doc_type: str = Form("policy"),
                            intervention_id: Optional[str] = Form(None), reason_codes: str = Form(""),
-                           meko=Depends(get_meko), _=Depends(manager)):
+                           meko=Depends(get_meko), tenancy: TenancyContext = Depends(manager)):
     """Campus staff upload operational knowledge (policies, procedures). Meko chunks and indexes it.
 
     Rejected if it contains emails, phone numbers or student IDs. Never used for repo docs.
@@ -80,7 +81,7 @@ async def upload_knowledge(request: Request, file: UploadFile = File(...), doc_t
         guard.check(data)
     except guard.PiiFound as exc:
         raise HTTPException(422, str(exc))
-    campus = cat.safe(getattr(request.state, "campus_id", None) or "default")
+    campus = cat.safe(tenancy.campus_id or "default")
     codes = sorted(c.strip() for c in reason_codes.split(",") if c.strip())
     if Path(name).suffix.lower() in {".md", ".txt"}:  # linking header; structured formats stay untouched
         head = cat.header(doc_type=doc_type, campus_id=campus, intervention_id=intervention_id, reason_codes=codes)
@@ -124,3 +125,59 @@ async def get_playbook(reason_codes: str = Query(..., min_length=1), tier: Optio
     if not entries:
         out["note"] = "No campus catalogue configured (MEKO_CATALOG_PATH); nothing can be suggested."
     return out
+
+
+# ---- Meko traces for human decisions on ML flags, and case outcomes ------------------------------
+# Cases themselves live in the cases module (POST /api/v1/cases, owned by the backend team). These two
+# endpoints only feed Meko: the decision trace, and the outcome memory that drives playbook promotion.
+
+class FlagReview(BaseModel):
+    flag_id: str
+    student_id: str
+    action: Literal["accept", "dismiss", "open_case", "start_intervention"]
+    reason_codes: List[str] = Field(default_factory=list)
+    tier: Optional[str] = None
+    note: Optional[str] = Field(default=None, max_length=500)
+    intervention_id: Optional[str] = None
+    case_id: Optional[str] = None  # set when the cases API already opened a case for this flag
+
+
+class OutcomeIn(BaseModel):
+    case_id: str
+    outcome: Literal["improved", "no_change", "worse"]
+    intervention_id: str
+    reason_codes: List[str] = Field(default_factory=list)
+    tier: Optional[str] = None
+    checkpoint: Optional[str] = None
+
+
+@router.post("/flags/review")
+async def review_flag(body: FlagReview, tasks: BackgroundTasks, meko=Depends(get_meko),
+                      tenancy: TenancyContext = Depends(staff)):
+    """Record a human decision on an ML flag as a Meko decision trace (No Alert Without Action). IDs are hashed."""
+    role = tenancy.role.value
+    evidence = {"flag_id": body.flag_id, "student_id": body.student_id, "tier": body.tier,
+                "reason_codes": body.reason_codes, "campus_id": tenancy.campus_id, "case_id": body.case_id}
+    fire_and_forget(tasks, meko.trace_decision(
+        decision=f"{role} chose '{body.action}' on an ML flag",
+        rationale=(body.note or "") + f" Reason codes: {', '.join(body.reason_codes) or 'none'}.",
+        outcome=f"Action '{body.action}' recorded for the flag (tier {body.tier or 'n/a'}).",
+        plan=["Show the ML flag with its reason codes.", f"Human ({role}) chooses '{body.action}'.",
+              "Record the decision so outcomes can inform later recalls."],
+        evidence=evidence, actor=role))
+    return {"flag_id": body.flag_id, "action": body.action, "recorded": True, "case_id": body.case_id}
+
+
+@router.post("/outcomes")
+async def record_outcome(body: OutcomeIn, tasks: BackgroundTasks, meko=Depends(get_meko),
+                         tenancy: TenancyContext = Depends(staff)):
+    """Feed a closed case's outcome to Meko (hashed case id only). Recurring good outcomes are promoted into the
+    shared playbook (MEKO_PROMOTE_MIN). The cases module stays the source of truth for the outcome itself."""
+    entries = catalog_entries()
+    if entries and body.intervention_id not in {str(e["id"]) for e in entries if e.get("active", True)}:
+        raise HTTPException(422, "intervention_id is not an active intervention in the campus catalogue")
+    if pb is not None and meko.active:
+        fire_and_forget(tasks, pb.record_outcome(
+            meko, case_id=body.case_id, outcome=body.outcome, intervention_id=body.intervention_id,
+            reason_codes=body.reason_codes, tier=body.tier, checkpoint=body.checkpoint, campus_id=tenancy.campus_id))
+    return {"case_id": body.case_id, "outcome": body.outcome, "recorded": True}

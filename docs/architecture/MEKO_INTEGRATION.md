@@ -47,8 +47,8 @@ flowchart LR
 | `python -m disha_ml.train` | memory + decision trace + artifact | dataset, model, key metrics, cutoffs, fairness FPR ratios; each checkpoint's `manifest.json` stored as an artifact |
 | `python -m disha_ml.score` (legacy) | decision trace | counts per tier, capacity cap; no student rows |
 | `python -m disha_ml.rolling.score` | memory (academic story) | one short narrative per student whose tier changed or who had a drift event; hashed id, `journey:<hash>` tag, no raw marks (see below) |
-| `POST /api/v1/cases/flags/review` | decision trace | actor role, action, reason codes, hashed IDs |
-| `POST /api/v1/cases/{id}/outcome` | memory (+ promotion) | outcome, intervention id, reason codes, tier, hashed case id; recurring `improved` patterns are promoted |
+| `POST /api/v1/meko/flags/review` | decision trace | actor role, action, reason codes, hashed IDs |
+| `POST /api/v1/meko/outcomes` | memory (+ promotion) | outcome, intervention id, reason codes, tier, hashed case id; recurring `improved` patterns are promoted |
 | `POST /api/v1/meko/knowledge` | knowledge | campus policy and procedure files uploaded by admins or HoD, after the PII guard |
 | `python -m disha_meko sync-catalog` | knowledge | one document per campus intervention |
 | worker `meko_weekly_outcomes` (weekly) | memory | aggregate intervention outcomes; **not yet implemented**: `fetch_weekly_outcomes()` returns an empty list, so nothing is written |
@@ -154,7 +154,7 @@ timeline
 | `playbook.py` | Outcome loop: closed case to memory; the same intervention and reason-code pattern improving `MEKO_PROMOTE_MIN` times (default 3) is promoted; playbook suggestions are filtered to the active catalogue (AI-07) |
 | `cli.py` | `python -m disha_meko` subcommands: `doctor`, `tools`, `sync-catalog <file> [--campus ID]`, `recall "<query>" [-k N]` |
 
-Exact relations (intervention, reason code, outcome counts) live in Postgres (`GET /api/v1/cases/outcomes/stats`); Meko holds the text memories and chunks, linked by the shared header keys.
+Exact relations (intervention, reason code, outcome rows) live in Postgres (`disha_intervention_outcomes`, `api/app/modules/cases/models.py`); the cases module is the source of truth; Meko holds the text memories and chunks, linked by the shared header keys.
 
 ## Design
 

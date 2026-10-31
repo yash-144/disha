@@ -96,7 +96,7 @@ created in those states.
 
 ## 4. Deadlines and escalation
 
-**Earlier (SUTRA) implementation, superseded by §8:** `scan_and_escalate_overdue_cases` selects
+**Earlier (SUTRA) design, not in the current code (see §8):** `scan_and_escalate_overdue_cases` selects
 non-terminal cases with `due_at < now` and `is_escalated = false`, sets
 `is_escalated = true`, increments version, writes `CASE_ESCALATED` with
 `actor_kind = system_worker` and an outbox intent
@@ -159,47 +159,37 @@ tables. The superseded prototype (`backend/`) contained a hash-chained
 
 ## 8. Implementation status (API `modules/cases`, worker)
 
-Built in `api/app/modules/cases/` and `worker/jobs/`; tables are in migration `0001` (`disha_cases`,
-`disha_case_tasks`, `disha_restricted_task_details`, `disha_case_events`, `disha_case_outcomes`, `disha_outbox`,
-`disha_campus_memberships`).
+The backend team's implementation (merged from their `main`) replaced our earlier SUTRA-port cases, outbox and
+campus-membership code. Current state:
 
-- **State machine**: `TRANSITIONS` in `services.py` is the only definition (CASE-SM-01). Cases start in
-  `action_planned` (`POST /cases`, or `flags/review` with `open_case` / `start_intervention`; one case per flag).
-  Guards: `→ assigned` only via `POST /{id}/assign` (owner and `due_at`), `→ accepted` only by the owner or
-  `institution_admin`, `→ outcome_reviewed` and `outcome_reviewed → closed` need an outcome row.
-- **Concurrency and audit**: the version check is part of the `UPDATE` (409 on mismatch); clients send `version`
-  (CASE-SM-04/05). State change, `case_events` row and `disha_outbox` row commit together (CASE-SM-06).
-  `case_events` is append-only (ORM refuses update/delete); hash chain (AUD-01) is not built.
-- **Outcomes**: `POST /{id}/outcome` persists one `case_outcomes` row per case cycle (reopen = new cycle), moves
-  `follow_up_due → outcome_reviewed`, then feeds Meko. `GET /cases/outcomes/stats` returns counts per
-  `(intervention_id, reason_pattern)` for the campus, so promotion can rely on Postgres.
-- **Outbox** (`outbox.py`, job every 10 s): due rows only, `SKIP LOCKED`; failure *k* waits `base × 2^(k-1)` s;
-  the `DISHA_OUTBOX_MAX_ATTEMPTS`-th failure sets `dead_letter`; unknown adapter → `dead_letter UNKNOWN_ADAPTER`;
-  no adapters configured → rows stay `pending`. Only `in_app` exists (the outbox row is the notification).
-- **Escalation** (`escalate_overdue`, job every 60 s): non-terminal cases and unfinished tasks with `due_at` in the
-  past get `is_escalated`, a `CASE_ESCALATED` / `TASK_ESCALATED` event (`actor_kind = system_worker`) and a
-  `*_ESCALATION_SUPERVISOR` outbox row to `DISHA_ESCALATION_TARGET`. Key is `(id, deadline_version)`; a new
-  `due_at` bumps `deadline_version` and re-arms (ESC-02).
-- **Not built**: multi-level escalation (ESC-04), per-campus escalation chain (ESC-03), email/SMS adapters,
-  dead-letter admin retry (OUT-06), restricted-detail read audit, override table (CASE-SM-07), worker heartbeat.
-- **Campus access**: every cases route uses `campus_role(*STAFF_ROLES)`; the `X-Campus-ID` header is honoured only
-  when the token's `sub` has an active `disha_campus_memberships` row for that campus (else 403; header missing → 400).
-- **HTTP surface**: `GET /cases`, `GET /cases/outcomes/stats`, `POST /cases`, `GET /cases/{id}`,
-  `POST /cases/{id}/transition`, `/assign`, `/tasks`, `POST /cases/tasks/{id}/state`, `POST /cases/flags/review`,
-  `POST /cases/{id}/outcome`. Request bodies: [05](05-api-specification.md) §4.2.
-- **Meko feed** (optional, background): `flags/review` writes a decision trace for every human decision; `/outcome`
-  writes an outcome memory (hashed case id) and promotes a recurring good outcome into the shared playbook
-  (`MEKO_PROMOTE_MIN`, default 3). `intervention_id` must be active in the campus catalogue when one is configured
-  (AI-07). Postgres stays the source of truth for outcome counts.
+- **Lifecycle**: 14 states (`CaseState` in `api/app/shared/enums.py`); transition rules in
+  `api/app/modules/cases/state_machine.py`, applied by `CaseLifecycleService` in `services.py`. Models in
+  `models.py`: `Case`, `CaseEvent` (`disha_case_events`), `CaseNote`, `Signal`, `Intervention`,
+  `InterventionCatalogue`, `InterventionOutcome` (`disha_intervention_outcomes`), `FollowUp`, `FollowUpNote`.
+  Audit trail: the `modules/audit` module (hash-chain tests in `api/tests/unit/test_audit_hash_chain.py`).
+- **HTTP surface** (`cases/routes.py`, mounted at `/api/v1/cases`): `POST /`, `GET /`, `GET /{id}`, `PATCH /{id}`,
+  `POST /{id}/transition`, `/assign`, `/reopen`, `/dismiss`, `/accept`, `/close`, `GET /{id}/events`.
+  Outcome, follow-up and notification behaviour is whatever their `services.py` does; read it before relying on it.
+- **Auth and tenancy**: `get_tenancy_context` (`api/app/core/dependencies.py`) validates the token, the active user
+  and an active `Membership` (`modules/identity/models.py`) for the `X-Campus-ID` campus, returning a `TenancyContext`.
+  Routes use `require_role(...)` or `require_permission(Action...)`; `Role` and `Action` are in
+  `core/permissions.py`.
+- **Notification outbox**: the case service writes notification outbox rows (`disha_notifications`,
+  `modules/notifications/models.py`) in the same transaction as the case change.
 - **Worker** (`worker/scheduler.py`, APScheduler, one run per job at a time): `outbox_dispatch` every 10 s,
   `deadline_escalation` every 60 s, `anchor_confirmation` every 300 s, `retention_purge` and `model_drift_report`
-  daily, `meko_weekly_outcomes` weekly. **Only the first two do work.** `anchor_confirmation`, `retention_purge` and
-  `model_drift_report` only log a line; `meko_weekly_outcomes` is wired but `fetch_weekly_outcomes()` returns `[]`
-  (TODO), so it writes nothing yet. Repo docs are no longer synced to Meko.
-- **Migration**: `api/migrations/versions/0001_cases_outbox_membership.py` (Alembic; `cd api && alembic upgrade head`,
-  uses `DISHA_DATABASE_URL`). Tests: `api/tests/unit/test_case_lifecycle.py`, `api/tests/migrations/test_case_migration.py`,
-  `worker/tests/test_worker_jobs.py`.
-- **Not built (extra)**: follow-up rows and the `→ follow_up_due needs a follow-up` guard (CASE-SM-03), the
-  `suggested` / `under_review` entry path (no case is created in those states), notification rows beyond the outbox,
-  and any worker call to the ML scorer ([05](05-api-specification.md) §4.5).
+  daily, `meko_weekly_outcomes` weekly. **Not yet implemented (stubs):** `outbox_dispatch`, `deadline_escalation`,
+  `anchor_confirmation`, `retention_purge` and `model_drift_report` only log a line; the case service writes
+  notification outbox rows but nothing dispatches them, and nothing escalates overdue cases. `meko_weekly_outcomes`
+  is wired but `fetch_weekly_outcomes()` returns `[]` (TODO), so it writes nothing yet. Repo docs are no longer
+  synced to Meko.
+- **Meko feed** (optional, background): `POST /api/v1/meko/flags/review` writes a decision trace only (no case is
+  created); `POST /api/v1/meko/outcomes` writes an outcome memory (hashed case id) and promotes a recurring good
+  outcome into the shared playbook (`MEKO_PROMOTE_MIN`, default 3). The cases module stays the source of truth for
+  outcomes. `intervention_id` must be active in the campus catalogue when one is configured (AI-07).
+- **Migrations**: `api/migrations/versions/001_counsellor_module_initial.py` then
+  `002_student_faculty_module_initial.py` (`cd api && alembic upgrade head`, uses `DISHA_DATABASE_URL`).
+  Tests: `api/tests/unit/test_case_lifecycle.py`, `test_case_orm_state.py`, `test_cases_persistence.py`.
+- **Not built**: deadline escalation and notification dispatch (worker stubs above), email/SMS adapters, and any
+  worker call to the ML scorer ([05](05-api-specification.md) §4.5).
 
