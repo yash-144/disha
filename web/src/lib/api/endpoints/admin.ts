@@ -12,7 +12,24 @@ export type RunPage = S['RunPage']
 export type RunRequest = S['ScoringRunRequest']
 export type DriftReport = S['DriftResponse']
 
+export type Membership = S['MembershipItem']
+export type Invite = S['InviteResponse']
+export type CatalogueItem = S['CatalogueItem']
+export type Redemption = S['RedemptionResponse']
+export type CaseDetail = S['CaseDetailResponse']
+
 export const adminApi = {
+  analyticsOverview: (signal?: AbortSignal) => api.get<Record<string, unknown>>('/api/v1/analytics/overview', { signal }),
+  cases: (signal?: AbortSignal) => api.get<CaseDetail[]>('/api/v1/cases/', { query: { limit: 200 }, signal }),
+  catalogue: (signal?: AbortSignal) => api.get<CatalogueItem[]>('/api/v1/interventions/catalog', { query: { include_inactive: true }, signal }),
+  memberships: (signal?: AbortSignal) => api.get<Membership[]>('/api/v1/campus/memberships', { query: { limit: 200 }, signal }),
+  invitations: (signal?: AbortSignal) => api.get<Invite[]>('/api/v1/campus/invitations', { query: { limit: 100 }, signal }),
+  invite: (body: { email: string; role: string; department?: string | null; expires_in_days: number }) =>
+    api.post<Invite>('/api/v1/campus/invitations', body),
+  redemptions: (signal?: AbortSignal) => api.get<Redemption[]>('/api/v1/rewards/redemptions', { query: { limit: 200 }, signal }),
+  setRedemptionStatus: (id: string, status: string) =>
+    api.post<Redemption>(`/api/v1/rewards/redemptions/${id}/status`, { status }),
+
   ingestionSchema: (signal?: AbortSignal) => api.get<CanonicalSchema>('/api/v1/ingestion/schema', { signal }),
   listImports: (signal?: AbortSignal) =>
     api.get<ImportBatchPage>('/api/v1/ingestion/imports', { query: { page_size: 20 }, signal }),

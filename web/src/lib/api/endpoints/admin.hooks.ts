@@ -36,3 +36,26 @@ export function useTriggerRun() {
     },
   })
 }
+
+export const useAnalyticsOverview = () =>
+  useQuery({ queryKey: ['analytics', 'overview'], queryFn: ({ signal }) => adminApi.analyticsOverview(signal) })
+export const useAdminCases = () => useQuery({ queryKey: ['cases', 'admin'], queryFn: ({ signal }) => adminApi.cases(signal) })
+export const useCatalogue = () => useQuery({ queryKey: ['interventions', 'catalog'], queryFn: ({ signal }) => adminApi.catalogue(signal) })
+export const useMemberships = () => useQuery({ queryKey: ['campus', 'memberships'], queryFn: ({ signal }) => adminApi.memberships(signal) })
+export const useInvitations = () => useQuery({ queryKey: ['campus', 'invitations'], queryFn: ({ signal }) => adminApi.invitations(signal) })
+export const useAdminRedemptions = () => useQuery({ queryKey: ['rewards', 'admin-redemptions'], queryFn: ({ signal }) => adminApi.redemptions(signal) })
+
+export function useInvite() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (b: Parameters<typeof adminApi.invite>[0]) => adminApi.invite(b),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['campus'] }),
+  })
+}
+export function useSetRedemptionStatus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { id: string; status: string }) => adminApi.setRedemptionStatus(v.id, v.status),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['rewards'] }),
+  })
+}
