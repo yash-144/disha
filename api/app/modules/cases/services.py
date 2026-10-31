@@ -19,7 +19,8 @@ from app.core.permissions import Role
 from app.modules.cases.state_machine import CaseStateMachine, TransitionRule
 from app.modules.cases.models import Case, CaseEvent, CaseNote
 from app.modules.audit.services import AuditService
-from app.modules.notifications.models import Notification
+from app.modules.notifications.services import NotificationOutboxService
+from app.modules.cases.models import FollowUp, InterventionOutcome
 from app.modules.cases.schemas import (
     CaseCreateRequest,
     CaseUpdateRequest,
@@ -73,7 +74,8 @@ def case_to_detail_response(case: Case) -> CaseDetailResponse:
         owner_name=owner_name,
         due_at=case.due_date,
         is_overdue=is_overdue,
-        is_escalated=False,
+        is_escalated=(case.escalated_deadline_version is not None
+                      and case.escalated_deadline_version == case.deadline_version),
         selected_intervention_key=None,
         version=case.version,
         created_at=case.created_at,
@@ -81,6 +83,31 @@ def case_to_detail_response(case: Case) -> CaseDetailResponse:
         closed_at=case.closed_at,
         closed_by=case.closed_by,
     )
+
+
+def _as_utc(dt):
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+async def _case_has_support_follow_up(db: AsyncSession, case_id: str, campus_id: str) -> bool:
+    res = await db.execute(
+        select(FollowUp.id).where(
+            FollowUp.case_id == case_id,
+            FollowUp.campus_id == campus_id,
+            FollowUp.follow_up_type == "support_delivered",
+            FollowUp.status == "completed",
+        ).limit(1)
+    )
+    return res.scalar_one_or_none() is not None
+
+
+async def _case_has_outcome(db: AsyncSession, case_id: str, campus_id: str) -> bool:
+    res = await db.execute(
+        select(InterventionOutcome.id).where(
+            InterventionOutcome.case_id == case_id, InterventionOutcome.campus_id == campus_id
+        ).limit(1)
+    )
+    return res.scalar_one_or_none() is not None
 
 
 class CaseLifecycleService:
@@ -286,22 +313,17 @@ class CaseService:
                 },
             )
 
-            # Notification outbox record if assigned
+            # Notification outbox intent if assigned (delivered by the worker)
             if data.assigned_counsellor_id:
-                notif = Notification(
-                    id=str(uuid.uuid4()),
-                    recipient_id=data.assigned_counsellor_id,
+                await NotificationOutboxService.enqueue(
+                    db,
                     campus_id=campus_id,
-                    notification_type="case_lifecycle",
-                    reference_id=case.id,
-                    reference_type="case",
-                    title="New Case Assigned",
-                    body=f"Case '{case.title}' has been assigned to you.",
-                    is_read=False,
+                    recipient_id=data.assigned_counsellor_id,
+                    template_key="CASE_ASSIGNED",
+                    safe_payload={"case_id": case.id, "from_state": "", "to_state": target_state.value},
                     idempotency_key=f"case-{case.id}-v1-assigned",
-                    created_at=now,
+                    case_id=case.id,
                 )
-                db.add(notif)
 
         # Reload with relations
         return await CaseService.get_case(db, case.id, campus_id, is_platform_admin=True)
@@ -395,6 +417,7 @@ class CaseService:
             values["priority"] = data.priority
         if data.due_date is not None:
             values["due_date"] = data.due_date
+            values["deadline_version"] = Case.deadline_version + 1  # re-arms escalation (ESC-02)
 
         where_cond = [Case.id == case_id, Case.version == data.expected_version]
         if not is_platform_admin:
@@ -484,6 +507,10 @@ class CaseService:
         effective_due_at = due_at or case.due_date
         has_note_flag = bool(notes or reason_code)
 
+        # Guard facts come from the database (CASE-SM-03); a caller-supplied flag can only add to them
+        has_follow_up = has_follow_up or await _case_has_support_follow_up(db, case_id, case.campus_id)
+        has_outcome = has_outcome or await _case_has_outcome(db, case_id, case.campus_id)
+
         rule = CaseStateMachine.validate_transition(
             from_state=current_state,
             to_state=target_state,
@@ -507,6 +534,8 @@ class CaseService:
             upd_vals["assigned_counsellor_id"] = new_owner_id
         if due_at:
             upd_vals["due_date"] = due_at
+            if case.due_date is None or _as_utc(case.due_date) != _as_utc(due_at):
+                upd_vals["deadline_version"] = Case.deadline_version + 1  # re-arms escalation (ESC-02)
         if target_state in (CaseState.CLOSED, CaseState.DISMISSED):
             upd_vals["closed_at"] = now
             upd_vals["closed_by"] = actor_user_id
@@ -608,20 +637,19 @@ class CaseService:
                         "title": notif_title,
                         "category": f"case_{target_state.value}",
                     }
-                    notif = Notification(
-                        id=str(uuid.uuid4()),
-                        recipient_id=recipient,
+                    await NotificationOutboxService.enqueue(
+                        db,
                         campus_id=case.campus_id,
-                        notification_type="case_lifecycle",
-                        reference_id=case_id,
-                        reference_type="case",
-                        title=notif_title,
-                        body=f"Case status changed from {current_state.value} to {target_state.value}.",
-                        is_read=False,
+                        recipient_id=recipient,
+                        template_key=f"CASE_{target_state.value.upper()}",
+                        safe_payload={
+                            "case_id": case_id,
+                            "from_state": current_state.value,
+                            "to_state": target_state.value,
+                        },
                         idempotency_key=f"case-{case_id}-v{expected_version + 1}-{target_state.value}",
-                        created_at=now,
+                        case_id=case_id,
                     )
-                    db.add(notif)
 
         # 4. Construct updated case state representation
         updated_case = await CaseService.get_case(db, case_id, campus_id, is_platform_admin)

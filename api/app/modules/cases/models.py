@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, Float, JSON
+from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, Float, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, validates
 from app.core.database import Base
@@ -50,6 +50,11 @@ class Case(Base):
     version = Column(Integer, nullable=False, default=1)
     closed_at = Column(DateTime(timezone=True), nullable=True)
     closed_by = Column(String(36), nullable=True)
+    # Escalation (blueprint 07 ESC-02): changing due_date bumps deadline_version and re-arms escalation
+    deadline_version = Column(Integer, nullable=False, default=1)
+    escalated_deadline_version = Column(Integer, nullable=True)
+    escalation_level = Column(Integer, nullable=False, default=0)
+    escalated_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
@@ -138,9 +143,12 @@ class CaseEvent(Base):
 
 class InterventionCatalogue(Base):
     __tablename__ = "disha_intervention_catalogue"
+    __table_args__ = (UniqueConstraint("campus_id", "name", name="uq_intervention_catalogue_campus_name"),)
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String(200), nullable=False, unique=True)
+    # NULL campus_id = platform-wide entry; otherwise owned by one campus
+    campus_id = Column(String(36), nullable=True, index=True)
+    name = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
     category = Column(String(100), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
@@ -196,6 +204,10 @@ class FollowUp(Base):
     description = Column(Text, nullable=True)
     scheduled_at = Column(DateTime(timezone=True), nullable=False)
     status = Column(String(30), nullable=False, default="scheduled")
+    follow_up_type = Column(String(50), nullable=False, default="follow_up_check")
+    contact_status = Column(String(30), nullable=True)
+    proof_kind = Column(String(50), nullable=True)
+    escalated_at = Column(DateTime(timezone=True), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
     completed_by = Column(String(36), nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
