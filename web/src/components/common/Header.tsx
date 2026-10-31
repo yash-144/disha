@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import {
   LayoutDashboard,
-  GraduationCap,
-  Shield,
   Menu,
   X,
   Radio,
@@ -16,10 +14,6 @@ export function Header() {
   const {
     currentView,
     navigateTo,
-    openAuthModal,
-    userRole,
-    switchRole,
-    currentUser,
     setActiveLiveModal,
   } = useApp()
 
@@ -142,52 +136,13 @@ export function Header() {
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2 sm:gap-3 text-xs">
-            {/* Quick Role Toggle */}
-            <div className="hidden lg:flex items-center border-2 border-ink bg-white p-0.5 shadow-[2px_2px_0_#0d1b3e]">
-              <button
-                onClick={() => switchRole('instructor')}
-                title="Switch to Instructor Role"
-                className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold transition ${
-                  userRole === 'instructor' ? 'bg-brand text-white' : 'text-gray-600 hover:text-black'
-                }`}
-              >
-                <Shield className="h-3 w-3" />
-                <span>Instructor</span>
-              </button>
-              <button
-                onClick={() => switchRole('student')}
-                title="Switch to Student Role"
-                className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold transition ${
-                  userRole === 'student' ? 'bg-[#0f9d58] text-white' : 'text-gray-600 hover:text-black'
-                }`}
-              >
-                <GraduationCap className="h-3 w-3" />
-                <span>Student</span>
-              </button>
-            </div>
-
             {/* LMS Dashboard Cockpit Button */}
             <button
               onClick={() => navigateTo('dashboard', 'overview')}
               className="flex items-center gap-1.5 border-2 border-ink bg-white px-3 py-1.5 text-xs font-bold text-ink shadow-[2.5px_2.5px_0_#0d1b3e] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#0d1b3e] hover:bg-blue-50"
             >
               <LayoutDashboard className="h-3.5 w-3.5 text-brand" />
-              <span>LMS Dashboard</span>
-            </button>
-
-            {/* Auth Buttons */}
-            <button
-              onClick={() => openAuthModal('signin')}
-              className="hidden sm:block font-bold text-ink hover:text-brand px-2"
-            >
-              Sign In
-            </button>
-
-            <button
-              onClick={() => openAuthModal('register')}
-              className="border-2 border-ink bg-[#0f9d58] px-3.5 py-1.5 font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
-            >
-              Register
+              <span>Open portal</span>
             </button>
 
             {/* Mobile Hamburger Menu Toggle */}
@@ -264,15 +219,6 @@ export function Header() {
               </li>
             </ul>
 
-            <div className="mt-4 pt-3 border-t-2 border-ink/10 flex items-center justify-between">
-              <span className="text-[11px] text-gray-500">Active Role:</span>
-              <button
-                onClick={() => switchRole(userRole === 'instructor' ? 'student' : 'instructor')}
-                className="border border-ink bg-brand px-2 py-1 text-[10px] font-bold text-white shadow-xs capitalize"
-              >
-                Switch Role ({userRole})
-              </button>
-            </div>
           </div>
         )}
       </nav>

@@ -1,16 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { CircleHelp, Bell, ChevronDown, Sparkles } from 'lucide-react'
-import { RoleSwitcher } from '../common/RoleSwitcher'
+import { useSession } from '../../lib/auth/SessionProvider'
+import { UserAvatar } from '../common/UserAvatar'
+import { roleLabel } from '../../lib/auth/portals'
 import { DemoMode } from './studentDemoData'
 
 interface StudentHeaderProps {
   title?: string
   subtitle?: string
-  name?: string
-  avatar?: string
   demoMode: DemoMode
   onSelectDemoMode: (mode: DemoMode) => void
-  onSwitchToFaculty?: () => void
 }
 
 const DEMO_MODE_OPTIONS: { id: DemoMode; label: string; badge: string; color: string }[] = [
@@ -22,11 +21,11 @@ const DEMO_MODE_OPTIONS: { id: DemoMode; label: string; badge: string; color: st
 export function StudentHeader({
   title,
   subtitle,
-  name = 'Asha',
-  avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
   demoMode,
   onSelectDemoMode,
 }: StudentHeaderProps) {
+  const { user } = useSession()
+  const name = user?.full_name?.split(' ')[0] ?? ''
   const [demoDropdownOpen, setDemoDropdownOpen] = useState(false)
   const demoRef = useRef<HTMLDivElement>(null)
 
@@ -44,12 +43,8 @@ export function StudentHeader({
 
   return (
     <header className="flex flex-col gap-3 font-sans select-none mb-3">
-      {/* Top Utility Bar matching exact visual reference: Role Switcher & Demo Mode on Left, Help & Bell & Avatar on Right */}
       <div className="flex items-center justify-between gap-3">
-        {/* Left: Role Switcher & Demo Mode Switcher */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Unified Role Switcher across all 4 portals */}
-          <RoleSwitcher align="left" />
 
           {/* Vertical Divider */}
           <div className="h-4 w-px bg-gray-300/70 hidden sm:block" />
@@ -128,11 +123,7 @@ export function StudentHeader({
 
           {/* Student Profile Avatar with green online dot */}
           <div className="relative cursor-pointer ml-0.5">
-            <img
-              src={avatar}
-              alt={name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-2xs"
-            />
+            <UserAvatar name={user?.full_name} />
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           </div>
         </div>

@@ -22,7 +22,7 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ initialTab }: StudentDashboardProps) {
-  const { switchRole, addToast } = useApp()
+  const { addToast } = useApp()
   const [activeTab, setActiveTab] = useState<StudentNavId>(() => {
     if (initialTab) return initialTab
     if (typeof window !== 'undefined') {
@@ -77,10 +77,6 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
       activeSupport: 'Active Support',
     }
     addToast('Demo Mode Changed', `Viewing synthetic scenario: ${labels[mode]}`, 'info')
-  }
-
-  const handleSwitchToFaculty = () => {
-    switchRole('instructor')
   }
 
   const handleTakeCheckIn = () => {
@@ -145,13 +141,10 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
         <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
           {/* Header */}
           <StudentHeader
-            name="Asha"
-            avatar={scenario.avatar}
             title={getHeaderTitle()}
             subtitle={getHeaderSubtitle()}
             demoMode={demoMode}
             onSelectDemoMode={handleSelectDemoMode}
-            onSwitchToFaculty={handleSwitchToFaculty}
           />
 
           {/* Conditional View by Tab */}
