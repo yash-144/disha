@@ -1,37 +1,56 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Any
+from typing import Optional, Any, Dict
+import jwt
+from passlib.context import CryptContext
 from app.core.config import settings
 
-try:
-    from jose import jwt
-    from passlib.context import CryptContext
+# Dedicated password hashing context supporting Argon2id (default) and bcrypt
+pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plain-text password against a stored hash (Argon2id or bcrypt)."""
+    if not plain_password or not hashed_password:
+        return False
+    try:
         return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        return False
 
-    def get_password_hash(password: str) -> str:
-        return pwd_context.hash(password)
 
-    def create_access_token(data: dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
-        to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.DISHA_JWT_ACCESS_TOKEN_EXPIRE_MINUTES))
-        to_encode.update({"exp": expire})
-        return jwt.encode(to_encode, settings.DISHA_JWT_SECRET, algorithm=settings.DISHA_JWT_ALGORITHM)
+def get_password_hash(password: str) -> str:
+    """Hash a password using Argon2id."""
+    return pwd_context.hash(password)
 
-except ImportError:
-    import hashlib
-    import base64
-    import json
 
-    def verify_password(plain_password: str, hashed_password: str) -> bool:
-        return get_password_hash(plain_password) == hashed_password
+def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+    """Create a signed JWT access token using settings configuration."""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=settings.DISHA_JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    to_encode.update({"exp": expire})
+    return jwt.encode(
+        to_encode,
+        settings.DISHA_JWT_SECRET,
+        algorithm=settings.DISHA_JWT_ALGORITHM,
+    )
 
-    def get_password_hash(password: str) -> str:
-        return hashlib.sha256(password.encode()).hexdigest()
 
-    def create_access_token(data: dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
-        payload = data.copy()
-        payload["exp"] = str(datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=60)))
-        return base64.b64encode(json.dumps(payload).encode()).decode()
+def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
+    """Decode and cryptographically verify a JWT access token.
+
+    Returns the decoded payload if valid and not expired; returns None otherwise.
+    """
+    if not token or not isinstance(token, str):
+        return None
+    try:
+        payload = jwt.decode(
+            token,
+            settings.DISHA_JWT_SECRET,
+            algorithms=[settings.DISHA_JWT_ALGORITHM],
+            options={"require": ["exp"]},
+        )
+        return payload
+    except (jwt.PyJWTError, Exception):
+        return None
