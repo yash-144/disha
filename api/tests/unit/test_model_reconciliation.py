@@ -39,6 +39,17 @@ from app.modules.interventions.models import (
 )
 from app.modules.notifications.models import Notification, NotificationsEntity
 from app.modules.audit.models import AuditEvent, AuditEntity
+from app.modules.cases.models import Signal
+from app.modules.faculty.models import (
+    FacultyProfile,
+    Course,
+    CourseSection,
+    CourseEnrollment,
+    StudentAttendanceRecord,
+    Assessment,
+    AssessmentSubmission,
+)
+from app.modules.student.models import SupportRequest
 
 
 class TestModelReconciliation(unittest.IsolatedAsyncioTestCase):
@@ -60,6 +71,15 @@ class TestModelReconciliation(unittest.IsolatedAsyncioTestCase):
         "disha_followup_notes",
         "disha_notifications",
         "disha_audit_events",
+        "disha_faculty_profiles",
+        "disha_courses",
+        "disha_course_sections",
+        "disha_course_enrollments",
+        "disha_attendance_records",
+        "disha_assessments",
+        "disha_assessment_submissions",
+        "disha_support_requests",
+        "disha_signals",
     }
 
     async def asyncSetUp(self):

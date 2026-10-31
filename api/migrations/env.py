@@ -17,6 +17,7 @@ from app.modules.identity.models import User, Membership
 from app.modules.roster.models import Student, Observation
 from app.modules.counselling.models import CounsellorProfile, CounsellorAssignment
 from app.modules.cases.models import (
+    Signal,
     Case,
     CaseNote,
     CaseEvent,
@@ -28,6 +29,16 @@ from app.modules.cases.models import (
 )
 from app.modules.notifications.models import Notification
 from app.modules.audit.models import AuditEvent
+from app.modules.faculty.models import (
+    FacultyProfile,
+    Course,
+    CourseSection,
+    CourseEnrollment,
+    StudentAttendanceRecord,
+    Assessment,
+    AssessmentSubmission,
+)
+from app.modules.student.models import SupportRequest
 
 # Alembic Config object
 config = context.config

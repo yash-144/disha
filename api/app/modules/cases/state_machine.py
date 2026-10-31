@@ -25,7 +25,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.SUGGESTED,
             to_state=CaseState.UNDER_REVIEW,
             event_type="CASE_REVIEW_STARTED",
-            allowed_roles=[Role.INSTITUTION_ADMIN, Role.COUNSELLOR, Role.HOD, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.INSTITUTION_ADMIN, Role.COUNSELLOR, Role.HOD, Role.FACULTY, Role.PLATFORM_ADMIN],
             requires_assigned_owner=False
         ),
         CaseState.DISMISSED: TransitionRule(
@@ -42,7 +42,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.UNDER_REVIEW,
             to_state=CaseState.ACTION_PLANNED,
             event_type="INTERVENTION_APPROVED",
-            allowed_roles=[Role.INSTITUTION_ADMIN, Role.COUNSELLOR, Role.HOD, Role.PLATFORM_ADMIN]
+            allowed_roles=[Role.INSTITUTION_ADMIN, Role.COUNSELLOR, Role.HOD, Role.FACULTY, Role.PLATFORM_ADMIN]
         ),
         CaseState.DISMISSED: TransitionRule(
             from_state=CaseState.UNDER_REVIEW,
@@ -76,7 +76,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.ASSIGNED,
             to_state=CaseState.ACCEPTED,
             event_type="ASSIGNMENT_ACCEPTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.ASSIGNED: TransitionRule(
@@ -91,7 +91,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.ASSIGNED,
             to_state=CaseState.ACTION_PLANNED,
             event_type="ASSIGNMENT_REJECTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_case_note=True
         ),
         CaseState.DISMISSED: TransitionRule(
@@ -108,21 +108,21 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.ACCEPTED,
             to_state=CaseState.CONTACT_ATTEMPTED,
             event_type="CONTACT_ATTEMPTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.SUPPORT_IN_PROGRESS: TransitionRule(
             from_state=CaseState.ACCEPTED,
             to_state=CaseState.SUPPORT_IN_PROGRESS,
             event_type="SUPPORT_STARTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.FAILED_CONTACT: TransitionRule(
             from_state=CaseState.ACCEPTED,
             to_state=CaseState.FAILED_CONTACT,
             event_type="CONTACT_FAILED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_case_note=True
         ),
@@ -140,14 +140,14 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.CONTACT_ATTEMPTED,
             to_state=CaseState.SUPPORT_IN_PROGRESS,
             event_type="SUPPORT_STARTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.FAILED_CONTACT: TransitionRule(
             from_state=CaseState.CONTACT_ATTEMPTED,
             to_state=CaseState.FAILED_CONTACT,
             event_type="CONTACT_FAILED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_case_note=True
         ),
@@ -155,7 +155,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.CONTACT_ATTEMPTED,
             to_state=CaseState.FOLLOW_UP_DUE,
             event_type="FOLLOW_UP_SCHEDULED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_follow_up=True
         ),
@@ -165,14 +165,14 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.FAILED_CONTACT,
             to_state=CaseState.CONTACT_ATTEMPTED,
             event_type="CONTACT_REATTEMPTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.CLOSED: TransitionRule(
             from_state=CaseState.FAILED_CONTACT,
             to_state=CaseState.CLOSED,
             event_type="CASE_CLOSED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_case_note=True,
             is_terminal=True
         ),
@@ -190,7 +190,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.SUPPORT_IN_PROGRESS,
             to_state=CaseState.FOLLOW_UP_DUE,
             event_type="SUPPORT_DELIVERED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_follow_up=True
         ),
@@ -198,7 +198,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.SUPPORT_IN_PROGRESS,
             to_state=CaseState.OUTCOME_REVIEWED,
             event_type="OUTCOME_RECORDED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_outcome=True
         ),
@@ -216,14 +216,14 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.FOLLOW_UP_DUE,
             to_state=CaseState.SUPPORT_IN_PROGRESS,
             event_type="SUPPORT_RESUMED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True
         ),
         CaseState.OUTCOME_REVIEWED: TransitionRule(
             from_state=CaseState.FOLLOW_UP_DUE,
             to_state=CaseState.OUTCOME_REVIEWED,
             event_type="OUTCOME_RECORDED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_outcome=True
         ),
@@ -231,7 +231,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.FOLLOW_UP_DUE,
             to_state=CaseState.FAILED_CONTACT,
             event_type="CONTACT_FAILED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_assigned_owner=True,
             requires_case_note=True
         ),
@@ -258,7 +258,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.OUTCOME_REVIEWED,
             to_state=CaseState.CLOSED,
             event_type="CASE_CLOSED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_outcome=True,
             requires_case_note=True,
             is_terminal=True
@@ -267,7 +267,7 @@ CANONICAL_TRANSITIONS: Dict[CaseState, Dict[CaseState, TransitionRule]] = {
             from_state=CaseState.OUTCOME_REVIEWED,
             to_state=CaseState.SUPPORT_IN_PROGRESS,
             event_type="FURTHER_SUPPORT_REQUESTED",
-            allowed_roles=[Role.COUNSELLOR, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
+            allowed_roles=[Role.COUNSELLOR, Role.FACULTY, Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN],
             requires_case_note=True
         ),
     },

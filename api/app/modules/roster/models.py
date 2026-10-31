@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey
+from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.shared.utils import utc_now
@@ -10,17 +10,23 @@ class Student(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     campus_id = Column(String(36), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=True, unique=True, index=True)
     student_uid = Column(String(100), nullable=False, index=True)
     full_name = Column(String(300), nullable=False)
     email = Column(String(320), nullable=True)
     department = Column(String(200), nullable=True)
     course = Column(String(200), nullable=True)
     academic_year = Column(Integer, nullable=True)
+    cohort_code = Column(String(100), nullable=True, index=True)
+    enrollment_status = Column(String(50), nullable=False, default="active")
+    attendance_rate = Column(Float, nullable=False, default=0.0)
+    quiz_score_avg = Column(Float, nullable=False, default=0.0)
     is_active = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
     # Relationships
+    user = relationship("User", foreign_keys=[user_id], lazy="selectin")
     observations = relationship("Observation", back_populates="student", cascade="all, delete-orphan", lazy="selectin")
 
 

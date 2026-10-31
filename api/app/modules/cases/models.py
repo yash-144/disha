@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey, Float, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, validates
 from app.core.database import Base
@@ -12,6 +12,28 @@ from app.modules.roster.models import Student
 JSONType = JSON().with_variant(JSONB(), "postgresql")
 
 
+class Signal(Base):
+    __tablename__ = "disha_signals"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    campus_id = Column(String(36), nullable=False, index=True)
+    student_id = Column(String(36), ForeignKey("disha_roster.id"), nullable=False, index=True)
+    rule_key = Column(String(100), nullable=False)
+    result = Column(String(50), default="attention_suggested", nullable=False)
+    ml_risk_probability = Column(Float, nullable=True)
+    ml_tier = Column(String(50), nullable=True)
+    evidence_snapshot = Column(Text, nullable=True)
+    reviewed = Column(Boolean, default=False, nullable=False)
+    reviewed_decision = Column(String(50), nullable=True)
+    review_reason = Column(Text, nullable=True)
+    reviewed_by = Column(String(36), ForeignKey("disha_identity.id"), nullable=True, index=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    student = relationship("Student", foreign_keys=[student_id], lazy="selectin")
+    reviewer = relationship("User", foreign_keys=[reviewed_by], lazy="selectin")
+
+
 class Case(Base):
     __tablename__ = "disha_cases"
 
@@ -19,6 +41,7 @@ class Case(Base):
     campus_id = Column(String(36), nullable=False, index=True)
     student_id = Column(String(36), ForeignKey("disha_roster.id"), nullable=False, index=True)
     assigned_counsellor_id = Column(String(36), ForeignKey("disha_identity.id"), nullable=True, index=True)
+    originating_signal_id = Column(String(36), ForeignKey("disha_signals.id"), unique=True, nullable=True)
     status = Column(String(30), nullable=False, default=CaseStatus.NEW.value, index=True)
     priority = Column(String(20), nullable=False, default="medium")
     title = Column(String(500), nullable=False)
@@ -33,6 +56,7 @@ class Case(Base):
     # Relationships
     student = relationship("Student", foreign_keys=[student_id], lazy="selectin")
     assigned_counsellor = relationship("User", foreign_keys=[assigned_counsellor_id], lazy="selectin")
+    signal = relationship("Signal", foreign_keys=[originating_signal_id], lazy="selectin")
     notes = relationship("CaseNote", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
     events = relationship("CaseEvent", back_populates="case", cascade="all, delete-orphan", lazy="selectin")
     interventions = relationship("Intervention", back_populates="case", cascade="all, delete-orphan", lazy="selectin")

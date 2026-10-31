@@ -18,7 +18,7 @@ from app.core.exceptions import (
 from app.core.permissions import Role
 from app.modules.cases.state_machine import CaseStateMachine, TransitionRule
 from app.modules.cases.models import Case, CaseEvent, CaseNote
-from app.modules.audit.models import AuditEvent
+from app.modules.audit.services import AuditService
 from app.modules.notifications.models import Notification
 from app.modules.cases.schemas import (
     CaseCreateRequest,
@@ -271,9 +271,9 @@ class CaseService:
             )
             db.add(event)
 
-            # AuditEvent (strictly non-confidential)
-            audit = AuditEvent(
-                id=str(uuid.uuid4()),
+            # AuditEvent via authoritative AuditService (strictly non-confidential)
+            await AuditService.record_event(
+                db=db,
                 actor_id=actor_id,
                 campus_id=campus_id,
                 entity_type="case",
@@ -284,9 +284,7 @@ class CaseService:
                     "version": 1,
                     "assigned_counsellor_id": data.assigned_counsellor_id,
                 },
-                created_at=now,
             )
-            db.add(audit)
 
             # Notification outbox record if assigned
             if data.assigned_counsellor_id:
@@ -428,18 +426,16 @@ class CaseService:
             )
             db.add(event)
 
-            # Persist AuditEvent
-            audit = AuditEvent(
-                id=str(uuid.uuid4()),
+            # Persist AuditEvent via authoritative AuditService
+            await AuditService.record_event(
+                db=db,
                 actor_id=actor_id,
                 campus_id=campus_id,
                 entity_type="case",
                 entity_id=case_id,
                 action="CASE_UPDATED",
                 event_metadata={"version": data.expected_version + 1},
-                created_at=now,
             )
-            db.add(audit)
 
         return await CaseService.get_case(db, case_id, campus_id, is_platform_admin)
 
@@ -573,7 +569,7 @@ class CaseService:
                 )
                 db.add(case_note)
 
-            # Persist AuditEvent (strictly NON-CONFIDENTIAL metadata, NO clinical notes)
+            # Persist AuditEvent via authoritative AuditService (strictly NON-CONFIDENTIAL metadata, NO clinical notes)
             audit_metadata = {
                 "from_state": current_state.value,
                 "to_state": target_state.value,
@@ -581,17 +577,15 @@ class CaseService:
                 "version": expected_version + 1,
                 "new_owner_id": new_owner_id,
             }
-            audit_entry = AuditEvent(
-                id=str(uuid.uuid4()),
+            await AuditService.record_event(
+                db=db,
                 actor_id=actor_user_id,
                 campus_id=case.campus_id,
                 entity_type="case",
                 entity_id=case_id,
                 action=rule.event_type,
                 event_metadata=audit_metadata,
-                created_at=now,
             )
-            db.add(audit_entry)
 
             # Persist Notification outbox entry
             notification_intent = None

@@ -36,12 +36,15 @@ class TestDatabaseIntegrity(unittest.IsolatedAsyncioTestCase):
 
         heads = script_dir.get_heads()
         self.assertEqual(len(heads), 1, f"Expected exactly 1 migration head, found: {heads}")
-        self.assertEqual(heads[0], "001_counsellor_module")
+        self.assertEqual(heads[0], "002_student_faculty_module")
 
-        # Verify revision metadata
+        # Verify revision metadata and lineage
         head_rev = script_dir.get_revision(heads[0])
-        self.assertIsNone(head_rev.down_revision, "Initial migration must have down_revision = None")
-        self.assertEqual(head_rev.revision, "001_counsellor_module")
+        self.assertEqual(head_rev.down_revision, "001_counsellor_module")
+        self.assertEqual(head_rev.revision, "002_student_faculty_module")
+
+        init_rev = script_dir.get_revision("001_counsellor_module")
+        self.assertIsNone(init_rev.down_revision, "Initial migration must have down_revision = None")
 
     def test_duplicate_revision_detection(self):
         """Verify that all migration version files contain unique revision identifiers."""

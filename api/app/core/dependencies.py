@@ -233,3 +233,73 @@ def verify_resource_access(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access denied: Institution Admins have supervisory oversight and cannot modify active counselling workflows directly",
             )
+
+
+async def verify_faculty_section_access(
+    section_id: str,
+    tenancy: TenancyContext,
+    db: AsyncSession,
+):
+    from app.modules.faculty.models import CourseSection
+    stmt = select(CourseSection).where(
+        CourseSection.id == section_id,
+        CourseSection.campus_id == tenancy.campus_id,
+    )
+    if not tenancy.is_platform_admin:
+        stmt = stmt.where(CourseSection.faculty_id == tenancy.user_id)
+    res = await db.execute(stmt)
+    section = res.scalar_one_or_none()
+    if not section:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: You are not authorized to view or manage this section.",
+        )
+    return section
+
+
+async def verify_faculty_student_access(
+    student_id: str,
+    tenancy: TenancyContext,
+    db: AsyncSession,
+):
+    from app.modules.roster.models import Student
+    from app.modules.faculty.models import CourseSection, CourseEnrollment
+    if tenancy.is_platform_admin:
+        stmt = select(Student).where(Student.id == student_id, Student.campus_id == tenancy.campus_id)
+    else:
+        stmt = (
+            select(Student)
+            .join(CourseEnrollment, CourseEnrollment.student_id == Student.id)
+            .join(CourseSection, CourseSection.id == CourseEnrollment.section_id)
+            .where(
+                Student.id == student_id,
+                CourseSection.faculty_id == tenancy.user_id,
+                CourseSection.campus_id == tenancy.campus_id,
+            )
+        )
+    res = await db.execute(stmt)
+    student = res.scalars().first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Student is not enrolled in any of your assigned courses.",
+        )
+    return student
+
+async def get_current_student(
+    tenancy: TenancyContext = Depends(get_tenancy_context),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.modules.roster.models import Student
+    stmt = select(Student).where(
+        Student.user_id == tenancy.user_id,
+        Student.campus_id == tenancy.campus_id,
+    )
+    res = await db.execute(stmt)
+    student = res.scalar_one_or_none()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student profile not found for active user in this campus",
+        )
+    return student
