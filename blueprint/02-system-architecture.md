@@ -51,7 +51,7 @@ flowchart LR
 
 **Current implementation:** a modular monolith (ADR-001). One FastAPI process
 mounts all routers under `/api/v1`. The ML package (`ml/`, installed as
-`sutra_ml`) is imported in-process. A separate superseded prototype
+`disha_ml`) is imported in-process. A separate superseded prototype
 (`backend/`) still exists in the repo and is not used (audit A1).
 
 **Requirement ARCH-01:** one backend code base. Do not keep a second backend or
@@ -144,7 +144,7 @@ See [12](12-frontend-architecture.md).
 
 ### 6.2 CLI
 
-**Current implementation:** Rust (`clap`, `tokio`, `reqwest`), binary `sutra`,
+**Current implementation:** Rust (`clap`, `tokio`, `reqwest`), binary `disha`,
 command groups `auth`, `health`, `students`, `signals`, `cases`, `catalogue`,
 `predict`, `datasets`, `ai`. Session files written with mode 0600 and atomic
 writes (audit: "What to keep").

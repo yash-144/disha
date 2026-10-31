@@ -1,6 +1,15 @@
-# Kagaz ML — Early Academic Risk Signals
+# DISHA ML — Early Academic Risk Signals
 
-This folder trains and runs the machine-learning part of Kagaz: it looks at a
+Isolated machine-learning pipeline for predicting student dropout and raising
+early academic risk signals. Ground rules:
+* Strict temporal separation: no data leakage between checkpoints.
+* Auditable feature contracts.
+* Human in the loop: ML predictions attach as evidence; they never open cases
+  by themselves.
+
+The Python package is `kagaz_ml` (the project's earlier working name).
+
+This folder trains and runs the machine-learning part of DISHA: it looks at a
 student's academic record and decides whether to raise an **early risk
 signal** for an advisor to review. This README explains everything: what data
 is used, how the model works, how false alarms are kept down, how to train it
@@ -466,7 +475,14 @@ ml/
 │   ├── train.py             training CLI, release check, reports
 │   ├── score.py             scoring CLI with model hash check
 │   └── synthetic.py         invented data for tests only
-└── tests/                   29 tests
+├── data/
+│   ├── raw/                 immutable source datasets (UCI dataset as downloaded)
+│   ├── processed/           normalised, validated datasets ready for training
+│   ├── interim/             intermediate files
+│   └── external/            third-party reference data
+├── tests/                   pipeline tests
+└── evaluation/ features/ registry/ scripts/ simulation/ training/ notebooks/
+                             monorepo placeholders (not used by kagaz_ml yet)
 ```
 
 ## 23. Tests

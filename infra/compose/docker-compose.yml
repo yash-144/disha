@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  disha-api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    container_name: disha-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DISHA_ENV=development
+      - DISHA_DATABASE_URL=postgresql+asyncpg://disha_user:disha_password@postgres:5432/disha_db
+      - DISHA_REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  disha-worker:
+    build:
+      context: ../../worker
+      dockerfile: Dockerfile
+    container_name: disha-worker
+    environment:
+      - DISHA_DATABASE_URL=postgresql+asyncpg://disha_user:disha_password@postgres:5432/disha_db
+      - DISHA_REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: disha-postgres
+    environment:
+      POSTGRES_USER: disha_user
+      POSTGRES_PASSWORD: disha_password
+      POSTGRES_DB: disha_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: disha-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

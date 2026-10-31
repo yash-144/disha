@@ -1,0 +1,9 @@
+{
+  "name": "DISHA Student Early-Warning",
+  "short_name": "DISHA",
+  "description": "Student Early-Warning and Intervention Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff"
+}

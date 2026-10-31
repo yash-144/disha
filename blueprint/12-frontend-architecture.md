@@ -9,7 +9,7 @@
 | Route protection | None; no `middleware.ts`; every page renders for anyone (audit F2) |
 | Demo layer | `?role=`, `?demo=`, `?walkthrough=` URL params and a `localStorage` flag switch on demo personas with pre-issued tokens and mock data (audit A5, S2) |
 | State | `lib/skillhub-store.tsx` (2,187 lines) single React context for students, signals, cases, counsellor data, happiness, points, leaderboards, redemptions (audit F3) |
-| API client | `lib/api.ts` (1,907 lines) mixes HTTP client with offline mock responses; base URL overridable from `localStorage` or `window.__SUTRA_API_URL__` (audit F3, S8) |
+| API client | `lib/api.ts` (1,907 lines) mixes HTTP client with offline mock responses; base URL overridable from `localStorage` or `window.__DISHA_API_URL__` (audit F3, S8) |
 | Server routes | `app/api/translate`, `app/api/shop/{balance,history,redeem}` run business logic in server memory (audit S5, F5) |
 | Static-data features | Courses, community, messages, internships, rewards, shop render bundled data from `lib/skillhub-data.ts`, `lib/shop-data.ts` |
 | Localisation | `lib/language-context.tsx` walks the DOM with `TreeWalker` + `MutationObserver`, posts every text node to Sarvam via `/api/translate`, caches in `localStorage`; `data-no-translate` used 0 times (audit F1, F6) |

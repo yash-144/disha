@@ -1,0 +1,13 @@
+[project]
+name = "disha-ml"
+version = "1.0.0"
+description = "Machine learning research, feature pipelines, and model evaluation for DISHA"
+authors = [{ name = "DISHA Engineering Team" }]
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn>=1.4.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "xgboost>=2.0.3",
+    "joblib>=1.3.2"
+]
