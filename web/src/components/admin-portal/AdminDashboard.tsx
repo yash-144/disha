@@ -9,6 +9,8 @@ import { AdminInterventionsPage } from './AdminInterventionsPage'
 import { AdminAnalyticsPage } from './AdminAnalyticsPage'
 import { AdminDocumentIntegrityPage } from './AdminDocumentIntegrityPage'
 import { AdminRewardFulfilmentPage } from './AdminRewardFulfilmentPage'
+import { AdminDataImportPage } from './AdminDataImportPage'
+import { AdminRiskModelPage } from './AdminRiskModelPage'
 
 const TAB_METADATA: Record<
   AdminNavId,
@@ -48,6 +50,14 @@ const TAB_METADATA: Record<
   'reward-fulfilment': {
     title: 'Reward Fulfilment',
     subtitle: 'Manage student incentives, badge issuance and wellness milestone rewards',
+  },
+  'data-import': {
+    title: 'Data Import',
+    subtitle: 'Upload canonical student data, validate it and review import history',
+  },
+  'risk-model': {
+    title: 'Risk Model',
+    subtitle: 'Loaded model, scoring runs, active policy and data drift',
   },
 }
 
@@ -110,6 +120,10 @@ export function AdminDashboard() {
         return <AdminDocumentIntegrityPage />
       case 'reward-fulfilment':
         return <AdminRewardFulfilmentPage />
+      case 'data-import':
+        return <AdminDataImportPage />
+      case 'risk-model':
+        return <AdminRiskModelPage />
       default:
         return <AdminOverviewPage onNavigateTab={(tab) => handleSelectTab(tab as AdminNavId)} />
     }

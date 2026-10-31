@@ -103,7 +103,8 @@ export async function request<T = unknown>(
     'X-Request-ID': newRequestId(),
     ...extraHeaders,
   }
-  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
 
   let sentToken: string | null = null
   if (auth) {
@@ -118,7 +119,7 @@ export async function request<T = unknown>(
     res = await fetch(buildUrl(path, query), {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
       signal,
     })
   } catch (err) {

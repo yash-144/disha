@@ -16,6 +16,8 @@ import {
   BarChart3,
   Sliders,
   Award,
+  UploadCloud,
+  Cpu,
 } from 'lucide-react'
 import { LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
@@ -65,6 +67,8 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'analytics', label: 'Institution Analytics', icon: BarChart3 },
     { id: 'document-integrity', label: 'Document Integrity', icon: ShieldCheck },
     { id: 'reward-fulfilment', label: 'Reward Fulfilment', icon: Award },
+    { id: 'data-import', label: 'Data Import', icon: UploadCloud },
+    { id: 'risk-model', label: 'Risk Model', icon: Cpu },
   ],
 }
 

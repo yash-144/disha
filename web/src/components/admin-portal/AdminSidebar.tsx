@@ -8,6 +8,8 @@ import {
   BarChart3,
   ShieldCheck,
   Award,
+  UploadCloud,
+  Cpu,
 } from 'lucide-react'
 import { AppSidebar } from '../common/AppSidebar'
 
@@ -20,6 +22,8 @@ export type AdminNavId =
   | 'analytics'
   | 'document-integrity'
   | 'reward-fulfilment'
+  | 'data-import'
+  | 'risk-model'
 
 export interface AdminSidebarProps {
   activeTab: AdminNavId
@@ -42,6 +46,8 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'analytics', label: 'Institution Analytics', route: '/admin/analytics', icon: BarChart3 },
   { id: 'document-integrity', label: 'Document Integrity', route: '/admin/document-integrity', icon: ShieldCheck },
   { id: 'reward-fulfilment', label: 'Reward Fulfilment', route: '/admin/reward-fulfilment', icon: Award },
+  { id: 'data-import', label: 'Data Import', route: '/admin/data-import', icon: UploadCloud },
+  { id: 'risk-model', label: 'Risk Model', route: '/admin/risk-model', icon: Cpu },
 ]
 
 export function AdminSidebar({ activeTab, onSelectTab }: AdminSidebarProps) {

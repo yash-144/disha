@@ -28,7 +28,6 @@ export function AdminStudentDirectoryPage() {
   // Selected student drawer/modal
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
-  const [importCounts, setImportCounts] = useState<{ accepted: number; duplicates: number; rejected: number } | null>(null)
 
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
@@ -78,12 +77,6 @@ export function AdminStudentDirectoryPage() {
     addToast('Enrolment Status Updated', `Student status changed to ${newStatus}.`, 'info')
   }
 
-  // Simulate Batch Import (FR-OBS-01, FR-OBS-05)
-  const handleSimulateImport = () => {
-    setImportCounts({ accepted: 142, duplicates: 8, rejected: 0 })
-    addToast('Batch Ingest Completed', 'Imported 142 student records, 8 duplicates ignored (FR-OBS-05).', 'success')
-  }
-
   return (
     <div className="flex flex-col gap-4 font-sans select-none">
       {/* 1. DIRECTORY HEADER & ACTIONS */}
@@ -106,7 +99,6 @@ export function AdminStudentDirectoryPage() {
           <button
             type="button"
             onClick={() => {
-              setImportCounts(null)
               setIsImportModalOpen(true)
             }}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition shadow-2xs cursor-pointer"
@@ -359,20 +351,10 @@ export function AdminStudentDirectoryPage() {
             </div>
 
             <div className="p-5 flex flex-col gap-4 text-xs">
-              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-purple-300 transition cursor-pointer">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="font-semibold text-gray-700">Drop student roster CSV here</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">Supports: external_ref, display_name, cohort_code, enrollment_status</p>
-              </div>
-
-              {importCounts && (
-                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-950 flex flex-col gap-1 text-[11px]">
-                  <span className="font-bold">Import Batch Results (FR-OBS-05):</span>
-                  <span>• Accepted Rows: {importCounts.accepted}</span>
-                  <span>• Duplicate Records Skipped: {importCounts.duplicates}</span>
-                  <span>• Rejected Rows: {importCounts.rejected}</span>
-                </div>
-              )}
+              <p className="text-gray-700">
+                Student data is imported on the <b>Data Import</b> screen, which validates the canonical CSV tables
+                against the server before anything is stored.
+              </p>
             </div>
 
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2 text-xs">
@@ -383,13 +365,12 @@ export function AdminStudentDirectoryPage() {
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={handleSimulateImport}
+              <a
+                href="/admin/data-import"
                 className="px-5 py-2 rounded-full font-bold text-white bg-purple-700 hover:bg-purple-800 transition"
               >
-                Process Ingestion
-              </button>
+                Open Data Import
+              </a>
             </div>
           </div>
         </div>
