@@ -14,6 +14,8 @@ import {
 import {
   INSTRUCTOR_USER,
   STUDENT_USER,
+  COUNSELLOR_USER,
+  ADMIN_USER,
   COURSES_DATA,
   LIVE_SESSIONS_DATA,
   ACTIVE_CLASSES_DATA,
@@ -59,10 +61,47 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentView, setCurrentView] = useState<ViewMode>('landing')
-  const [dashboardTab, setDashboardTab] = useState<DashboardTab>('overview')
-  const [userRole, setUserRole] = useState<UserRole>('instructor')
-  const [currentUser, setCurrentUser] = useState<UserProfile>(INSTRUCTOR_USER)
+  const [currentView, setCurrentView] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const v = params.get('view') as ViewMode
+      if (v) return v
+    }
+    return 'dashboard'
+  })
+  const [dashboardTab, setDashboardTab] = useState<DashboardTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const t = params.get('tab') as DashboardTab
+      if (t) return t
+    }
+    return 'cases'
+  })
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const r = params.get('role') as UserRole
+      if (r && ['instructor', 'student', 'counsellor', 'admin'].includes(r)) return r
+      const path = window.location.pathname.toLowerCase()
+      if (path.startsWith('/counsellor')) return 'counsellor'
+      if (path.startsWith('/admin')) return 'admin'
+      if (path.startsWith('/student')) return 'student'
+      if (path.startsWith('/faculty') || path.startsWith('/instructor')) return 'instructor'
+    }
+    return 'instructor'
+  })
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const r = params.get('role') as UserRole
+      const path = window.location.pathname.toLowerCase()
+      const role = r || (path.startsWith('/counsellor') ? 'counsellor' : path.startsWith('/admin') ? 'admin' : path.startsWith('/student') ? 'student' : 'instructor')
+      if (role === 'counsellor') return COUNSELLOR_USER
+      if (role === 'admin') return ADMIN_USER
+      if (role === 'student') return STUDENT_USER
+    }
+    return INSTRUCTOR_USER
+  })
   const [courses, setCourses] = useState<Course[]>(COURSES_DATA)
   const [activeClasses, setActiveClasses] = useState<ClassItem[]>(ACTIVE_CLASSES_DATA)
   const [students, setStudents] = useState<StudentRecord[]>(STUDENTS_DATA)
@@ -96,9 +135,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ) => {
     const id = Math.random().toString(36).substring(2, 9)
     setToasts((prev) => [...prev, { id, title, message, type }])
-    setTimeout(() => {
-      removeToast(id)
-    }, 4500)
   }
 
   const removeToast = (id: string) => {
@@ -107,90 +143,83 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const enrollInCourse = (courseId: string) => {
     if (enrolledCourseIds.includes(courseId)) {
-      addToast('Already Enrolled', 'You have already enrolled in this course!', 'info')
+      addToast('Already Enrolled', 'You are already enrolled in this course.', 'info')
       return
     }
     const updated = [...enrolledCourseIds, courseId]
     setEnrolledCourseIds(updated)
     try {
       localStorage.setItem('skillsup_enrolled', JSON.stringify(updated))
-    } catch {}
-    const c = courses.find((item) => item.id === courseId)
-    addToast('🎉 Successfully Enrolled!', `Welcome to "${c?.title || 'the course'}".`, 'success')
+    } catch {
+      // ignore
+    }
+    addToast('Enrolled Successfully!', 'Course added to your learning dashboard.', 'success')
   }
 
   const toggleStudentAttendance = (studentId: string) => {
     setStudents((prev) =>
-      prev.map((s) => {
-        if (s.id !== studentId) return s
-        const nextStatus = s.status === 'Present' ? 'Late' : s.status === 'Late' ? 'Absent' : 'Present'
-        addToast(`Attendance Updated`, `${s.name} is now marked ${nextStatus}.`, 'info')
-        return { ...s, status: nextStatus }
+      prev.map((student) => {
+        if (student.id !== studentId) return student
+        const nextStatus =
+          student.status === 'Present'
+            ? 'Late'
+            : student.status === 'Late'
+            ? 'Absent'
+            : 'Present'
+        return { ...student, status: nextStatus }
       })
     )
   }
 
-  const addNewCourse = (course: Partial<Course>) => {
-    const newId = `course-${courses.length + 1}`
+  const addNewCourse = (courseData: Partial<Course>) => {
+    const newId = `course-${Date.now()}`
     const fullCourse: Course = {
       id: newId,
-      title: course.title || 'Untitled Course',
-      category: course.category || 'web',
-      categoryLabel: course.categoryLabel || 'Computer Science & IT',
-      level: course.level || 'Beginner',
-      duration: course.duration || '20 Hours',
-      lecturesCount: course.lecturesCount || 24,
-      desc: course.desc || 'Comprehensive curriculum with practical exercises.',
-      price: course.price || '₹1,599',
-      originalPrice: course.originalPrice || '₹3,999',
+      title: courseData.title || 'Untitled Course',
+      category: courseData.category || 'web',
+      categoryLabel: courseData.categoryLabel || 'Web Development',
+      level: courseData.level || 'Beginner',
+      duration: courseData.duration || '4 Weeks',
+      lecturesCount: courseData.lecturesCount || 12,
+      desc: courseData.desc || 'No description provided.',
+      price: courseData.price || 'Free',
+      originalPrice: courseData.originalPrice || '₹999',
       rating: 5.0,
-      reviewsCount: '1',
-      badge: 'New',
-      badgeColor: 'bg-[#0f9d58]',
+      reviewsCount: '0',
       instructorName: currentUser.name,
       instructorTitle: currentUser.title,
       instructorAvatar: currentUser.avatar,
-      iconName: 'Code2',
-      accentBg: 'bg-[#1d5fd1]',
-      modules: course.modules || [
+      iconName: 'Code',
+      accentBg: 'bg-blue-500',
+      modules: courseData.modules || [
         {
-          title: 'Module 1: Introduction & Environment Setup',
-          duration: '3 hrs',
-          lessons: ['Introduction to key concepts', 'Setting up tools & code editor'],
+          title: 'Module 1: Getting Started',
+          duration: '1 hr',
+          lessons: ['Introduction', 'Core Concepts'],
         },
       ],
-      prerequisites: course.prerequisites || ['None'],
+      prerequisites: courseData.prerequisites || ['Basic Computer Knowledge'],
     }
     setCourses((prev) => [fullCourse, ...prev])
-    addToast('Course Created!', `"${fullCourse.title}" is now published in the catalog.`, 'success')
+    addToast('Course Published!', `"${fullCourse.title}" is now available.`, 'success')
   }
 
-  const addNewClass = (cls: Partial<ClassItem>) => {
-    const newClass: ClassItem = {
-      id: `class-${Date.now()}`,
-      name: cls.name || 'New Live Cohort Class',
-      code: cls.code || `CS${Math.floor(100 + Math.random() * 900)}`,
+  const addNewClass = (clsData: Partial<ClassItem>) => {
+    const newId = `class-${Date.now()}`
+    const fullClass: ClassItem = {
+      id: newId,
+      name: clsData.name || 'Untitled Class',
+      code: clsData.code || 'CLS-101',
       instructor: currentUser.name,
-      accessCode: Math.random().toString(36).substring(2, 12),
-      term: cls.term || 'Jul 1, 2025 - Aug 15, 2025',
-      activeStudents: 1,
+      accessCode: clsData.accessCode || Math.random().toString(36).substring(2, 8).toUpperCase(),
+      term: clsData.term || 'Fall 2025',
+      activeStudents: 0,
       createdAt: 'Just now',
-      subject: cls.subject || 'Engineering',
-      color: 'bg-indigo-600',
+      subject: clsData.subject || 'Computer Science',
+      color: clsData.color || 'bg-brand',
     }
-    setActiveClasses((prev) => [newClass, ...prev])
-    addToast('Class Room Created!', `Access Code: ${newClass.accessCode}`, 'success')
-  }
-
-  const switchRole = (role: UserRole) => {
-    setUserRole(role)
-    if (role === 'instructor') {
-      setCurrentUser(INSTRUCTOR_USER)
-      addToast('Switched to Instructor Mode', 'You now have teaching and management permissions.', 'info')
-    } else {
-      setCurrentUser(STUDENT_USER)
-      addToast('Switched to Student Mode', 'You are now viewing as an enrolled student.', 'info')
-    }
+    setActiveClasses((prev) => [fullClass, ...prev])
+    addToast('Class Created!', `Class "${fullClass.name}" code: ${fullClass.accessCode}`, 'success')
   }
 
   const openAuthModal = (mode: 'signin' | 'register' = 'signin') => {
@@ -201,9 +230,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuthModal((prev) => ({ ...prev, isOpen: false }))
   }
 
+  const switchRole = (role: UserRole) => {
+    setUserRole(role)
+    const rolePrefix = role === 'instructor' ? 'faculty' : role
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ role }, '', `/${rolePrefix}/overview`)
+    }
+    if (role === 'instructor') {
+      setCurrentUser(INSTRUCTOR_USER)
+    } else if (role === 'student') {
+      setCurrentUser(STUDENT_USER)
+    } else if (role === 'counsellor') {
+      setCurrentUser(COUNSELLOR_USER)
+    } else if (role === 'admin') {
+      setCurrentUser(ADMIN_USER)
+    }
+  }
+
   const navigateTo = (view: ViewMode, tab: DashboardTab = 'overview') => {
     setCurrentView(view)
-    if (view === 'dashboard') {
+    if (tab) {
       setDashboardTab(tab)
     }
     window.scrollTo({ top: 0, behavior: 'smooth' })
