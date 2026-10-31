@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List
 
 try:
@@ -26,6 +27,15 @@ class Settings(BaseSettings):
     DISHA_ESCALATION_TARGET: str = os.getenv("DISHA_ESCALATION_TARGET", "role:hod")
     # Local IndicTrans2 translation (optional extra: pip install -e "api[translate]")
     DISHA_TRANSLATE_ENABLED: bool = os.getenv("DISHA_TRANSLATE_ENABLED", "false").lower() in ("1", "true", "yes")
+
+    # ML pipeline (rolling risk model). The bundle is a folder with model.joblib + manifest.json.
+    DISHA_ML_BUNDLE_PATH: str = os.getenv(
+        "DISHA_ML_BUNDLE_PATH", str(Path(__file__).resolve().parents[3] / "ml" / "artifacts_rolling"))
+    DISHA_ML_MEKO_HOOKS: bool = os.getenv("DISHA_ML_MEKO_HOOKS", "true").lower() in ("1", "true", "yes")
+    DISHA_ML_SCHEDULED_SCORING: bool = os.getenv("DISHA_ML_SCHEDULED_SCORING", "true").lower() in ("1", "true", "yes")
+    DISHA_INGEST_MAX_BYTES: int = int(os.getenv("DISHA_INGEST_MAX_BYTES", str(50 * 1024 * 1024)))  # per uploaded file
+    # Secret for pseudonymising campus student ids in score rows (falls back to MEKO_PII_SALT, then the JWT secret).
+    DISHA_STUDENT_REF_SALT: str = os.getenv("DISHA_STUDENT_REF_SALT", "")
 
     class Config:
         env_file = ".env"

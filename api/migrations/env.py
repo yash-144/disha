@@ -39,6 +39,8 @@ from app.modules.faculty.models import (
     AssessmentSubmission,
 )
 from app.modules.student.models import SupportRequest
+from app.modules.ingestion.models import ImportBatch, MlStudent, MlEnrolment, MlAssessment, MlResult, MlActivity, MlWithdrawal
+from app.modules.ml.models import MlScoringRun, MlRiskScore
 
 # Alembic Config object
 config = context.config
