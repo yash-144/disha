@@ -17,7 +17,7 @@ function Fact({ icon: Icon, title, text }: { icon: React.ComponentType<{ classNa
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"><Icon className="h-4.5 w-4.5" /></span>
       <div>
         <p className="text-xs font-bold text-ink">{title}</p>
-        <p className="text-[11px] leading-snug text-muted">{text}</p>
+        <p className="text-xs leading-snug text-muted">{text}</p>
       </div>
     </div>
   )
@@ -89,12 +89,12 @@ function Reliability() {
                         <span className="font-bold tabular-nums">{pct(v)}</span>
                       </div>
                       <div className="h-2.5 rounded-full bg-gray-100"><div className="h-2.5 rounded-full" style={{ width: `${(v ?? 0) * 100}%`, background: TIER_STYLE[t].color }} /></div>
-                      <p className="mt-0.5 text-[11px] text-muted">About {Math.round((v ?? 0) * 100)} of every 100 {TIER_STYLE[t].label.toLowerCase()} alerts were students who really struggled.</p>
+                      <p className="mt-0.5 text-xs text-muted">About {Math.round((v ?? 0) * 100)} of every 100 {TIER_STYLE[t].label.toLowerCase()} alerts were students who really struggled.</p>
                     </li>
                   )
                 })}
               </ul>
-              <p className="mt-3 flex items-start gap-1.5 text-[11px] text-muted"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" /> Percentages are calibrated: a 70% risk really means roughly 7 in 10 similar students struggled. Measured on past terms, not this campus.</p>
+              <p className="mt-3 flex items-start gap-1.5 text-xs text-muted"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" /> Percentages are calibrated: a 70% risk really means roughly 7 in 10 similar students struggled. Measured on past terms, not this campus.</p>
             </Card>
           </div>
         )
@@ -164,7 +164,7 @@ function Movement({ rows, name, onOpen }: { rows: ScoreRow[]; name: (r: ScoreRow
         <li key={r.id}>
           <button type="button" onClick={() => onOpen(r)} className="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-xs hover:bg-gray-50">
             <span className="truncate font-semibold text-ink">{name(r)} <span className="font-normal text-muted">· {r.course_id}</span></span>
-            <span className={`flex shrink-0 items-center gap-1 text-[11px] font-semibold ${tone}`}>{TIER_STYLE[r.previous_tier as Tier].label} → {TIER_STYLE[r.tier].label}</span>
+            <span className={`flex shrink-0 items-center gap-1 text-xs font-semibold ${tone}`}>{TIER_STYLE[r.previous_tier as Tier].label} → {TIER_STYLE[r.tier].label}</span>
           </button>
         </li>
       ))}
@@ -179,12 +179,12 @@ function Movement({ rows, name, onOpen }: { rows: ScoreRow[]; name: (r: ScoreRow
         <span className="rounded-full bg-gray-100 px-3 py-1 font-bold text-gray-600">{rows.length - moved.length} unchanged</span>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <div><p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">Rising risk</p><List items={worse} tone="text-rose-600" /></div>
-        <div><p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted">Recovering</p><List items={better} tone="text-emerald-600" /></div>
+        <div><p className="mb-1 text-xs font-bold uppercase tracking-wider text-muted">Rising risk</p><List items={worse} tone="text-rose-600" /></div>
+        <div><p className="mb-1 text-xs font-bold uppercase tracking-wider text-muted">Recovering</p><List items={better} tone="text-emerald-600" /></div>
       </div>
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-center text-[11px]">
-          <caption className="pb-1 text-left text-[10px] font-bold uppercase tracking-wider text-muted">From (rows) to (columns)</caption>
+        <table className="w-full text-center text-xs">
+          <caption className="pb-1 text-left text-xs font-bold uppercase tracking-wider text-muted">From (rows) to (columns)</caption>
           <thead><tr><th />{TIERS.map((t) => <th key={t} className="p-1 font-semibold">{TIER_STYLE[t].label}</th>)}</tr></thead>
           <tbody>
             {TIERS.map((from) => (
@@ -229,7 +229,7 @@ function Hotspots() {
                 <p className="flex items-center gap-1 text-xs font-bold text-ink">{cur.course_id}: flagged students over the term <InfoTip text="Cumulative share of students who have been flagged High or Medium at any weekly check up to that day." /></p>
                 <LineChart points={(cur.time_to_risk ?? []).map((p) => ({ x: p.day, y: p.cumulative_signalled_share }))} color="#F43F5E" />
                 {cur.hotspot && (
-                  <p className="mt-2 rounded-xl bg-amber-50 p-2.5 text-[11px] text-amber-900">
+                  <p className="mt-2 rounded-xl bg-amber-50 p-2.5 text-xs text-amber-900">
                     Biggest trigger: <b>{cur.hotspot.label}</b> (day {cur.hotspot.due_day}){cur.hotspot.share_of_at_risk != null ? `, where ${pct(cur.hotspot.share_of_at_risk)} of at-risk students first slipped` : ''}.
                   </p>
                 )}
@@ -263,11 +263,11 @@ function Drift() {
                   <li key={f.feature} className="flex items-center gap-3 text-xs">
                     <span className="w-36 shrink-0 truncate text-ink-2" title={f.feature}>{pretty(f.feature)}</span>
                     <div className="h-2 flex-1 rounded-full bg-gray-100"><div className={`h-2 rounded-full ${f.status === 'shift' ? 'bg-rose-400' : f.status === 'watch' ? 'bg-amber-400' : 'bg-emerald-500'}`} style={{ width: `${Math.max(2, (Math.min(f.psi, 1) / maxP) * 100)}%` }} /></div>
-                    <span className="w-10 text-right tabular-nums text-[11px] text-muted">{f.psi.toFixed(2)}</span>
+                    <span className="w-10 text-right tabular-nums text-xs text-muted">{f.psi.toFixed(2)}</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 text-[11px] text-muted">Showing the 12 biggest differences. Red above 0.2, amber 0.1 to 0.2.</p>
+              <p className="mt-2 text-xs text-muted">Showing the 12 biggest differences. Red above 0.2, amber 0.1 to 0.2.</p>
             </>
           )
         }}

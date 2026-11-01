@@ -48,7 +48,7 @@ export function ClassesTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               ACTIVE COHORTS
             </span>
             <span className="text-xs text-muted">({activeClasses.length} Scheduled)</span>
@@ -72,10 +72,10 @@ export function ClassesTab() {
           >
             <div>
               <div className="flex items-start justify-between">
-                <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="border border-ink bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   {cls.code}
                 </span>
-                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700">
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-700">
                   <Radio className="h-2.5 w-2.5 text-accent animate-pulse" /> Live Room
                 </span>
               </div>
@@ -84,13 +84,13 @@ export function ClassesTab() {
               <p className="mt-1 text-xs text-muted">{cls.subject}</p>
 
               <div className="mt-4 flex items-center justify-between border-2 border-ink bg-paper p-2 text-xs">
-                <span className="flex items-center gap-1.5 text-gray-700 text-[11px]">
+                <span className="flex items-center gap-1.5 text-gray-700 text-xs">
                   <KeyRound className="h-3.5 w-3.5 text-amber-500" />
                   Code: <span className="font-mono font-bold text-brand">{cls.accessCode}</span>
                 </span>
                 <button
                   onClick={() => copyCode(cls.accessCode)}
-                  className="border border-ink bg-white px-2 py-0.5 text-[10px] font-bold text-ink shadow-[1px_1px_0_#0d1b3e] hover:bg-gray-100"
+                  className="border border-ink bg-white px-2 py-0.5 text-xs font-bold text-ink shadow-[1px_1px_0_#0d1b3e] hover:bg-gray-100"
                   title="Copy Access Code"
                 >
                   Copy
@@ -98,11 +98,11 @@ export function ClassesTab() {
               </div>
 
               <div className="mt-4 space-y-1 text-xs text-gray-600 border-t border-ink/10 pt-3">
-                <p className="flex items-center gap-1.5 text-[11px]">
+                <p className="flex items-center gap-1.5 text-xs">
                   <Calendar className="h-3.5 w-3.5 text-brand" />
                   <span>{cls.term}</span>
                 </p>
-                <p className="flex items-center gap-1.5 text-[11px] font-bold text-accent">
+                <p className="flex items-center gap-1.5 text-xs font-bold text-accent">
                   <Users className="h-3.5 w-3.5" />
                   <span>{cls.activeStudents} active students in cohort</span>
                 </p>
@@ -110,7 +110,7 @@ export function ClassesTab() {
             </div>
 
             <div className="mt-5 border-t-2 border-ink/10 pt-3 flex items-center justify-between text-xs">
-              <span className="text-[10px] text-gray-400 font-mono">Created: {cls.createdAt}</span>
+              <span className="text-xs text-gray-400 font-mono">Created: {cls.createdAt}</span>
               <button
                 onClick={() => addToast('Class Settings', `Managing cohort session for ${cls.code}.`, 'info')}
                 className="border-2 border-ink bg-paper px-2.5 py-1 text-xs font-bold text-brand shadow-[1.5px_1.5px_0_#0d1b3e] hover:bg-white"

@@ -7,8 +7,19 @@
  * same way everywhere: High, Medium, Watch, On track.
  */
 @theme {
-  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* type scale: caption 13, body 15, section 18, title 28, metric 40 (no text below 13px) */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.45rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* surfaces and ink */
@@ -62,7 +73,7 @@
 }
 
 @layer base {
-  html { font-feature-settings: 'ss01', 'cv11'; }
+  html { font-feature-settings: 'tnum' 0; }
   body {
     font-family: var(--font-sans);
     color: var(--color-ink);
@@ -76,7 +87,6 @@
   ::selection { background: var(--color-accent); color: #fff; }
   :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
   input, select, textarea { accent-color: var(--color-accent); }
-  .font-display { letter-spacing: -0.01em; }
 }
 
 /* Minimalist & Aesthetic utilities */
@@ -115,3 +125,7 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #BDB8A8; }
+
+/* Headings and metrics: one family, heavier weight, tabular figures for numbers */
+.font-display { font-weight: 700 !important; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.tabular-nums, table { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }

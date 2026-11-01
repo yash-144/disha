@@ -112,6 +112,9 @@ export async function request<T = unknown>(
     if (sentToken) headers.Authorization = `Bearer ${sentToken}`
     const campus = campusId === undefined ? sessionStore.getCampusId() : campusId
     if (campus) headers['X-Campus-ID'] = campus
+    const activeRole = sessionStore.getRole()
+    // an explicit campus override (e.g. a campus-name lookup) is not the active role's campus
+    if (campus && activeRole && campusId === undefined) headers['X-Role'] = activeRole
   }
 
   let res: Response

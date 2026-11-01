@@ -149,7 +149,7 @@ export function AuthModal() {
               <span>{isGoogleLoading ? 'Connecting...' : tab === 'signin' ? 'Continue with Google' : 'Sign up with Google'}</span>
             </button>
 
-            <div className="flex items-center justify-between px-2 text-[10px] text-slate-400">
+            <div className="flex items-center justify-between px-2 text-xs text-slate-400">
               <span className="flex items-center gap-1.5">
                 <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-emerald-500 animate-ping' : 'bg-slate-300'}`} />
                 {isLive ? 'Google OAuth Live' : 'Google OAuth Dev/Mock Mode'}
@@ -163,7 +163,7 @@ export function AuthModal() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-100" />
             </div>
-            <div className="relative flex justify-center text-[10px] uppercase font-medium text-slate-400">
+            <div className="relative flex justify-center text-xs uppercase font-medium text-slate-400">
               <span className="bg-white px-2">or email</span>
             </div>
           </div>
@@ -252,7 +252,7 @@ export function AuthModal() {
 
           {/* Quick Demo Switcher */}
           <div className="mt-5 rounded-2xl bg-slate-50 p-3 text-center">
-            <span className="text-[11px] font-medium text-slate-500">Instant Demo 1-Click:</span>
+            <span className="text-xs font-medium text-slate-500">Instant Demo 1-Click:</span>
             <div className="mt-2 flex justify-center gap-2 text-xs">
               <button
                 type="button"

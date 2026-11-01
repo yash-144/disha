@@ -123,10 +123,10 @@ export function CourseCatalog({ isFullPage = false }: { isFullPage?: boolean }) 
             >
               {/* Card Banner */}
               <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center p-6">
-                <span className="absolute left-3.5 top-3.5 rounded-full bg-white/20 border border-white/25 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-medium text-white">
+                <span className="absolute left-3.5 top-3.5 rounded-full bg-white/20 border border-white/25 backdrop-blur-md px-2.5 py-0.5 text-xs font-medium text-white">
                   {c.badge || 'Certificate'}
                 </span>
-                <span className="absolute right-3.5 top-3.5 text-[10px] font-medium text-white/70">
+                <span className="absolute right-3.5 top-3.5 text-xs font-medium text-white/70">
                   {c.duration}
                 </span>
                 <Icon className="h-12 w-12 text-white/90 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
@@ -134,7 +134,7 @@ export function CourseCatalog({ isFullPage = false }: { isFullPage?: boolean }) 
 
               {/* Card Content */}
               <div className="flex flex-1 flex-col p-5">
-                <div className="flex items-center justify-between text-[11px] mb-2">
+                <div className="flex items-center justify-between text-xs mb-2">
                   <span className="font-semibold text-blue-600">{c.categoryLabel}</span>
                   <span className="text-slate-400 font-medium">{c.level}</span>
                 </div>
@@ -151,16 +151,16 @@ export function CourseCatalog({ isFullPage = false }: { isFullPage?: boolean }) 
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     <span className="font-semibold text-slate-900">{c.rating}</span>
-                    <span className="text-[10px] text-slate-400">({c.reviewsCount})</span>
+                    <span className="text-xs text-slate-400">({c.reviewsCount})</span>
                   </div>
-                  <span className="text-[11px] text-slate-500">{c.instructorName.split(' ')[0]}</span>
+                  <span className="text-xs text-slate-500">{c.instructorName.split(' ')[0]}</span>
                 </div>
 
                 {/* Price and Actions */}
                 <div className="mt-4 pt-2 flex items-center justify-between">
                   <div>
                     <span className="text-sm font-bold text-slate-900">{c.price}</span>
-                    <span className="ml-1 text-[11px] text-slate-400 line-through">{c.originalPrice}</span>
+                    <span className="ml-1 text-xs text-slate-400 line-through">{c.originalPrice}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export function CourseCatalog({ isFullPage = false }: { isFullPage?: boolean }) 
                     </button>
 
                     {isEnrolled ? (
-                      <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                      <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                         Enrolled
                       </span>
                     ) : (

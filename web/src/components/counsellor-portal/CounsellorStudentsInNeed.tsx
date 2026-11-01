@@ -35,7 +35,7 @@ export function CounsellorStudentsInNeed() {
           return (
             <div className="overflow-x-auto rounded-lg border border-line bg-panel">
               <table className="w-full min-w-[620px] text-left text-xs">
-                <thead><tr className="border-b border-line text-[11px] text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Course</th><th className="p-3 font-semibold">Risk</th><th className="p-3 font-semibold">Main reason</th></tr></thead>
+                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Course</th><th className="p-3 font-semibold">Risk</th><th className="p-3 font-semibold">Main reason</th></tr></thead>
                 <tbody>
                   {rows.slice(0, 100).map((r) => {
                     const name = displayName(people, r)
@@ -50,7 +50,7 @@ export function CounsellorStudentsInNeed() {
                   })}
                 </tbody>
               </table>
-              {rows.length > 100 && <p className="p-3 text-center text-[11px] text-muted">Showing the first 100 of {rows.length}. Search to narrow down.</p>}
+              {rows.length > 100 && <p className="p-3 text-center text-xs text-muted">Showing the first 100 of {rows.length}. Search to narrow down.</p>}
             </div>
           )
         }}

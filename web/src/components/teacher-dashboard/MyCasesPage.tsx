@@ -25,16 +25,16 @@ export function MyCasesPage() {
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-gray-900">{c.student_name ?? c.student_ref ?? 'Student'}</span>
                       {c.department && <span className="text-muted">({c.department})</span>}
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase">
                         {c.priority}
                       </span>
                       {c.is_overdue && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
                           <AlertTriangle className="w-3 h-3" /> Overdue
                         </span>
                       )}
                     </div>
-                    <span className="text-muted text-[11px]">
+                    <span className="text-muted text-xs">
                       State: <span className="font-semibold uppercase text-indigo-600">{c.state}</span>
                     </span>
                   </div>

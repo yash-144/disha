@@ -53,16 +53,16 @@ export function CounsellorSupportCases() {
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-sunken text-ink-2 uppercase font-semibold">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-sunken text-ink-2 uppercase font-semibold">
                         {c.priority}
                       </span>
                       {c.is_overdue && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
+                        <span className="text-xs px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
                           <AlertTriangle className="w-3 h-3" /> Overdue
                         </span>
                       )}
                     </div>
-                    <span className="text-muted text-[11px]">
+                    <span className="text-muted text-xs">
                       State: <span className="font-semibold text-accent">{c.state}</span>
                     </span>
                   </div>

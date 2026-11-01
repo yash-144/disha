@@ -28,7 +28,7 @@ export function SettingsTab() {
     <div className="mx-auto max-w-2xl space-y-6 font-mono">
       <div className="border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+          <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
             SYSTEM CONFIG
           </span>
           <span className="text-xs text-muted">Preferences &amp; Identity</span>

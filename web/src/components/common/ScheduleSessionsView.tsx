@@ -247,7 +247,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span
-                      className={`text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusStyles}`}
+                      className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusStyles}`}
                     >
                       {session.status}
                     </span>

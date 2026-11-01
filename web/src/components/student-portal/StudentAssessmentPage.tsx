@@ -370,7 +370,7 @@ export function StudentAssessmentPage({
               type="button"
               onClick={() => handleLoadDemoScenario(key)}
               title={sc.description}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all border border-purple-200 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all border border-purple-200 cursor-pointer"
             >
               {sc.title.split(':')[0]}
             </button>
@@ -434,7 +434,7 @@ export function StudentAssessmentPage({
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-900">Category A: Academic</p>
-                  <p className="text-[11px] text-gray-500">3 MCQs, 1 Conceptual, 1 Application</p>
+                  <p className="text-xs text-gray-500">3 MCQs, 1 Conceptual, 1 Application</p>
                 </div>
               </div>
 
@@ -444,7 +444,7 @@ export function StudentAssessmentPage({
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-900">Category B: Classroom Feedback</p>
-                  <p className="text-[11px] text-gray-500">2 Likert, 1 MCQ, 1 Optional Suggestion</p>
+                  <p className="text-xs text-gray-500">2 Likert, 1 MCQ, 1 Optional Suggestion</p>
                 </div>
               </div>
 
@@ -454,7 +454,7 @@ export function StudentAssessmentPage({
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-900">Category C: Student Wellbeing</p>
-                  <p className="text-[11px] text-gray-500">2 Likert, 1 MCQ (Support & Motivation)</p>
+                  <p className="text-xs text-gray-500">2 Likert, 1 MCQ (Support & Motivation)</p>
                 </div>
               </div>
             </div>
@@ -485,7 +485,7 @@ export function StudentAssessmentPage({
 
                 {currentQuestion.difficulty && (
                   <span
-                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
+                    className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${
                       currentQuestion.difficulty === 'Easy'
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         : currentQuestion.difficulty === 'Medium'
@@ -577,7 +577,7 @@ export function StudentAssessmentPage({
                   placeholder="Type your explanation here clearly..."
                   className="w-full p-3.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white font-sans"
                 />
-                <span className="text-[11px] text-muted block text-right">
+                <span className="text-xs text-muted block text-right">
                   Descriptive responses are reviewed by your instructor using conceptual rubrics.
                 </span>
               </div>
@@ -670,31 +670,31 @@ export function StudentAssessmentPage({
             {/* 3 Normalized Scores Display */}
             <div className="grid grid-cols-3 gap-2 w-full md:w-auto shrink-0">
               <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
-                <span className="text-[11px] text-purple-200 block font-medium">Academic</span>
+                <span className="text-xs text-purple-200 block font-medium">Academic</span>
                 <div className="text-2xl font-extrabold text-white mt-0.5">
                   {submissionResult.percentage}%
                 </div>
-                <span className={`text-[10px] font-bold mt-1 block ${submissionResult.percentage >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <span className={`text-xs font-bold mt-1 block ${submissionResult.percentage >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
                   {submissionResult.percentage >= 60 ? 'Benchmark Met' : 'Needs Support'}
                 </span>
               </div>
 
               <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
-                <span className="text-[11px] text-purple-200 block font-medium">Feedback</span>
+                <span className="text-xs text-purple-200 block font-medium">Feedback</span>
                 <div className="text-2xl font-extrabold text-white mt-0.5">
                   {feedbackPctScore}%
                 </div>
-                <span className={`text-[10px] font-bold mt-1 block ${feedbackPctScore >= 60 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <span className={`text-xs font-bold mt-1 block ${feedbackPctScore >= 60 ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {feedbackPctScore >= 60 ? 'Healthy Pace' : 'Review Alert'}
                 </span>
               </div>
 
               <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
-                <span className="text-[11px] text-purple-200 block font-medium">Wellbeing</span>
+                <span className="text-xs text-purple-200 block font-medium">Wellbeing</span>
                 <div className="text-2xl font-extrabold text-white mt-0.5">
                   {wellbeingPctScore}%
                 </div>
-                <span className={`text-[10px] font-bold mt-1 block ${wellbeingPctScore >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <span className={`text-xs font-bold mt-1 block ${wellbeingPctScore >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
                   {wellbeingPctScore >= 60 ? 'Balanced' : 'Support Offered'}
                 </span>
               </div>
@@ -710,7 +710,7 @@ export function StudentAssessmentPage({
             <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="max-w-xl">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[11px] font-bold uppercase tracking-wide">
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-xs font-bold uppercase tracking-wide">
                     Academic Support Available
                   </span>
                   <span className="text-xs text-amber-700 font-semibold">• Voluntary Peer Mentoring</span>
@@ -767,7 +767,7 @@ export function StudentAssessmentPage({
             <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="max-w-xl">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[11px] font-bold uppercase tracking-wide">
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-200 text-purple-900 text-xs font-bold uppercase tracking-wide">
                     Confidential Wellbeing Check-in
                   </span>
                   <span className="text-xs text-purple-700 font-semibold">• 100% Private</span>

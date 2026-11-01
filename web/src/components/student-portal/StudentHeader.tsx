@@ -29,11 +29,11 @@ export function StudentHeader({
       {/* Page Title & Subtitle */}
       <div>
         {title ? (
-          <h1 className="font-display text-[34px] leading-tight font-normal tracking-tight text-ink">
+          <h1 className="font-display text-[30px] leading-tight tracking-tight text-ink">
             {t(title)}
           </h1>
         ) : (
-          <h1 className="font-display text-[34px] leading-tight font-normal tracking-tight text-ink flex items-center gap-1.5">
+          <h1 className="font-display text-[30px] leading-tight tracking-tight text-ink flex items-center gap-1.5">
             <span>Hi, {name}!</span>
             
           </h1>

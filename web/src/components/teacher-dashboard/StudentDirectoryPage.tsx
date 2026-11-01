@@ -35,11 +35,11 @@ function Directory({ sectionIds }: { sectionIds: string[] }) {
       ) : (
         <div className="overflow-x-auto rounded-lg border border-line bg-panel">
           <table className="w-full min-w-[560px] text-left text-xs">
-            <thead><tr className="border-b border-line text-[11px] text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Attendance</th><th className="p-3 font-semibold">Quiz average</th><th className="p-3 font-semibold">Risk</th></tr></thead>
+            <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Attendance</th><th className="p-3 font-semibold">Quiz average</th><th className="p-3 font-semibold">Risk</th></tr></thead>
             <tbody>
               {students.map((s) => (
                 <tr key={s.id} className="border-b border-line/60">
-                  <td className="p-3"><p className="font-semibold">{s.full_name}</p><p className="text-[11px] text-muted">{s.student_uid}{s.department ? ` · ${s.department}` : ''}</p></td>
+                  <td className="p-3"><p className="font-semibold">{s.full_name}</p><p className="text-xs text-muted">{s.student_uid}{s.department ? ` · ${s.department}` : ''}</p></td>
                   <td className="p-3 tabular-nums">{s.attendance_rate != null ? `${Math.round(s.attendance_rate)}%` : '—'}</td>
                   <td className="p-3 tabular-nums">{s.quiz_score_avg != null ? `${Math.round(s.quiz_score_avg)}%` : '—'}</td>
                   <td className="p-3">{tiers.get(s.id) ? <TierBadge tier={tiers.get(s.id)} /> : <span className="text-muted">Not scored</span>}</td>

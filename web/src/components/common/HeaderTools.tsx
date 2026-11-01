@@ -53,7 +53,7 @@ export function NotificationBell() {
       >
         <Bell className="h-4 w-4" />
         {n > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#EF4444] px-1 text-[9px] font-bold text-white ring-2 ring-panel">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#EF4444] px-1 text-xs font-bold text-white ring-2 ring-panel">
             {n > 9 ? '9+' : n}
           </span>
         )}
@@ -62,7 +62,7 @@ export function NotificationBell() {
         <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border border-line bg-panel shadow-xl">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="text-sm font-bold text-ink">Notifications</p>
-            <button type="button" disabled={!n || readAll.isPending} onClick={() => readAll.mutate()} className="flex items-center gap-1 text-[11px] font-semibold text-indigo-600 disabled:opacity-40">
+            <button type="button" disabled={!n || readAll.isPending} onClick={() => readAll.mutate()} className="flex items-center gap-1 text-xs font-semibold text-indigo-600 disabled:opacity-40">
               <CheckCheck className="h-3.5 w-3.5" /> Mark all read
             </button>
           </div>
@@ -77,8 +77,8 @@ export function NotificationBell() {
                     {!x.is_read && <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />}
                     {x.title}
                   </p>
-                  {x.body && <p className="mt-0.5 text-[11px] text-ink-2">{x.body}</p>}
-                  <p className="mt-0.5 text-[10px] text-muted">{fmtDateTime(x.created_at)}</p>
+                  {x.body && <p className="mt-0.5 text-xs text-ink-2">{x.body}</p>}
+                  <p className="mt-0.5 text-xs text-muted">{fmtDateTime(x.created_at)}</p>
                 </button>
               </li>
             ))}

@@ -8,6 +8,9 @@ import { getAccessToken, getAuthProvider } from './provider'
 import { sessionStore } from './sessionStore'
 import { portalForRole, type Portal } from './portals'
 
+// Same default order as the backend when no X-Role is sent.
+const ROLE_PRIORITY = ['platform_admin', 'institution_admin', 'hod', 'counsellor', 'faculty', 'mentor', 'student']
+
 export type SessionStatus =
   | 'loading' // checking for a token / loading the profile
   | 'unauthenticated' // no token: sign-in is not set up yet (or the user signed out)
@@ -27,6 +30,8 @@ export interface SessionValue {
   signOut: () => Promise<void>
   retry: () => void
   setActiveCampus: (campusId: string) => void
+  /** Switch to another membership (campus + role) without reloading or signing out. */
+  setActiveRole: (campusId: string, role: string) => void
 }
 
 const SessionContext = createContext<SessionValue | undefined>(undefined)
@@ -36,6 +41,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   // undefined = still checking the auth provider
   const [hasToken, setHasToken] = useState<boolean | undefined>(undefined)
   const campusId = useSyncExternalStore(sessionStore.subscribe, sessionStore.getCampusId)
+  const activeRole = useSyncExternalStore(sessionStore.subscribe, sessionStore.getRole)
 
   useEffect(() => {
     let active = true
@@ -81,18 +87,27 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const membership = useMemo<Membership | null>(() => {
     const active = me.data?.memberships.filter((m) => m.is_active) ?? []
     if (!active.length) return null
-    return active.find((m) => m.campus_id === campusId) ?? active[0]
-  }, [me.data, campusId])
+    const rank = (m: Membership) => {
+      const i = ROLE_PRIORITY.indexOf(m.role)
+      return i === -1 ? 99 : i
+    }
+    const inCampus = active.filter((m) => m.campus_id === campusId)
+    const pool = inCampus.length ? inCampus : active
+    return pool.find((m) => m.role === activeRole && (inCampus.length || m.campus_id === campusId || !campusId)) ?? [...pool].sort((x, y) => rank(x) - rank(y))[0]
+  }, [me.data, campusId, activeRole])
 
-  // Keep X-Campus-ID in step with the resolved membership.
+  // Keep X-Campus-ID and X-Role in step with the resolved membership.
   useEffect(() => {
-    if (membership && membership.campus_id !== campusId) sessionStore.setCampusId(membership.campus_id)
-  }, [membership, campusId])
+    if (!membership) return
+    if (membership.campus_id !== campusId) sessionStore.setCampusId(membership.campus_id)
+    if (membership.role !== activeRole) sessionStore.setRole(membership.role)
+  }, [membership, campusId, activeRole])
 
   const signOut = useCallback(async () => {
     await getAuthProvider().signOut?.()
     queryClient.clear()
     sessionStore.setCampusId(null)
+    sessionStore.setRole(null)
     setHasToken(false)
     window.location.href = '/login'
   }, [queryClient])
@@ -118,11 +133,20 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       error: err,
       signOut,
       retry: () => void me.refetch(),
+      setActiveRole: (cid, r) => {
+        if (cid === sessionStore.getCampusId() && r === sessionStore.getRole()) return
+        // Different role means different data: drop every campus-scoped cache (keep the profile), no reload, no sign-out.
+        queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== 'identity' })
+        sessionStore.setCampusId(cid)
+        sessionStore.setRole(r)
+        if (window.location.pathname !== '/dashboard') window.history.replaceState({}, '', '/dashboard')
+      },
       setActiveCampus: (id) => {
         if (id === sessionStore.getCampusId()) return
         // Drop every campus-scoped cache (keep the profile), then re-resolve the portal for the new membership.
         queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== 'identity' })
         sessionStore.setCampusId(id)
+        sessionStore.setRole(null)
         if (window.location.pathname !== '/dashboard') window.history.replaceState({}, '', '/dashboard')
       },
     }

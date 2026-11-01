@@ -79,7 +79,7 @@ export function ScheduleTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               COHORT TIMETABLE
             </span>
             <span className="text-xs text-muted">(UTC+05:30 IST)</span>
@@ -121,10 +121,10 @@ export function ScheduleTab() {
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className={`border border-ink px-2 py-0.5 text-[10px] font-bold shadow-[1px_1px_0_#0d1b3e] ${s.badge}`}>
+                <span className={`border border-ink px-2 py-0.5 text-xs font-bold shadow-[1px_1px_0_#0d1b3e] ${s.badge}`}>
                   {s.day} DAY
                 </span>
-                <span className="flex items-center gap-1 text-[11px] font-bold text-gray-600">
+                <span className="flex items-center gap-1 text-xs font-bold text-gray-600">
                   <Clock className="h-3 w-3 text-brand" /> {s.time}
                 </span>
               </div>
@@ -134,12 +134,12 @@ export function ScheduleTab() {
             </div>
 
             <div className="mt-4 border-t border-ink/10 pt-3 flex items-center justify-between">
-              <span className="flex items-center gap-1 text-[11px] font-bold text-accent">
+              <span className="flex items-center gap-1 text-xs font-bold text-accent">
                 <Users className="h-3.5 w-3.5" /> {s.students} Enrolled
               </span>
               <button
                 onClick={() => addToast('Connecting Stream', `Joining live session room: "${s.title}".`, 'info')}
-                className="flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-[10px] font-bold text-white shadow-[1px_1px_0_#0d1b3e] hover:bg-accent-dark"
+                className="flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-xs font-bold text-white shadow-[1px_1px_0_#0d1b3e] hover:bg-accent-dark"
               >
                 <Video className="h-3 w-3" /> Join Room
               </button>

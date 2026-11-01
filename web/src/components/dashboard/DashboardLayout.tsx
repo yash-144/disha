@@ -102,7 +102,7 @@ export function DashboardLayout() {
         <div className="pointer-events-none absolute inset-0 opacity-15 bg-grid-blueprint-dark rounded-[inherit]" />
 
         {/* Dynamic Frame Status Bar (Top Mini Strip) */}
-        <div className="relative z-10 flex items-center justify-between px-3 py-1 text-[10px] text-white/80 lg:hidden border-b border-white/10 mb-1">
+        <div className="relative z-10 flex items-center justify-between px-3 py-1 text-xs text-white/80 lg:hidden border-b border-white/10 mb-1">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
             <span className="font-bold tracking-wider">DISHA COCKPIT</span>
@@ -137,7 +137,7 @@ export function DashboardLayout() {
                   className="flex items-center gap-1.5 text-left group"
                   title="Return to Public Site"
                 >
-                  <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                  <span className="rounded bg-accent px-1.5 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                     v2.0
                   </span>
                   <span className="text-sm font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
@@ -146,7 +146,7 @@ export function DashboardLayout() {
                 </button>
               ) : (
                 <div className="mx-auto">
-                  <span className="rounded bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">
+                  <span className="rounded bg-accent px-1.5 py-0.5 text-xs font-bold text-white">
                     SU
                   </span>
                 </div>
@@ -187,10 +187,10 @@ export function DashboardLayout() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-bold leading-snug">{currentUser.name}</p>
                   <div className="mt-0.5 flex items-center gap-1.5">
-                    <span className="inline-block rounded bg-accent px-1.5 py-0.2 text-[9px] font-bold uppercase text-white shadow-xs">
+                    <span className="inline-block rounded bg-accent px-1.5 py-0.2 text-xs font-bold uppercase text-white shadow-xs">
                       {userRole}
                     </span>
-                    <span className="text-[10px] text-white/70">· Online</span>
+                    <span className="text-xs text-white/70">· Online</span>
                   </div>
                 </div>
               )}
@@ -315,14 +315,14 @@ export function DashboardLayout() {
           {/* Quick Return to Public Site CTA & Session Indicator */}
           <div className="mt-auto space-y-2 pt-3 border-t border-white/15">
             {!sidebarCollapsed ? (
-              <div className="rounded-lg border border-white/20 bg-white/10 p-2.5 text-[11px] text-white">
+              <div className="rounded-lg border border-white/20 bg-white/10 p-2.5 text-xs text-white">
                 <div className="flex items-center justify-between font-bold">
                   <span className="flex items-center gap-1.5 text-emerald-300">
                     <Radio className="h-3 w-3 animate-pulse" /> Live Node
                   </span>
-                  <span className="text-[10px] text-white/70 font-mono">100% Synced</span>
+                  <span className="text-xs text-white/70 font-mono">100% Synced</span>
                 </div>
-                <p className="mt-1 text-[10px] text-white/80 leading-tight">
+                <p className="mt-1 text-xs text-white/80 leading-tight">
                   Active Room: <span className="font-bold text-white">CS402-React</span>
                 </p>
               </div>
@@ -352,7 +352,7 @@ export function DashboardLayout() {
             {/* Title / Greeting with Live Breadcrumb */}
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="rounded bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   LMS COCKPIT
                 </span>
                 <span className="hidden text-xs text-muted sm:inline font-mono">
@@ -375,7 +375,7 @@ export function DashboardLayout() {
                   placeholder="Quick search cohorts..."
                   className="w-32 bg-transparent text-xs font-medium text-ink outline-none placeholder:text-gray-400 lg:w-44"
                 />
-                <span className="ml-1 rounded border border-gray-300 bg-white px-1 text-[9px] font-mono font-bold text-gray-500">
+                <span className="ml-1 rounded border border-gray-300 bg-white px-1 text-xs font-mono font-bold text-gray-500">
                   ⌘K
                 </span>
               </div>
@@ -385,7 +385,7 @@ export function DashboardLayout() {
                 <button
                   onClick={() => switchRole('instructor')}
                   title="Switch to Instructor Tools"
-                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-bold transition ${
+                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-bold transition ${
                     userRole === 'instructor'
                       ? 'bg-brand text-white shadow-xs'
                       : 'text-gray-600 hover:text-black'
@@ -396,7 +396,7 @@ export function DashboardLayout() {
                 <button
                   onClick={() => switchRole('student')}
                   title="Switch to Student Dashboard"
-                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-bold transition ${
+                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-bold transition ${
                     userRole === 'student'
                       ? 'bg-accent text-white shadow-xs'
                       : 'text-gray-600 hover:text-black'
@@ -455,7 +455,7 @@ export function DashboardLayout() {
                           className="rounded-lg border border-gray-100 bg-gray-50/70 p-2 text-xs transition hover:bg-blue-50/50"
                         >
                           <p className="font-bold text-ink">{n.title}</p>
-                          <span className="text-[10px] text-gray-500 font-mono">{n.time}</span>
+                          <span className="text-xs text-gray-500 font-mono">{n.time}</span>
                         </div>
                       ))}
                     </div>

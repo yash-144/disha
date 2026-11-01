@@ -53,7 +53,7 @@ export function AdminAnalyticsPage() {
                 </ul>
               </Card>
             )}
-            <p className="text-[11px] text-muted">Groups smaller than 5 show as “&lt;5” to protect student privacy.</p>
+            <p className="text-xs text-muted">Groups smaller than 5 show as “&lt;5” to protect student privacy.</p>
           </div>
         )
       }}

@@ -83,7 +83,7 @@ export function StudentRequestSupportPage() {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
                 Support Category
               </label>
               <select
@@ -100,7 +100,7 @@ export function StudentRequestSupportPage() {
             </div>
 
             <div>
-              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
                 Preferred Meeting Window
               </label>
               <select
@@ -118,7 +118,7 @@ export function StudentRequestSupportPage() {
           </div>
 
           <div>
-            <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+            <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
               How can we assist you? (Personal Reflection)
             </label>
             <textarea
@@ -155,7 +155,7 @@ export function StudentRequestSupportPage() {
               <div key={r.id} className="pt-3 first:pt-0 space-y-1.5">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-gray-900">{r.category}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${
                     r.status === 'resolved' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                   }`}>
                     {r.status}
@@ -163,12 +163,12 @@ export function StudentRequestSupportPage() {
                 </div>
                 <p className="text-gray-600 leading-relaxed">{r.student_note}</p>
                 {r.faculty_response && (
-                  <div className="bg-gray-50 p-2.5 rounded-xl border border-line text-gray-700 text-[11px]">
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-line text-gray-700 text-xs">
                     <span className="font-bold text-purple-700 block mb-0.5">Advisor Response:</span>
                     {r.faculty_response}
                   </div>
                 )}
-                <div className="text-[10px] text-muted">
+                <div className="text-xs text-muted">
                   Preferred Slot: {r.preferred_slot} • Submitted {new Date(r.created_at).toLocaleDateString()}
                 </div>
               </div>

@@ -83,7 +83,7 @@ export function BlogModal() {
           <div className="mt-8 rounded-xl border-2 border-ink bg-paper p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-ink">Did you find this article valuable?</p>
-              <p className="text-[11px] text-muted">Join over 7,000+ engineers reading SkillsUp weekly digest.</p>
+              <p className="text-xs text-muted">Join over 7,000+ engineers reading SkillsUp weekly digest.</p>
             </div>
             <button
               onClick={() => addToast('Thank you!', 'Your feedback helps improve our community content.', 'success')}

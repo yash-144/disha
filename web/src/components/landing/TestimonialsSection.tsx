@@ -98,8 +98,8 @@ export function TestimonialsSection() {
                   />
                   <div>
                     <p className="text-xs font-bold text-ink">{r.name}</p>
-                    <p className="text-[10px] text-muted">{r.role}</p>
-                    <span className="mt-0.5 inline-block text-[9px] font-bold text-accent">
+                    <p className="text-xs text-muted">{r.role}</p>
+                    <span className="mt-0.5 inline-block text-xs font-bold text-accent">
                       {r.course}
                     </span>
                   </div>

@@ -26,7 +26,7 @@ export function HeroSection() {
     <section className="relative flex min-h-screen w-full flex-col bg-night px-4 py-6 font-sans text-white sm:px-8 lg:px-12 xl:px-16">
       <nav className="mx-auto flex w-full max-w-[1400px] items-center justify-between" aria-label="Site">
         <button onClick={() => navigateTo('landing')} className="cursor-pointer" aria-label="Disha home"><Wordmark /></button>
-        <div className="hidden items-center gap-8 text-[13px] text-white/70 md:flex">
+        <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
           <button onClick={() => scrollTo('why-disha')} className="cursor-pointer hover:text-white">{t('Why Disha')}</button>
           <button onClick={() => scrollTo('solutions')} className="cursor-pointer hover:text-white">{t('Solutions')}</button>
           <button onClick={() => scrollTo('faqs')} className="cursor-pointer hover:text-white">{t('FAQs')}</button>
@@ -35,13 +35,13 @@ export function HeroSection() {
           <div className="[&_button]:border-white/25 [&_button]:bg-transparent [&_button]:text-white [&_button:hover]:bg-white/10"><LanguageSwitcher /></div>
           {signedIn ? (
             <>
-              <button onClick={goDashboard} className="cursor-pointer rounded-md bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-white/90">{t('Go to dashboard')}</button>
+              <button onClick={goDashboard} className="cursor-pointer rounded-md bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-white/90">{t('Go to dashboard')}</button>
               <AccountMenu tone="dark" />
             </>
           ) : (
             <>
-              <button onClick={() => navigateTo('login')} className="hidden cursor-pointer px-2 text-[13px] text-white/80 hover:text-white sm:inline-block">{t('Sign in')}</button>
-              <button onClick={() => navigateTo('login')} className="cursor-pointer rounded-md bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-white/90">{t('Get started')}</button>
+              <button onClick={() => navigateTo('login')} className="hidden cursor-pointer px-2 text-sm text-white/80 hover:text-white sm:inline-block">{t('Sign in')}</button>
+              <button onClick={() => navigateTo('login')} className="cursor-pointer rounded-md bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-white/90">{t('Get started')}</button>
             </>
           )}
         </div>
@@ -70,7 +70,7 @@ export function HeroSection() {
         {FACTS.map((f) => (
           <div key={f.n} className="pr-6 pt-2">
             <dt className="font-display text-3xl">{f.n}</dt>
-            <dd className="mt-1 text-[13px] text-white/60">{f.t}</dd>
+            <dd className="mt-1 text-sm text-white/60">{f.t}</dd>
           </div>
         ))}
       </dl>

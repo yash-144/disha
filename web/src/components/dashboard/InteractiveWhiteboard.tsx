@@ -229,12 +229,12 @@ export function InteractiveWhiteboard() {
 
         {/* Stroke width selector */}
         <div className="flex items-center gap-1 border-2 border-ink bg-paper px-1.5 py-0.5 text-xs text-gray-700">
-          <span className="text-[10px] font-bold text-ink">PX:</span>
+          <span className="text-xs font-bold text-ink">PX:</span>
           {STROKE_SIZES.map((size) => (
             <button
               key={size}
               onClick={() => setLineWidth(size)}
-              className={`flex h-5 w-5 items-center justify-center text-[10px] font-bold transition ${
+              className={`flex h-5 w-5 items-center justify-center text-xs font-bold transition ${
                 lineWidth === size
                   ? 'border border-ink bg-brand text-white shadow-xs'
                   : 'text-gray-500 hover:text-black'
@@ -367,7 +367,7 @@ export function InteractiveWhiteboard() {
           className="relative h-full w-full cursor-crosshair touch-none"
         />
 
-        <div className="pointer-events-none absolute bottom-2 left-3 flex items-center gap-1.5 border border-ink bg-white/95 px-2 py-0.5 text-[9px] font-bold text-ink shadow-[1.5px_1.5px_0_#0d1b3e]">
+        <div className="pointer-events-none absolute bottom-2 left-3 flex items-center gap-1.5 border border-ink bg-white/95 px-2 py-0.5 text-xs font-bold text-ink shadow-[1.5px_1.5px_0_#0d1b3e]">
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
           Vector Canvas Active · Draw shapes or text notes
         </div>

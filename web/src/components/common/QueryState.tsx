@@ -54,7 +54,7 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
       <AlertTriangle className="h-6 w-6 text-red-500" aria-hidden="true" />
       <p className="text-sm font-bold text-ink">{title}</p>
       <p className="max-w-sm text-xs text-muted">{errorMessage(error)}</p>
-      {requestId && <p className="font-mono text-[10px] text-muted">Reference: {requestId}</p>}
+      {requestId && <p className="font-mono text-xs text-muted">Reference: {requestId}</p>}
       {onRetry && !forbidden && (
         <button
           type="button"

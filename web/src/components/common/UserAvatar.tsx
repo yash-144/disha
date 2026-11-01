@@ -7,7 +7,7 @@ export function initialsOf(name: string | null | undefined): string {
 }
 
 /** Initials avatar (the API has no profile photo). */
-export function UserAvatar({ name, className = 'w-8 h-8 text-[11px]' }: { name?: string | null; className?: string }) {
+export function UserAvatar({ name, className = 'w-8 h-8 text-xs' }: { name?: string | null; className?: string }) {
   return (
     <span
       aria-hidden="true"

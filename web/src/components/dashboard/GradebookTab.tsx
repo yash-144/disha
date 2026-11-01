@@ -32,7 +32,7 @@ export function GradebookTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               ASSESSMENT ANALYTICS
             </span>
             <span className="text-xs text-muted">(Term July-Aug)</span>
@@ -51,29 +51,29 @@ export function GradebookTab() {
       {/* Top Analytics Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#0d1b3e]">
-          <p className="text-[11px] font-bold text-muted">Cohort Average Score</p>
+          <p className="text-xs font-bold text-muted">Cohort Average Score</p>
           <p className="mt-1 text-2xl font-bold text-brand">{averageScore}%</p>
-          <span className="mt-1 inline-flex items-center gap-1 text-[10px] text-accent font-bold">
+          <span className="mt-1 inline-flex items-center gap-1 text-xs text-accent font-bold">
             <TrendingUp className="h-3 w-3" /> +4.2% vs last term
           </span>
         </div>
 
         <div className="border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#0d1b3e]">
-          <p className="text-[11px] font-bold text-muted">Assessment Pass Rate</p>
+          <p className="text-xs font-bold text-muted">Assessment Pass Rate</p>
           <p className="mt-1 text-2xl font-bold text-accent">96.8%</p>
-          <span className="mt-1 text-[10px] text-gray-500 font-bold">6 Milestones evaluated</span>
+          <span className="mt-1 text-xs text-gray-500 font-bold">6 Milestones evaluated</span>
         </div>
 
         <div className="border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#0d1b3e]">
-          <p className="text-[11px] font-bold text-muted">PRs &amp; Labs Graded</p>
+          <p className="text-xs font-bold text-muted">PRs &amp; Labs Graded</p>
           <p className="mt-1 text-2xl font-bold text-ink">142</p>
-          <span className="mt-1 text-[10px] text-accent font-bold">All cohorts updated</span>
+          <span className="mt-1 text-xs text-accent font-bold">All cohorts updated</span>
         </div>
 
         <div className="border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#0d1b3e]">
-          <p className="text-[11px] font-bold text-muted">Top Cohort Performer</p>
+          <p className="text-xs font-bold text-muted">Top Cohort Performer</p>
           <p className="mt-1 text-base font-bold text-ink truncate">Tanvi Verma</p>
-          <span className="mt-1 inline-block border border-ink bg-accent/20 px-1 text-[9px] text-emerald-800 font-bold">
+          <span className="mt-1 inline-block border border-ink bg-accent/20 px-1 text-xs text-emerald-800 font-bold">
             98% Avg GPA
           </span>
         </div>
@@ -108,7 +108,7 @@ export function GradebookTab() {
       {/* Individual Student Scores Table */}
       <div className="border-2 border-ink bg-white shadow-[4px_4px_0_#0d1b3e] overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="border-b-2 border-ink bg-paper text-[11px] text-ink uppercase">
+          <thead className="border-b-2 border-ink bg-paper text-xs text-ink uppercase">
             <tr>
               <th className="p-3 font-bold">Learner Name</th>
               <th className="p-3 font-bold">Attendance</th>
@@ -125,7 +125,7 @@ export function GradebookTab() {
                 <td className="p-3 font-bold text-accent">{s.quizScore}%</td>
                 <td className="p-3 text-gray-600 font-bold">3 of 3 Passed</td>
                 <td className="p-3">
-                  <span className="border border-ink bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                  <span className="border border-ink bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
                     CERTIFIED
                   </span>
                 </td>

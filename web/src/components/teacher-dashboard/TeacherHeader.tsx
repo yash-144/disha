@@ -16,7 +16,7 @@ export function TeacherHeader({ subtitle }: TeacherHeaderProps) {
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 font-sans select-none">
       <div>
-        <h1 className="font-display text-[34px] leading-tight font-normal tracking-tight text-ink">
+        <h1 className="font-display text-[30px] leading-tight tracking-tight text-ink">
           {t('Welcome back')}, {name}!
         </h1>
         <p className="text-xs text-muted font-medium mt-1">

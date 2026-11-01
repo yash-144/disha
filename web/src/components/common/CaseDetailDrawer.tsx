@@ -337,7 +337,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                     <p className="font-medium">{aiBriefMutation.data.summary}</p>
                     {aiBriefMutation.data.recommended_actions?.length > 0 && (
                       <div className="mt-2">
-                        <span className="font-bold text-[11px] uppercase tracking-wider text-indigo-800 block mb-1">
+                        <span className="font-bold text-xs uppercase tracking-wider text-indigo-800 block mb-1">
                           Recommended Protocols
                         </span>
                         <ul className="list-disc list-inside space-y-0.5 text-indigo-900">
@@ -399,7 +399,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                         <p className="font-bold text-gray-900">{inv.title}</p>
                         <p className="text-muted capitalize">{inv.category.replace('_', ' ')} • {inv.status}</p>
                       </div>
-                      <span className="text-[11px] font-mono text-muted">
+                      <span className="text-xs font-mono text-muted">
                         {inv.target_date ? new Date(inv.target_date).toLocaleDateString() : 'Ongoing'}
                       </span>
                     </div>
@@ -437,7 +437,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                 {caseItem?.notes?.length ? (
                   caseItem.notes.map((n) => (
                     <div key={n.id} className="p-3 bg-gray-50 border border-line rounded-xl text-xs space-y-1">
-                      <div className="flex justify-between text-muted text-[10px]">
+                      <div className="flex justify-between text-muted text-xs">
                         <span>{n.author_name || 'Staff Note'}</span>
                         <span>{new Date(n.created_at).toLocaleString()}</span>
                       </div>
@@ -462,7 +462,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                         <p className="font-bold text-gray-900">{f.title}</p>
                         <p className="text-muted">{f.status}</p>
                       </div>
-                      <span className="text-[11px] text-gray-500">
+                      <span className="text-xs text-gray-500">
                         {new Date(f.scheduled_at).toLocaleString()}
                       </span>
                     </div>
@@ -483,8 +483,8 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                       <p className="text-xs font-bold text-gray-900">
                         Transitioned to <span className="text-indigo-600 uppercase font-mono">{ev.to_state}</span>
                       </p>
-                      <p className="text-[11px] text-gray-500">{ev.reason || 'Workflow state transition'}</p>
-                      <span className="text-[10px] text-muted font-mono">
+                      <p className="text-xs text-gray-500">{ev.reason || 'Workflow state transition'}</p>
+                      <span className="text-xs text-muted font-mono">
                         {new Date(ev.created_at).toLocaleString()}
                       </span>
                     </div>

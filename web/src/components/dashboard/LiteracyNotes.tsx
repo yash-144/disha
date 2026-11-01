@@ -80,7 +80,7 @@ export function LiteracyNotes() {
           </button>
           <button
             onClick={handleManualSave}
-            className="ml-2 flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-[11px] font-bold text-white shadow-[1px_1px_0_#0d1b3e] transition hover:bg-accent-dark"
+            className="ml-2 flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-xs font-bold text-white shadow-[1px_1px_0_#0d1b3e] transition hover:bg-accent-dark"
           >
             <Save className="h-3 w-3" /> Save Notes
           </button>
@@ -95,7 +95,7 @@ export function LiteracyNotes() {
         placeholder="Type lesson outline, student notes, code snippets, or discussion prompts here..."
       />
 
-      <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500 font-bold">
+      <div className="mt-2 flex items-center justify-between text-xs text-gray-500 font-bold">
         <span className="flex items-center gap-1">
           <Sparkles className="h-3 w-3 text-accent" /> Auto-saves every stroke locally
         </span>

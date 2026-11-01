@@ -60,7 +60,7 @@ function Students() {
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full min-w-[640px] text-left text-xs">
               <thead>
-                <tr className="border-b border-line text-[10px] uppercase tracking-wider text-muted">
+                <tr className="border-b border-line text-xs uppercase tracking-wider text-muted">
                   <th className="p-3 font-bold">Student</th>
                   <th className="p-3 font-bold">Department</th>
                   <th className="p-3 font-bold">Courses</th>
@@ -71,7 +71,7 @@ function Students() {
               <tbody>
                 {filtered.slice(0, 100).map((r) => (
                   <tr key={r.key} tabIndex={0} onClick={() => setOpen(r)} onKeyDown={(e) => e.key === 'Enter' && setOpen(r)} className="cursor-pointer border-b border-gray-50 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none">
-                    <td className="p-3"><p className="font-bold text-ink">{r.name}</p>{r.hasName && <p className="text-[10px] text-muted">{r.ref}</p>}</td>
+                    <td className="p-3"><p className="font-bold text-ink">{r.name}</p>{r.hasName && <p className="text-xs text-muted">{r.ref}</p>}</td>
                     <td className="p-3 text-ink-2">{r.department ?? '—'}</td>
                     <td className="p-3 text-ink-2">{r.courses.length}</td>
                     <td className="p-3"><span className="flex items-center gap-2"><TierBadge tier={r.worst.tier} /><span className="font-bold tabular-nums">{pct(r.worst.probability)}</span><Direction d={r.worst.direction} /></span></td>
@@ -81,7 +81,7 @@ function Students() {
                 {filtered.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted">No students match.</td></tr>}
               </tbody>
             </table>
-            {filtered.length > 100 && <p className="p-3 text-center text-[11px] text-muted">Showing the first 100 of {filtered.length}. Search to narrow down.</p>}
+            {filtered.length > 100 && <p className="p-3 text-center text-xs text-muted">Showing the first 100 of {filtered.length}. Search to narrow down.</p>}
           </div>
         )}
       </QueryState>
@@ -124,7 +124,7 @@ function Team() {
         <QueryState query={members} empty={<EmptyState title="No members" />}>
           {(rows) => (
             <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-left">
-              <thead><tr className="text-[10px] uppercase tracking-wider text-muted"><th className="p-2">Name</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th></tr></thead>
+              <thead><tr className="text-xs uppercase tracking-wider text-muted"><th className="p-2">Name</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th></tr></thead>
               <tbody>
                 {rows.map((m) => (
                   <tr key={m.membership_id} className="border-t border-line"><td className="p-2 font-semibold">{m.full_name}</td><td>{m.email}</td><td>{roleLabel(m.role)}</td><td>{m.department ?? '—'}</td><td>{m.is_active ? 'Active' : 'Inactive'}</td></tr>

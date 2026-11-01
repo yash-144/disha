@@ -114,7 +114,7 @@ export function AppSidebar({ role = 'faculty', activeTab, onSelectTab }: AppSide
               onClick={() => onSelectTab(item.id)}
               title={t(item.label)}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative flex w-full cursor-pointer items-center justify-center gap-3 rounded-md px-3 py-2.5 text-left text-[13px] transition-colors lg:justify-start ${
+              className={`relative flex w-full cursor-pointer items-center justify-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition-colors lg:justify-start ${
                 isActive ? 'bg-night-2 font-semibold text-white' : 'font-medium text-white/60 hover:bg-night-2/60 hover:text-white'
               }`}
             >

@@ -29,7 +29,7 @@ export function InfoTip({ text, className = '' }: { text: string; className?: st
       </button>
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-1/2 top-full z-30 mt-1.5 hidden w-56 -translate-x-1/2 rounded-xl bg-ink px-3 py-2 text-left text-[11px] font-medium normal-case leading-snug tracking-normal text-white shadow-lg group-hover/tip:block group-focus-within/tip:block"
+        className="pointer-events-none absolute left-1/2 top-full z-30 mt-1.5 hidden w-56 -translate-x-1/2 rounded-xl bg-ink px-3 py-2 text-left text-xs font-medium normal-case leading-snug tracking-normal text-white shadow-lg group-hover/tip:block group-focus-within/tip:block"
       >
         {text}
       </span>
@@ -56,7 +56,7 @@ export function Card({
     <section className={`rounded-lg border border-line bg-panel p-5 ${className}`}>
       {(title || action) && (
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h3 className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
             {title ? t(title) : null}
             {tip && <InfoTip text={tip} />}
           </h3>
@@ -75,6 +75,8 @@ export function Kpi({
   tip,
   tone = 'text-ink',
   onClick,
+  spark,
+  delta,
 }: {
   label: string
   value: React.ReactNode
@@ -82,6 +84,8 @@ export function Kpi({
   tip?: string
   tone?: string
   onClick?: () => void
+  spark?: React.ReactNode
+  delta?: { text: string; good: boolean | null }
 }) {
   const t = useT()
   return (
@@ -92,12 +96,16 @@ export function Kpi({
       onKeyDown={onClick ? (e) => (e.key === 'Enter' || e.key === ' ') && onClick() : undefined}
       className={`bg-panel p-4 text-left ${onClick ? 'cursor-pointer transition hover:bg-sunken/60' : ''}`}
     >
-      <div className={`font-display text-[40px] leading-none tracking-tight tabular-nums ${tone}`}>{value}</div>
-      <div className="mt-2 flex items-center gap-1 text-[13px] font-semibold text-ink">
+      <div className="flex items-end justify-between gap-2">
+        <div className={`font-display text-[40px] leading-none tracking-tight tabular-nums ${tone}`}>{value}</div>
+        {spark}
+      </div>
+      <div className="mt-2 flex items-center gap-1 text-sm font-semibold text-ink">
         {t(label)}
         {tip && <InfoTip text={tip} />}
       </div>
-      {hint && <div className="text-[11px] text-muted">{hint}</div>}
+      {delta && <div className={`mt-0.5 text-xs font-semibold ${delta.good === null ? 'text-muted' : delta.good ? 'text-tier-ok' : 'text-tier-high'}`}>{delta.text}</div>}
+      {hint && <div className="text-xs text-muted">{hint}</div>}
     </div>
   )
 }
@@ -105,12 +113,12 @@ export function Kpi({
 export function TierBadge({ tier }: { tier: string | null | undefined }) {
   const t = useT()
   const s = tier ? TIER_STYLE[tier as Tier] : undefined
-  if (!s) return <span className="text-[11px] text-muted">—</span>
-  return <span className={`inline-flex rounded border px-1.5 py-0.5 text-[10px] font-semibold ${s.chip}`}>{t(s.label)}</span>
+  if (!s) return <span className="text-xs text-muted">—</span>
+  return <span className={`inline-flex rounded border px-1.5 py-0.5 text-xs font-semibold ${s.chip}`}>{t(s.label)}</span>
 }
 
 export function Pill({ children, tone = 'bg-gray-100 text-gray-700' }: { children: React.ReactNode; tone?: string }) {
-  return <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${tone}`}>{children}</span>
+  return <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold ${tone}`}>{children}</span>
 }
 
 export function Direction({ d }: { d?: string | null }) {
@@ -360,7 +368,7 @@ export function LineChart({ points, color = '#6366F1', yFmt = (v: number) => `${
 
 export function DetailsDisclosure({ summary, children }: { summary: string; children: React.ReactNode }) {
   return (
-    <details className="group rounded-xl border border-line bg-sunken/50 px-3 py-2 text-[11px] text-ink-2">
+    <details className="group rounded-xl border border-line bg-sunken/50 px-3 py-2 text-xs text-ink-2">
       <summary className="cursor-pointer select-none font-semibold text-muted">{summary}</summary>
       <div className="mt-2 space-y-1 font-mono break-all">{children}</div>
     </details>
@@ -369,7 +377,7 @@ export function DetailsDisclosure({ summary, children }: { summary: string; chil
 
 export function ColorLegend() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-2">
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-2">
       {TIERS.map((t) => (
         <span key={t} className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: TIER_STYLE[t].color }} />{TIER_STYLE[t].label}</span>
       ))}

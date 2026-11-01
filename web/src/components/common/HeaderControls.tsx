@@ -36,7 +36,7 @@ export function LanguageSwitcher() {
 
 /** Static badge for one membership; a switcher for several. Switching re-resolves the portal without a reload. */
 export function RoleSwitcher() {
-  const { membership, setActiveCampus } = useSession()
+  const { membership, setActiveRole } = useSession()
   const { t } = useI18n()
   const options = useMembershipOptions()
   const [open, setOpen] = useState(false)
@@ -55,8 +55,8 @@ export function RoleSwitcher() {
         <ul className="p-1.5">
           {options.map((o) => (
             <li key={o.key}>
-              <button type="button" onClick={() => { close(); setActiveCampus(o.campusId) }} aria-pressed={o.current} className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs hover:bg-sunken">
-                <span className="min-w-0"><span className="block truncate font-semibold">{t(roleLabel(o.role))}</span><span className="block truncate text-[11px] text-muted">{o.campusName}</span></span>
+              <button type="button" onClick={() => { close(); setActiveRole(o.campusId, o.role) }} aria-pressed={o.current} className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs hover:bg-sunken">
+                <span className="min-w-0"><span className="block truncate font-semibold">{t(roleLabel(o.role))}</span><span className="block truncate text-xs text-muted">{o.campusName}</span></span>
                 {o.current && <Check className="h-4 w-4 text-accent" />}
               </button>
             </li>

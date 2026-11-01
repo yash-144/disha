@@ -160,7 +160,7 @@ export function LmsPreviewSection() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-500">Pick Pen Color:</span>
+                    <span className="text-xs font-bold text-gray-500">Pick Pen Color:</span>
                     {COLORS.map((c) => (
                       <button
                         key={c}
@@ -173,7 +173,7 @@ export function LmsPreviewSection() {
                     ))}
                     <button
                       onClick={clearMiniCanvas}
-                      className="ml-2 border border-ink bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-ink hover:bg-gray-200"
+                      className="ml-2 border border-ink bg-gray-100 px-2 py-0.5 text-xs font-bold text-ink hover:bg-gray-200"
                     >
                       Reset Canvas
                     </button>
@@ -191,7 +191,7 @@ export function LmsPreviewSection() {
                     onMouseLeave={stopDraw}
                     className="h-full w-full cursor-crosshair touch-none"
                   />
-                  <div className="pointer-events-none absolute bottom-2 right-2 border border-ink bg-white/90 px-2 py-0.5 text-[9px] font-bold text-ink shadow-[1px_1px_0_#0d1b3e]">
+                  <div className="pointer-events-none absolute bottom-2 right-2 border border-ink bg-white/90 px-2 py-0.5 text-xs font-bold text-ink shadow-[1px_1px_0_#0d1b3e]">
                     Click &amp; drag to sketch diagrams on this live canvas!
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export function LmsPreviewSection() {
             {activeTab === 'quiz' && (
               <div className="space-y-4">
                 <div className="border-b-2 border-ink/20 pb-2">
-                  <span className="border border-ink bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                  <span className="border border-ink bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-xs">
                     SAMPLE QUESTION
                   </span>
                   <h3 className="mt-2 text-sm font-bold text-ink sm:text-base">
@@ -258,22 +258,22 @@ export function LmsPreviewSection() {
               <div>
                 <div className="flex items-center justify-between border-b-2 border-ink/20 pb-2">
                   <span className="text-xs font-bold text-ink">Live Cohort CS402 Performance Matrix</span>
-                  <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="border border-ink bg-accent px-2 py-0.5 text-xs font-bold text-white">
                     96.8% PASS RATE
                   </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
                   <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
-                    <span className="text-[10px] text-muted font-bold">Average Score</span>
+                    <span className="text-xs text-muted font-bold">Average Score</span>
                     <p className="text-xl font-bold text-brand">91.4%</p>
                   </div>
                   <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
-                    <span className="text-[10px] text-muted font-bold">Graded PRs</span>
+                    <span className="text-xs text-muted font-bold">Graded PRs</span>
                     <p className="text-xl font-bold text-accent">142</p>
                   </div>
                   <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
-                    <span className="text-[10px] text-muted font-bold">Attendance</span>
+                    <span className="text-xs text-muted font-bold">Attendance</span>
                     <p className="text-xl font-bold text-ink">98.2%</p>
                   </div>
                 </div>

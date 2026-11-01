@@ -130,7 +130,7 @@ export function StudentMessagesPage() {
                     >
                       {n.title}
                     </h4>
-                    <span className="text-[11px] text-muted shrink-0 flex items-center gap-1">
+                    <span className="text-xs text-muted shrink-0 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {dateFormatted}
                     </span>
@@ -141,7 +141,7 @@ export function StudentMessagesPage() {
                   {!n.is_read && (
                     <div className="mt-2.5 flex items-center gap-2">
                       <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />
-                      <span className="text-[11px] font-semibold text-blue-700">Unread</span>
+                      <span className="text-xs font-semibold text-blue-700">Unread</span>
                     </div>
                   )}
                 </div>

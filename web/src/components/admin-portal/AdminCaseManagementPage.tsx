@@ -38,11 +38,11 @@ export function AdminCaseManagementPage() {
           ) : (
             <div className="overflow-x-auto rounded-lg border border-line bg-panel">
               <table className="w-full min-w-[680px] text-left text-xs">
-                <thead><tr className="border-b border-line text-[11px] text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Stage</th><th className="p-3 font-semibold">Priority</th><th className="p-3 font-semibold">Owner</th><th className="p-3 font-semibold">Due</th><th /></tr></thead>
+                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Stage</th><th className="p-3 font-semibold">Priority</th><th className="p-3 font-semibold">Owner</th><th className="p-3 font-semibold">Due</th><th /></tr></thead>
                 <tbody>
                   {rows.map((c) => (
                     <tr key={c.id} tabIndex={0} onClick={() => setSelected(c.id)} onKeyDown={(e) => e.key === 'Enter' && setSelected(c.id)} className="cursor-pointer border-b border-line/60 hover:bg-sunken/60 focus:bg-sunken/60 focus:outline-none">
-                      <td className="p-3"><p className="font-semibold">{c.student_name ?? c.student_ref ?? 'Student'}</p>{c.department && <p className="text-[11px] text-muted">{c.department}</p>}</td>
+                      <td className="p-3"><p className="font-semibold">{c.student_name ?? c.student_ref ?? 'Student'}</p>{c.department && <p className="text-xs text-muted">{c.department}</p>}</td>
                       <td className="p-3">{pretty(c.state)}</td>
                       <td className="p-3"><Pill tone={PRIORITY[c.priority] ?? PRIORITY.low}>{pretty(c.priority)}</Pill></td>
                       <td className="p-3">{c.owner_name ?? <span className="text-tier-medium">Unassigned</span>}</td>

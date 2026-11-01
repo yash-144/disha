@@ -96,7 +96,7 @@ export function CourseDetailModal() {
             <div>
               <p className="text-xs text-muted">Course Instructor</p>
               <p className="text-sm font-bold text-ink">{activeCourseDetail.instructorName}</p>
-              <p className="text-[11px] text-gray-600">{activeCourseDetail.instructorTitle}</p>
+              <p className="text-xs text-gray-600">{activeCourseDetail.instructorTitle}</p>
             </div>
           </div>
 
@@ -121,7 +121,7 @@ export function CourseDetailModal() {
                         {mod.title}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-normal text-muted">{mod.duration}</span>
+                        <span className="text-xs font-normal text-muted">{mod.duration}</span>
                         {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </div>
                     </button>
@@ -161,7 +161,7 @@ export function CourseDetailModal() {
               <span className="text-sm text-gray-400 line-through">{activeCourseDetail.originalPrice}</span>
               <span className="text-xs font-bold text-accent">Save 68%</span>
             </div>
-            <p className="text-[10px] text-muted">Lifetime access with 30-day money-back guarantee</p>
+            <p className="text-xs text-muted">Lifetime access with 30-day money-back guarantee</p>
           </div>
 
           <div className="flex items-center gap-3">

@@ -120,7 +120,7 @@ export function Header() {
           {/* Right Action Hub */}
           <div className="flex items-center gap-3">
             {/* Segmented Role Switcher */}
-            <div className="hidden lg:flex items-center rounded-full bg-slate-100 p-1 text-[11px] font-medium">
+            <div className="hidden lg:flex items-center rounded-full bg-slate-100 p-1 text-xs font-medium">
               <button
                 onClick={() => switchRole('instructor')}
                 className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${

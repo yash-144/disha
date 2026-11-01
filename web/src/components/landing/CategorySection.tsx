@@ -99,7 +99,7 @@ export function CategorySection() {
                 <span className="mt-4 text-sm font-bold leading-snug text-ink">{c.title}</span>
                 <span className="mt-2 text-xs leading-relaxed text-muted line-clamp-2">{c.desc}</span>
 
-                <span className="mt-4 rounded-full bg-gray-100 px-3 py-0.5 text-[10px] font-bold text-gray-700">
+                <span className="mt-4 rounded-full bg-gray-100 px-3 py-0.5 text-xs font-bold text-gray-700">
                   {c.count}
                 </span>
 

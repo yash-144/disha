@@ -28,16 +28,16 @@ export function PortalPlaceholder({
 
         {/* Badges: Portal Name + Route */}
         <div className="flex items-center gap-2 flex-wrap justify-center mb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100">
+          <span className="text-xs font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100">
             {portalName}
           </span>
-          <span className="text-[11px] font-mono text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full border border-line">
+          <span className="text-xs font-mono text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full border border-line">
             {routePath}
           </span>
         </div>
 
         {/* Title */}
-        <h2 className="font-display text-[34px] leading-tight font-normal tracking-tight text-ink mt-2">
+        <h2 className="font-display text-[30px] leading-tight tracking-tight text-ink mt-2">
           {pageTitle}
         </h2>
 
@@ -50,7 +50,7 @@ export function PortalPlaceholder({
         {/* Planned capabilities preview */}
         {capabilities.length > 0 && (
           <div className="w-full mt-6 pt-6 border-t border-line text-left">
-            <span className="text-[11px] font-bold text-muted uppercase tracking-wider block mb-2.5">
+            <span className="text-xs font-bold text-muted uppercase tracking-wider block mb-2.5">
               Configured Module Scope
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -68,7 +68,7 @@ export function PortalPlaceholder({
         )}
 
         {/* Architectural readiness indicator */}
-        <div className="mt-6 flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+        <div className="mt-6 flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
           <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
           <span className="font-semibold">Navigation and routing active • Ready for interface design</span>
         </div>

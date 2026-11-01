@@ -48,7 +48,7 @@ export function ResourcesTab() {
     <div className="space-y-6 font-mono">
       <div className="border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+          <span className="rounded bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
             ASSET VAULT
           </span>
           <span className="text-xs text-muted">(Free for Cohort Learners)</span>
@@ -69,7 +69,7 @@ export function ResourcesTab() {
                   <span className="flex h-11 w-11 items-center justify-center border-2 border-ink bg-accent text-white shadow-[2px_2px_0_#0d1b3e]">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <span className="border border-ink bg-paper px-2 py-0.5 text-[10px] font-bold text-ink shadow-[1px_1px_0_#0d1b3e]">
+                  <span className="border border-ink bg-paper px-2 py-0.5 text-xs font-bold text-ink shadow-[1px_1px_0_#0d1b3e]">
                     {res.format} · {res.size}
                   </span>
                 </div>
@@ -79,7 +79,7 @@ export function ResourcesTab() {
               </div>
 
               <div className="mt-5 border-t-2 border-ink/10 pt-3 flex items-center justify-between">
-                <span className="text-[11px] font-bold text-brand">{res.type}</span>
+                <span className="text-xs font-bold text-brand">{res.type}</span>
                 <button
                   onClick={() => handleDownload(res)}
                   className="flex items-center gap-1.5 border-2 border-ink bg-accent px-3.5 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"

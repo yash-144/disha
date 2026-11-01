@@ -73,14 +73,14 @@ export function OverviewTab() {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="rounded bg-gray-100 px-1.5 py-0.2 text-[9px] font-bold text-gray-700">
+                  <span className="rounded bg-gray-100 px-1.5 py-0.2 text-xs font-bold text-gray-700">
                     {t.badge}
                   </span>
                 </div>
                 <span className="mt-1 block truncate text-xs font-bold text-ink sm:text-sm">
                   {t.label}
                 </span>
-                <span className="text-[10px] text-muted">{t.subtitle}</span>
+                <span className="text-xs text-muted">{t.subtitle}</span>
               </div>
             </button>
           )
@@ -97,7 +97,7 @@ export function OverviewTab() {
               <h2 className="text-sm font-bold text-ink">
                 Live Interactive Canvas &amp; Whiteboard
               </h2>
-              <span className="rounded bg-brand/10 px-1.5 py-0.5 text-[10px] font-bold text-brand">
+              <span className="rounded bg-brand/10 px-1.5 py-0.5 text-xs font-bold text-brand">
                 HTML5 Vector
               </span>
             </div>
@@ -106,7 +106,7 @@ export function OverviewTab() {
             <div className="flex rounded border-2 border-ink bg-gray-100 p-0.5 text-xs shadow-[2px_2px_0_#0d1b3e]">
               <button
                 onClick={() => setBoardTab('whiteboard')}
-                className={`flex items-center gap-1.5 rounded px-3 py-1 text-[11px] font-bold transition ${
+                className={`flex items-center gap-1.5 rounded px-3 py-1 text-xs font-bold transition ${
                   boardTab === 'whiteboard'
                     ? 'border border-ink bg-brand text-white shadow-xs'
                     : 'text-gray-600 hover:text-black'
@@ -117,7 +117,7 @@ export function OverviewTab() {
               </button>
               <button
                 onClick={() => setBoardTab('literacy')}
-                className={`flex items-center gap-1.5 rounded px-3 py-1 text-[11px] font-bold transition ${
+                className={`flex items-center gap-1.5 rounded px-3 py-1 text-xs font-bold transition ${
                   boardTab === 'literacy'
                     ? 'border border-ink bg-accent text-white shadow-xs'
                     : 'text-gray-600 hover:text-black'
@@ -140,7 +140,7 @@ export function OverviewTab() {
           <section className="border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#0d1b3e]">
             <div className="flex items-center justify-between border-b-2 border-ink/20 pb-2">
               <h3 className="text-xs font-bold text-ink">Search Cohorts</h3>
-              <span className="rounded bg-accent px-1.5 py-0.5 text-[9px] font-bold text-white">
+              <span className="rounded bg-accent px-1.5 py-0.5 text-xs font-bold text-white">
                 LIVE
               </span>
             </div>
@@ -188,7 +188,7 @@ export function OverviewTab() {
             <h3 className="border-b-2 border-ink/20 pb-2 text-xs font-bold text-brand">
               Instructor Guidelines &amp; Protocol
             </h3>
-            <ul className="mt-3 space-y-2 text-[10px] text-gray-700">
+            <ul className="mt-3 space-y-2 text-xs text-gray-700">
               {TIPS.map((t, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={3} />
@@ -225,32 +225,32 @@ export function OverviewTab() {
             >
               <div>
                 <div className="flex items-start justify-between">
-                  <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                  <span className="border border-ink bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                     {cls.code}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-500">{cls.instructor}</span>
+                  <span className="text-xs font-bold text-gray-500">{cls.instructor}</span>
                 </div>
 
                 <h3 className="mt-2 text-sm font-bold text-ink leading-snug">{cls.name}</h3>
-                <p className="text-[11px] text-muted">{cls.subject}</p>
+                <p className="text-xs text-muted">{cls.subject}</p>
               </div>
 
               <div className="mt-4 space-y-2 border-t-2 border-ink/10 pt-3">
                 <div className="flex items-center justify-between border border-ink/30 bg-white px-2 py-1 text-xs">
-                  <span className="flex items-center gap-1 text-gray-700 text-[11px]">
+                  <span className="flex items-center gap-1 text-gray-700 text-xs">
                     <KeyRound className="h-3 w-3 text-amber-500" />
                     Code: <span className="font-bold text-brand">{cls.accessCode}</span>
                   </span>
                   <button
                     onClick={() => copyAccessCode(cls.accessCode)}
                     title="Copy Access Code"
-                    className="border border-ink bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-ink hover:bg-gray-200"
+                    className="border border-ink bg-gray-100 px-1.5 py-0.5 text-xs font-bold text-ink hover:bg-gray-200"
                   >
                     Copy
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] text-gray-600">
+                <div className="flex items-center justify-between text-xs text-gray-600">
                   <span className="flex items-center gap-1 font-bold text-accent">
                     <Users className="h-3 w-3" /> {cls.activeStudents} Learners
                   </span>

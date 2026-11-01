@@ -28,7 +28,7 @@ export function TeacherProfilePanel() {
             <Calendar className="w-3.5 h-3.5 text-blue-600" />
             <span>Consultation Agenda</span>
           </h3>
-          <span className="text-[11px] font-semibold text-blue-600">
+          <span className="text-xs font-semibold text-blue-600">
             {upcomingSessions.length} upcoming
           </span>
         </div>
@@ -38,7 +38,7 @@ export function TeacherProfilePanel() {
         ) : upcomingSessions.length === 0 ? (
           <div className="p-4 bg-white/70 rounded-2xl text-center text-xs text-gray-500 border border-line">
             <p className="font-medium text-gray-700">No calls scheduled</p>
-            <p className="text-[11px] text-muted mt-0.5">Office hours are open</p>
+            <p className="text-xs text-muted mt-0.5">Office hours are open</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -55,7 +55,7 @@ export function TeacherProfilePanel() {
                   <p className="font-bold text-gray-900 truncate">
                     {s.student_name || `Student ${s.student_id.slice(0, 8)}`}
                   </p>
-                  <div className="flex items-center justify-between text-[11px] text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-muted" />
                       {dateStr} • {timeStr}

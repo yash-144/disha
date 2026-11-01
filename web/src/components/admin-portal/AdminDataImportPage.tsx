@@ -11,7 +11,7 @@ function IssueList({ title, issues, tone }: { title: string; issues: ImportIssue
   return (
     <div className={`mt-3 rounded-xl p-3 ${tone}`}>
       <p className="text-xs font-bold">{title} ({issues.length})</p>
-      <ul className="mt-1 space-y-1 text-[11px]">
+      <ul className="mt-1 space-y-1 text-xs">
         {issues.slice(0, 8).map((i, k) => (
           <li key={k}><span className="font-mono font-semibold">{i.table}</span>: {i.message}{i.count > 1 ? ` (${i.count} rows)` : ''}</li>
         ))}
@@ -34,10 +34,10 @@ function BatchSummary({ batch, label, dry }: { batch: ImportBatch; label: string
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {Object.entries(batch.row_counts ?? {}).map(([t, n]) => (
-          <div key={t} className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{n as number}</p><p className="text-[10px] text-muted">{pretty(t)}</p></div>
+          <div key={t} className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{n as number}</p><p className="text-xs text-muted">{pretty(t)}</p></div>
         ))}
-        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.linked_students}</p><p className="text-[10px] text-muted">Students matched</p></div>
-        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.unlinked_students}</p><p className="text-[10px] text-muted">Not matched</p></div>
+        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.linked_students}</p><p className="text-xs text-muted">Students matched</p></div>
+        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.unlinked_students}</p><p className="text-xs text-muted">Not matched</p></div>
       </div>
       <IssueList title="Fix these first" issues={batch.validation_errors} tone="bg-rose-50 text-rose-800" />
       <IssueList title="Worth a look" issues={batch.warnings} tone="bg-amber-50 text-amber-900" />
@@ -52,7 +52,7 @@ function FilePick({ name, hint, accept, file, onFile }: { name: string; hint?: s
       {file ? <FileText className="h-5 w-5 shrink-0 text-emerald-600" /> : <FileSpreadsheet className="h-5 w-5 shrink-0 text-muted" />}
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-ink">{pretty(name)}</p>
-        <p className="truncate text-[11px] text-muted">{file ? file.name : hint}</p>
+        <p className="truncate text-xs text-muted">{file ? file.name : hint}</p>
       </div>
       <input ref={ref} type="file" accept={accept} className="sr-only" aria-label={`Choose file for ${name}`} onChange={(e) => onFile(e.target.files?.[0])} />
       {file ? (
@@ -100,7 +100,7 @@ export function AdminDataImportPage() {
               mode === 'workbook' ? (
                 <div className="space-y-3">
                   <FilePick name="workbook" hint=".xlsx with one sheet per table" accept=".xlsx" file={files.workbook} onFile={(f) => setFile('workbook', f)} />
-                  <p className="text-[11px] text-muted">Sheets: {sc.tables.map((t) => `${t.name}${t.required ? '*' : ''}`).join(', ')} (* required)</p>
+                  <p className="text-xs text-muted">Sheets: {sc.tables.map((t) => `${t.name}${t.required ? '*' : ''}`).join(', ')} (* required)</p>
                 </div>
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">

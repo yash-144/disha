@@ -27,7 +27,7 @@ export function CounsellorHeader({
       {/* Page Title & Subtitle for subpages (if showPageTitle is true) */}
       {showPageTitle && pageTitle && (
         <div className="mt-1">
-          <h1 className="font-display text-[34px] leading-tight font-normal tracking-tight text-ink">
+          <h1 className="font-display text-[30px] leading-tight tracking-tight text-ink">
             {t(pageTitle)}
           </h1>
           {subtitle && (

@@ -18,7 +18,7 @@ export function InterventionsProtocolsPage() {
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-white border border-line rounded-full text-[11px] font-semibold text-gray-500">
+        <div className="flex items-center gap-1.5 p-1 bg-white border border-line rounded-full text-xs font-semibold text-gray-500">
           <Filter className="w-3.5 h-3.5 ml-2 text-muted" />
           {['ALL', 'academic', 'counselling', 'financial', 'tutoring'].map((cat) => (
             <button
@@ -50,10 +50,10 @@ export function InterventionsProtocolsPage() {
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono">
+                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono">
                         {item.category?.replace('_', ' ') || 'Protocol'}
                       </span>
-                      <span className={`text-[10px] font-bold ${item.is_active ? 'text-emerald-600' : 'text-muted'}`}>
+                      <span className={`text-xs font-bold ${item.is_active ? 'text-emerald-600' : 'text-muted'}`}>
                         {item.is_active ? '● Active' : '○ Inactive'}
                       </span>
                     </div>
@@ -66,12 +66,12 @@ export function InterventionsProtocolsPage() {
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-[11px] text-muted">
+                  <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-xs text-muted">
                     <span className="flex items-center gap-1 font-medium text-slate-700">
                       <Clock className="w-3.5 h-3.5 text-indigo-500" />
                       <span className="capitalize">{item.category ? `${item.category} protocol` : 'Standard SLA'}</span>
                     </span>
-                    <span className="text-[10px] font-mono">ID: {item.id.slice(0, 8)}</span>
+                    <span className="text-xs font-mono">ID: {item.id.slice(0, 8)}</span>
                   </div>
                 </div>
               ))}

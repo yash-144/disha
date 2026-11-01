@@ -58,7 +58,7 @@ export function QuizzesTab() {
     <div className="mx-auto max-w-3xl space-y-6 font-mono">
       <div className="border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+          <span className="rounded bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
             KNOWLEDGE LAB
           </span>
           <span className="text-xs text-muted">React &amp; Systems Architecture</span>
@@ -118,7 +118,7 @@ export function QuizzesTab() {
                   className={`flex w-full items-center justify-between border-2 p-3.5 text-left text-xs font-bold transition ${btnStyle}`}
                 >
                   <span className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center border border-ink bg-white text-[11px] font-bold shadow-xs">
+                    <span className="flex h-6 w-6 items-center justify-center border border-ink bg-white text-xs font-bold shadow-xs">
                       {String.fromCharCode(65 + idx)}
                     </span>
                     <span>{option}</span>
@@ -169,7 +169,7 @@ export function QuizzesTab() {
           </p>
 
           <div className="mx-auto mt-6 max-w-xs border-2 border-ink bg-paper p-4 shadow-[3px_3px_0_#0d1b3e]">
-            <span className="text-[11px] font-bold text-gray-500">Total Score:</span>
+            <span className="text-xs font-bold text-gray-500">Total Score:</span>
             <p className="text-3xl font-bold text-brand">
               {score} / {QUIZ_QUESTIONS.length}
             </p>

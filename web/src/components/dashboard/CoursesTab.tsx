@@ -64,7 +64,7 @@ export function CoursesTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               CURRICULUM REPO
             </span>
             <span className="text-xs text-muted">({courses.length} Bootcamps)</span>
@@ -101,7 +101,7 @@ export function CoursesTab() {
           >
             <div>
               <div className="flex items-start justify-between">
-                <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="border border-ink bg-accent px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   {course.categoryLabel}
                 </span>
                 <span className="flex items-center gap-1 text-xs font-bold text-amber-500">
@@ -112,7 +112,7 @@ export function CoursesTab() {
               <h3 className="mt-3 text-sm font-bold leading-snug text-ink">{course.title}</h3>
               <p className="mt-1.5 text-xs text-muted line-clamp-2 leading-relaxed">{course.desc}</p>
 
-              <div className="mt-4 flex items-center gap-3 border-y border-ink/10 py-2 text-[11px] text-gray-600">
+              <div className="mt-4 flex items-center gap-3 border-y border-ink/10 py-2 text-xs text-gray-600">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5 text-brand" /> {course.duration}
                 </span>
@@ -123,7 +123,7 @@ export function CoursesTab() {
 
               {/* Progress Bar */}
               <div className="mt-3">
-                <div className="flex justify-between text-[10px] text-gray-600 font-bold">
+                <div className="flex justify-between text-xs text-gray-600 font-bold">
                   <span>Cohort Completion</span>
                   <span className="text-brand">84%</span>
                 </div>
@@ -136,7 +136,7 @@ export function CoursesTab() {
             <div className="mt-5 border-t-2 border-ink/10 pt-3 flex items-center justify-between">
               <div>
                 <span className="text-sm font-bold text-ink">{course.price}</span>
-                <span className="ml-1 text-[10px] text-gray-400 line-through">{course.originalPrice}</span>
+                <span className="ml-1 text-xs text-gray-400 line-through">{course.originalPrice}</span>
               </div>
               <button
                 onClick={() => setActiveCourseDetail(course)}

@@ -26,7 +26,7 @@ export function StudentInsightDrawer({ studentKey, name, onClose }: { studentKey
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="text-sm font-bold text-ink">{score.course_id}</p>
-                      <p className="text-[11px] text-muted">Day {insight.as_of_day} of term{insight.last_assessment ? ` · last: ${insight.last_assessment}` : ''}</p>
+                      <p className="text-xs text-muted">Day {insight.as_of_day} of term{insight.last_assessment ? ` · last: ${insight.last_assessment}` : ''}</p>
                     </div>
                     <div className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
@@ -35,22 +35,22 @@ export function StudentInsightDrawer({ studentKey, name, onClose }: { studentKey
                       <p className="mt-1 text-lg font-semibold tabular-nums" style={{ color: TIER_STYLE[insight.risk.tier]?.color }}>
                         {pct(insight.risk.probability)}
                       </p>
-                      <p className="text-[10px] text-muted">chance of failing or withdrawing</p>
+                      <p className="text-xs text-muted">chance of failing or withdrawing</p>
                     </div>
                   </div>
                   {insight.risk.previous_tier && insight.risk.previous_tier !== insight.risk.tier && (
-                    <p className="mt-2 text-[11px] text-ink-2">
+                    <p className="mt-2 text-xs text-ink-2">
                       Moved from <b>{TIER_STYLE[insight.risk.previous_tier]?.label}</b> to <b>{TIER_STYLE[insight.risk.tier]?.label}</b> since the last check.
                     </p>
                   )}
                   <div className="mt-3">
-                    <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                    <p className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted">
                       Risk over the term <InfoTip text="Each point is a weekly check. Higher means more likely to struggle." />
                     </p>
                     <LineChart points={insight.history.map((h) => ({ x: h.day, y: h.probability }))} color={TIER_STYLE[insight.risk.tier]?.color} yMax={1} />
                   </div>
                   <div className="mt-3">
-                    <p className="mb-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                    <p className="mb-2 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted">
                       Why flagged <InfoTip text="Bars show how much each factor pushed the risk up, in percentage points." />
                     </p>
                     {insight.reasons.length === 0 ? (
@@ -61,14 +61,14 @@ export function StudentInsightDrawer({ studentKey, name, onClose }: { studentKey
                           <li key={i} className="text-xs">
                             <div className="flex items-start justify-between gap-2">
                               <span className="text-ink">{r.text}</span>
-                              <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-ink-2">{GROUP_LABEL[r.group] ?? r.group}</span>
+                              <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-ink-2">{GROUP_LABEL[r.group] ?? r.group}</span>
                             </div>
                             {r.effect_pts != null && (
                               <div className="mt-1 flex items-center gap-2">
                                 <div className="h-1.5 flex-1 rounded-full bg-gray-100">
                                   <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${(Math.abs(r.effect_pts) / maxEffect) * 100}%` }} />
                                 </div>
-                                <span className="w-14 text-right text-[10px] font-semibold tabular-nums text-ink-2">+{r.effect_pts.toFixed(1)} pts</span>
+                                <span className="w-14 text-right text-xs font-semibold tabular-nums text-ink-2">+{r.effect_pts.toFixed(1)} pts</span>
                               </div>
                             )}
                           </li>
@@ -79,7 +79,7 @@ export function StudentInsightDrawer({ studentKey, name, onClose }: { studentKey
                 </section>
               )
             })}
-            <p className="text-[11px] text-muted">Risk scores are evidence for people to review, not decisions.</p>
+            <p className="text-xs text-muted">Risk scores are evidence for people to review, not decisions.</p>
           </div>
         )}
       </QueryState>

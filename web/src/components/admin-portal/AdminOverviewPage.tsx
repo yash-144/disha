@@ -24,7 +24,7 @@ function Pipeline({ cases }: { cases: { by_state: Bucket[] } }) {
     <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md bg-line sm:grid-cols-5">
       {vals.map((v) => (
         <div key={v.label} className="bg-panel p-4">
-          <p className="text-[12px] font-semibold text-ink-2">{v.label}</p>
+          <p className="text-xs font-semibold text-ink-2">{v.label}</p>
           <p className="mt-1 font-display text-[34px] leading-none tabular-nums">{v.n === 0 && v.suppressed ? '<5' : v.n}</p>
           <div className="mt-3 h-1.5 rounded-full bg-sunken"><div className={`h-1.5 rounded-full ${v.tone}`} style={{ width: `${(v.n / max) * 100}%` }} /></div>
         </div>
@@ -118,12 +118,12 @@ export function AdminOverviewPage({ onNavigateTab }: { onNavigateTab: (tab: stri
                   <span className="tabular-nums text-ink-2">{counts[t] ?? 0} · {pct((counts[t] ?? 0) / Math.max(1, total))}</span>
                 </div>
               ))}
-              <p className="pt-1 text-[11px] text-muted">Day {latest.as_of_day} of the term.</p>
+              <p className="pt-1 text-xs text-muted">Day {latest.as_of_day} of the term.</p>
             </div>
           </div>
         </Card>
         <Card className="lg:col-span-3" title="How risk is changing" tip="Tier counts at each weekly scoring run, oldest on the left. More green and less red means things are improving."
-          action={<button type="button" onClick={() => onNavigateTab('risk-model')} className="flex items-center text-[11px] font-semibold text-indigo-600">Risk model <ChevronRight className="h-3 w-3" /></button>}>
+          action={<button type="button" onClick={() => onNavigateTab('risk-model')} className="flex items-center text-xs font-semibold text-indigo-600">Risk model <ChevronRight className="h-3 w-3" /></button>}>
           {trend.length < 2 ? <p className="text-xs text-muted">Needs at least two scoring runs.</p> : <TierTrend points={trend} />}
           <div className="mt-2"><ColorLegend /></div>
         </Card>
@@ -141,7 +141,7 @@ export function AdminOverviewPage({ onNavigateTab }: { onNavigateTab: (tab: stri
                       <button type="button" onClick={() => setOpen({ key: r.student_id ?? r.external_student_ref_hash ?? r.student_ref, name })} className="flex w-full items-center gap-3 py-2.5 text-left text-xs hover:bg-gray-50">
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-bold text-ink">{name} <span className="font-normal text-muted">· {r.course_id}</span></p>
-                          {r.reasons?.[0] && <p className="truncate text-[11px] text-ink-2">{r.reasons[0].text}</p>}
+                          {r.reasons?.[0] && <p className="truncate text-xs text-ink-2">{r.reasons[0].text}</p>}
                         </div>
                         <TierBadge tier={r.tier} />
                         <span className="flex w-14 items-center justify-end gap-1 font-bold tabular-nums" style={{ color: TIER_STYLE[r.tier as Tier].color }}>
@@ -172,7 +172,7 @@ export function AdminOverviewPage({ onNavigateTab }: { onNavigateTab: (tab: stri
         </Card>
       </div>
 
-      <Card title="Case pipeline" tip="Every flagged student becomes a case. This shows how many sit at each step, from first suggestion to closed." action={<button type="button" onClick={() => onNavigateTab('case-management')} className="flex items-center text-[11px] font-semibold text-accent">All cases <ChevronRight className="h-3 w-3" /></button>}>
+      <Card title="Case pipeline" tip="Every flagged student becomes a case. This shows how many sit at each step, from first suggestion to closed." action={<button type="button" onClick={() => onNavigateTab('case-management')} className="flex items-center text-xs font-semibold text-accent">All cases <ChevronRight className="h-3 w-3" /></button>}>
         {a.cases ? <Pipeline cases={a.cases} /> : <LoadingSkeleton rows={1} />}
       </Card>
 
@@ -180,7 +180,7 @@ export function AdminOverviewPage({ onNavigateTab }: { onNavigateTab: (tab: stri
         <Card title="Open cases by owner" tip="Who is currently responsible. 'Unassigned' cases need an owner.">{a.cases ? <Bars rows={a.cases.open_by_owner} color="bg-accent" /> : <LoadingSkeleton rows={2} />}</Card>
         <Card title="Open cases by age" tip="How long open cases have been waiting.">{a.cases ? <Bars rows={a.cases.open_by_age} color="bg-tier-watch" showEmpty /> : <LoadingSkeleton rows={2} />}</Card>
       </div>
-      <p className="text-[11px] text-muted">Groups smaller than 5 show as “&lt;5” to protect student privacy.</p>
+      <p className="text-xs text-muted">Groups smaller than 5 show as “&lt;5” to protect student privacy.</p>
 
       <StudentInsightDrawer studentKey={open?.key ?? null} name={open?.name} onClose={() => setOpen(null)} />
     </div>

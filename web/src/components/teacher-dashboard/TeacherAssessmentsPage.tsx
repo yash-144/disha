@@ -112,7 +112,7 @@ function Gradebook({ sectionId }: { sectionId: string }) {
           {(d) => (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] text-left text-xs">
-                <thead><tr className="border-b border-line text-[11px] text-muted"><th className="p-2 font-semibold">Student</th>{d.assessments.map((a) => <th key={a.id} className="p-2 text-right font-semibold">{a.title.replace(/^[A-Z]{2,3}\d+\s/, '')}<span className="block font-normal">/ {a.total_marks}</span></th>)}<th className="p-2 text-right font-semibold">Average</th></tr></thead>
+                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-2 font-semibold">Student</th>{d.assessments.map((a) => <th key={a.id} className="p-2 text-right font-semibold">{a.title.replace(/^[A-Z]{2,3}\d+\s/, '')}<span className="block font-normal">/ {a.total_marks}</span></th>)}<th className="p-2 text-right font-semibold">Average</th></tr></thead>
                 <tbody>
                   {d.gradebook.map((r) => (
                     <tr key={r.student_id} className="border-b border-line/60">

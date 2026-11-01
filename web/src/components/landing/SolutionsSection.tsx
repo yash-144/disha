@@ -85,10 +85,10 @@ export function SolutionsSection() {
 
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-4xl sm:text-5xl font-bold tracking-tight text-white">{activeDial}%</span>
-                <span className="text-[10px] uppercase font-semibold text-blue-200 mt-1 tracking-wider">
+                <span className="text-xs uppercase font-semibold text-blue-200 mt-1 tracking-wider">
                   Retention Rate
                 </span>
-                <span className="text-[10px] text-emerald-300 font-medium mt-1">
+                <span className="text-xs text-emerald-300 font-medium mt-1">
                   +14% vs National Avg
                 </span>
               </div>

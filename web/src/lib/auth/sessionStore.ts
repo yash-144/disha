@@ -15,12 +15,36 @@ function read(): string | null {
   }
 }
 
+const ROLE_KEY = 'disha.role.v1'
+function readRole(): string | null {
+  try {
+    return sessionStorage.getItem(ROLE_KEY)
+  } catch {
+    return null
+  }
+}
+
 let campusId: string | null = read()
+let role: string | null = readRole()
 const listeners = new Set<Listener>()
 
 export const sessionStore = {
   getCampusId(): string | null {
     return campusId
+  },
+  getRole(): string | null {
+    return role
+  },
+  /** Active role on the active campus (sent as X-Role). Kept per browser tab, so two tabs can act in different roles. */
+  setRole(next: string | null) {
+    role = next
+    try {
+      if (next) sessionStorage.setItem(ROLE_KEY, next)
+      else sessionStorage.removeItem(ROLE_KEY)
+    } catch {
+      // ignore
+    }
+    listeners.forEach((l) => l())
   },
   setCampusId(next: string | null) {
     campusId = next

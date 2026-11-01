@@ -25,7 +25,7 @@ export function useMembershipOptions() {
     campusId: m.campus_id,
     role: m.role,
     campusName: names[i]?.data?.name ?? `Campus ${m.campus_id.slice(0, 4)}`,
-    current: m.campus_id === membership?.campus_id,
+    current: m.campus_id === membership?.campus_id && m.role === membership?.role,
   }))
   return options
 }
@@ -104,7 +104,7 @@ export function AccountMenu({ tone = 'light', variant = 'default' }: { tone?: 'l
   const side = variant === 'sidebar'
   if (side) tone = 'dark'
   const t = useT()
-  const { user, membership, setActiveCampus, signOut } = useSession()
+  const { user, membership, setActiveRole, signOut } = useSession()
   const [open, setOpen] = useState(false)
   const btn = useRef<HTMLButtonElement>(null)
   const options = useMembershipOptions()
@@ -124,8 +124,8 @@ export function AccountMenu({ tone = 'light', variant = 'default' }: { tone?: 'l
       >
         <UserAvatar name={user?.full_name} />
         <span className={`min-w-0 flex-1 ${side ? 'hidden lg:block' : 'hidden sm:block'}`}>
-          <span className="block truncate text-[12px] font-semibold leading-tight">{user?.full_name}</span>
-          <span className={`block truncate text-[11px] leading-tight ${tone === 'dark' ? 'text-white/55' : 'text-muted'}`}>{t(roleLabel(membership?.role))}</span>
+          <span className="block truncate text-xs font-semibold leading-tight">{user?.full_name}</span>
+          <span className={`block truncate text-xs leading-tight ${tone === 'dark' ? 'text-white/55' : 'text-muted'}`}>{t(roleLabel(membership?.role))}</span>
         </span>
         <ChevronDown className={`h-3.5 w-3.5 opacity-60 ${side ? 'hidden lg:block' : ''}`} />
       </button>
@@ -133,15 +133,15 @@ export function AccountMenu({ tone = 'light', variant = 'default' }: { tone?: 'l
       <Popover anchor={btn} open={open} onClose={close} align="start" label={t('Account menu')}>
         <div className="border-b border-line p-3.5">
           <p className="truncate text-sm font-bold">{user?.full_name}</p>
-          <p className="truncate text-[11px] text-muted">{user?.email}</p>
-          {current && <p className="mt-1.5 text-[11px] font-semibold text-accent">{t(roleLabel(current.role))} · {current.campusName}</p>}
+          <p className="truncate text-xs text-muted">{user?.email}</p>
+          {current && <p className="mt-1.5 text-xs font-semibold text-accent">{t(roleLabel(current.role))} · {current.campusName}</p>}
         </div>
         {options.length > 1 && (
           <div className="border-b border-line p-2">
-            <p className="flex items-center gap-1.5 px-2 pb-1 pt-1 text-[11px] font-semibold text-muted"><Repeat className="h-3 w-3" /> {t('Switch role')}</p>
+            <p className="flex items-center gap-1.5 px-2 pb-1 pt-1 text-xs font-semibold text-muted"><Repeat className="h-3 w-3" /> {t('Switch role')}</p>
             {options.map((o) => (
-              <button key={o.key} type="button" role="menuitemradio" aria-checked={o.current} onClick={() => { close(); setActiveCampus(o.campusId) }} className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs hover:bg-sunken">
-                <span className="min-w-0"><span className="block truncate font-semibold">{t(roleLabel(o.role))}</span><span className="block truncate text-[11px] text-muted">{o.campusName}</span></span>
+              <button key={o.key} type="button" role="menuitemradio" aria-checked={o.current} onClick={() => { close(); setActiveRole(o.campusId, o.role) }} className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-xs hover:bg-sunken">
+                <span className="min-w-0"><span className="block truncate font-semibold">{t(roleLabel(o.role))}</span><span className="block truncate text-xs text-muted">{o.campusName}</span></span>
                 {o.current && <Check className="h-4 w-4 text-accent" />}
               </button>
             ))}

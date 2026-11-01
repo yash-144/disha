@@ -64,7 +64,7 @@ export function LiveClassesSection() {
               >
                 <div className="min-w-0">
                   <p className="truncate text-xs font-bold text-ink sm:text-sm">{s.title}</p>
-                  <p className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
+                  <p className="mt-0.5 flex items-center gap-2 text-xs text-muted">
                     <span className="font-bold text-ink">{s.instructor}</span>
                     <span>·</span>
                     <span className="flex items-center gap-1 font-mono text-brand font-bold">

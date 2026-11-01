@@ -38,7 +38,7 @@ export function CounsellorOverview() {
                     <button type="button" onClick={() => setOpenCase(c.case_id)} className="flex w-full items-center justify-between gap-3 py-2.5 text-left text-xs hover:bg-sunken/60">
                       <span className="min-w-0">
                         <span className="block truncate font-semibold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                        <span className="text-[11px] text-muted">{pretty(c.state)}</span>
+                        <span className="text-xs text-muted">{pretty(c.state)}</span>
                       </span>
                       <span className="flex shrink-0 items-center gap-1.5">
                         {c.is_overdue && <Pill tone="bg-rose-50 text-rose-700">Overdue</Pill>}
