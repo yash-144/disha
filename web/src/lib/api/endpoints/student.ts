@@ -22,6 +22,11 @@ export interface SupportRequest {
 
 export const studentApi = {
   supportRequests: (signal?: AbortSignal) => api.get<SupportRequest[]>('/api/v1/student/support-requests', { signal }),
+  createSupportRequest: (data: { category: string; preferred_slot: string; student_note: string; faculty_id?: string; course_id?: string }) =>
+    api.post<SupportRequest>('/api/v1/student/support-requests', data),
+  academics: (signal?: AbortSignal) => api.get<any>('/api/v1/student/academics', { signal }),
+  attendance: (signal?: AbortSignal) => api.get<any>('/api/v1/student/attendance', { signal }),
+  courses: (signal?: AbortSignal) => api.get<any[]>('/api/v1/student/courses', { signal }),
   pulseCurrent: (signal?: AbortSignal) => api.get<CurrentPulse>('/api/v1/wellbeing/pulse/current', { signal }),
   pulseStatus: (signal?: AbortSignal) => api.get<PulseStatus>('/api/v1/wellbeing/pulse/status', { signal }),
   pulseTrends: (signal?: AbortSignal) => api.get<PulseTrendPoint[]>('/api/v1/wellbeing/pulse/trends', { signal }),

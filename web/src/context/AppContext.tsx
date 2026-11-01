@@ -52,7 +52,12 @@ export function parseLocationState(): {
     return { view: 'landing', role: 'instructor', tab: 'overview' }
   }
 
-  // 2. Auth / Login / Register (both signin and register map to login)
+  // 2. Auth Callback
+  if (path === '/auth/callback' || path.startsWith('/auth/callback')) {
+    return { view: 'auth-callback', role: queryRole || 'counsellor', tab: 'overview' }
+  }
+
+  // 3. Auth / Login / Register (both signin and register map to login)
   if (
     path === '/login' ||
     path === '/auth/login' ||

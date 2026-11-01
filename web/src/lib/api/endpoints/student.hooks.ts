@@ -3,6 +3,23 @@ import { studentApi } from './student'
 
 export const useSupportRequests = () =>
   useQuery({ queryKey: ['student', 'support-requests'], queryFn: ({ signal }) => studentApi.supportRequests(signal) })
+export const useStudentAcademics = () =>
+  useQuery({ queryKey: ['student', 'academics'], queryFn: ({ signal }) => studentApi.academics(signal) })
+export const useStudentAttendance = () =>
+  useQuery({ queryKey: ['student', 'attendance'], queryFn: ({ signal }) => studentApi.attendance(signal) })
+export const useStudentCourses = () =>
+  useQuery({ queryKey: ['student', 'courses'], queryFn: ({ signal }) => studentApi.courses(signal) })
+
+export function useCreateSupportRequest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: Parameters<typeof studentApi.createSupportRequest>[0]) =>
+      studentApi.createSupportRequest(data),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['student', 'support-requests'] })
+    },
+  })
+}
 export const usePulseCurrent = () =>
   useQuery({ queryKey: ['wellbeing', 'current'], queryFn: ({ signal }) => studentApi.pulseCurrent(signal), retry: false })
 export const usePulseStatus = () =>

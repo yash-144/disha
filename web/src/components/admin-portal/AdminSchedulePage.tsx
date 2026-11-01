@@ -1,6 +1,10 @@
 import React from 'react'
-import { NotAvailable } from '../common/NotAvailable'
+import { ScheduleSessionsView } from '../common/ScheduleSessionsView'
 
 export function AdminSchedulePage() {
-  return <NotAvailable title="Schedule & Calls" message="Institution-wide scheduling has no server endpoint yet." />
+  return (
+    <div className="flex-1">
+      <ScheduleSessionsView title="Institutional Consultations & Advisory Sessions" />
+    </div>
+  )
 }

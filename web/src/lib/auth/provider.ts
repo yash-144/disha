@@ -1,12 +1,10 @@
 /**
  * Minimal auth seam for the API client.
  *
- * No sign-in is wired up yet, so the default provider has no token. The
- * planned provider is Supabase Google sign-in: implement `AuthProvider` with
- * supabase-js (getAccessToken from `supabase.auth.getSession()`, refresh from
- * `refreshSession()`, signOut from `supabase.auth.signOut()`) and register it
- * with `setAuthProvider()` in main.tsx. Nothing else needs to change.
+ * Implements AuthProvider backed by Supabase Google sign-in and local token cache.
  */
+import { supabaseAuthProvider } from './supabase'
+
 export interface AuthProvider {
   /** Current bearer token, or null when nobody is signed in. */
   getAccessToken(): Promise<string | null>
@@ -17,14 +15,10 @@ export interface AuthProvider {
   onChange?(listener: () => void): () => void
 }
 
-const noProvider: AuthProvider = {
-  getAccessToken: async () => null,
-}
-
-let provider: AuthProvider = noProvider
+let provider: AuthProvider = supabaseAuthProvider
 
 export function setAuthProvider(next: AuthProvider | null) {
-  provider = next ?? noProvider
+  provider = next ?? supabaseAuthProvider
 }
 
 export function getAuthProvider(): AuthProvider {

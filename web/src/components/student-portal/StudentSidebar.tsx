@@ -7,7 +7,6 @@ export type StudentNavId =
   | 'request-support'
   | 'assessment'
   | 'messages'
-  | 'leaderboard'
 
 export interface StudentSidebarProps {
   activeTab: StudentNavId

@@ -156,6 +156,47 @@ class TestSecurityAuth(unittest.IsolatedAsyncioTestCase):
         res_tampered = client.get("/protected", headers={"Authorization": f"Bearer {tampered_tok}"})
         self.assertEqual(res_tampered.status_code, 401)
 
+    async def test_google_login_service(self):
+        from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+        from app.core.database import Base
+        from app.modules.identity.services import IdentityService
+
+        engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+        async with session_factory() as db:
+            # 1. New Google User Login -> auto-creates user and membership
+            res1 = await IdentityService.google_login(
+                db,
+                email="prof.sharma@iitb.ac.in",
+                full_name="Prof. Sharma",
+                role="instructor",
+                campus_id="campus-iitb",
+            )
+            self.assertIn("access_token", res1)
+            self.assertEqual(res1["email"], "prof.sharma@iitb.ac.in")
+            self.assertEqual(res1["full_name"], "Prof. Sharma")
+            self.assertEqual(res1["memberships"][0]["role"], "instructor")
+
+            # Verify token
+            decoded = decode_access_token(res1["access_token"])
+            self.assertIsNotNone(decoded)
+            self.assertEqual(decoded["sub"], res1["user_id"])
+            self.assertIn("instructor", decoded["roles"])
+
+            # 2. Existing Google User Login -> retrieves existing user
+            res2 = await IdentityService.google_login(
+                db,
+                email="prof.sharma@iitb.ac.in",
+                full_name="Prof. Sharma",
+            )
+            self.assertEqual(res2["user_id"], res1["user_id"])
+            self.assertEqual(res2["email"], "prof.sharma@iitb.ac.in")
+
+        await engine.dispose()
+
 
 if __name__ == "__main__":
     unittest.main()

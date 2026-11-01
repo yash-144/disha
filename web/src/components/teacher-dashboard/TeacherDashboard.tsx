@@ -12,7 +12,6 @@ import { ScheduleCallsPage } from './ScheduleCallsPage'
 import { MyCasesPage } from './MyCasesPage'
 import { StudentDirectoryPage } from './StudentDirectoryPage'
 import { InterventionsProtocolsPage } from './InterventionsProtocolsPage'
-import { DocumentIntegrityPage } from './DocumentIntegrityPage'
 import { TeacherAssessmentsPage } from './TeacherAssessmentsPage'
 import { useApp } from '../../context/AppContext'
 
@@ -106,8 +105,6 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
         return <InterventionsProtocolsPage />
       case 'assessment':
         return <TeacherAssessmentsPage />
-      case 'integrity':
-        return <DocumentIntegrityPage />
       case 'overview':
       default:
         return (

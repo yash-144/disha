@@ -41,7 +41,6 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'directory', label: 'Student Directory', icon: GraduationCap },
     { id: 'interventions', label: 'Interventions & Protocols', icon: MessageSquare },
     { id: 'assessment', label: 'Assessments', icon: Sparkles },
-    { id: 'integrity', label: 'Document Integrity', icon: ShieldCheck },
   ],
   student: [
     { id: 'overview', label: 'Overview', icon: Home },
@@ -49,7 +48,6 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'request-support', label: 'Request Support', icon: Heart },
     { id: 'assessment', label: 'Assessment', icon: Sparkles },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'leaderboard', label: 'Leaderboard & Rewards', icon: Gift },
   ],
   counsellor: [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -57,7 +55,6 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'students-in-need', label: 'Students in Need', icon: AlertCircle },
     { id: 'support-cases', label: 'Support Cases', icon: FolderKanban },
     { id: 'analytics', label: 'Counsellor Analytics', icon: LineChart },
-    { id: 'document-integrity', label: 'Document Integrity', icon: ShieldCheck },
   ],
   admin: [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -66,8 +63,6 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'student-directory', label: 'Student Directory', icon: GraduationCap },
     { id: 'interventions', label: 'Interventions & Protocols', icon: Sliders },
     { id: 'analytics', label: 'Institution Analytics', icon: BarChart3 },
-    { id: 'document-integrity', label: 'Document Integrity', icon: ShieldCheck },
-    { id: 'reward-fulfilment', label: 'Reward Fulfilment', icon: Award },
     { id: 'data-import', label: 'Data Import', icon: UploadCloud },
     { id: 'risk-model', label: 'Risk Model', icon: Cpu },
   ],

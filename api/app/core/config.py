@@ -13,7 +13,12 @@ class Settings(BaseSettings):
     DISHA_API_PORT: int = int(os.getenv("DISHA_API_PORT", "8000"))
     DISHA_API_HOST: str = os.getenv("DISHA_API_HOST", "0.0.0.0")
     DISHA_API_URL: str = os.getenv("DISHA_API_URL", "http://localhost:8000")
-    DISHA_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    DISHA_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
     DISHA_DATABASE_URL: str = os.getenv("DISHA_DATABASE_URL", "postgresql+asyncpg://disha_user:disha_password@localhost:5432/disha_db")
     DISHA_REDIS_URL: str = os.getenv("DISHA_REDIS_URL", "redis://localhost:6379/0")
     DISHA_JWT_SECRET: str = os.getenv("DISHA_JWT_SECRET", "dev_secret_key_change_in_production")

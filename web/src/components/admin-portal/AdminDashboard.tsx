@@ -7,8 +7,6 @@ import { AdminCaseManagementPage } from './AdminCaseManagementPage'
 import { AdminStudentDirectoryPage } from './AdminStudentDirectoryPage'
 import { AdminInterventionsPage } from './AdminInterventionsPage'
 import { AdminAnalyticsPage } from './AdminAnalyticsPage'
-import { AdminDocumentIntegrityPage } from './AdminDocumentIntegrityPage'
-import { AdminRewardFulfilmentPage } from './AdminRewardFulfilmentPage'
 import { AdminDataImportPage } from './AdminDataImportPage'
 import { AdminRiskModelPage } from './AdminRiskModelPage'
 
@@ -42,14 +40,6 @@ const TAB_METADATA: Record<
   analytics: {
     title: 'Institution Analytics',
     subtitle: 'Macro retention modeling, demographic breakdowns and longitudinal KPIs',
-  },
-  'document-integrity': {
-    title: 'Document Integrity',
-    subtitle: 'University-wide immutable attestation ledger and statutory compliance audits',
-  },
-  'reward-fulfilment': {
-    title: 'Reward Fulfilment',
-    subtitle: 'Manage student incentives, badge issuance and wellness milestone rewards',
   },
   'data-import': {
     title: 'Data Import',
@@ -116,10 +106,6 @@ export function AdminDashboard() {
         return <AdminInterventionsPage />
       case 'analytics':
         return <AdminAnalyticsPage />
-      case 'document-integrity':
-        return <AdminDocumentIntegrityPage />
-      case 'reward-fulfilment':
-        return <AdminRewardFulfilmentPage />
       case 'data-import':
         return <AdminDataImportPage />
       case 'risk-model':

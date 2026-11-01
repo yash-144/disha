@@ -15,7 +15,6 @@ export type CounsellorNavId =
   | 'students-in-need'
   | 'support-cases'
   | 'analytics'
-  | 'document-integrity'
 
 export interface CounsellorSidebarProps {
   activeTab: CounsellorNavId
@@ -35,7 +34,6 @@ export const COUNSELLOR_NAV_ITEMS: NavItem[] = [
   { id: 'students-in-need', label: 'Students in Need', route: '/counsellor/students-in-need', icon: AlertCircle },
   { id: 'support-cases', label: 'Support Cases', route: '/counsellor/support-cases', icon: FolderKanban },
   { id: 'analytics', label: 'Counsellor Analytics', route: '/counsellor/analytics', icon: LineChart },
-  { id: 'document-integrity', label: 'Document Integrity', route: '/counsellor/document-integrity', icon: ShieldCheck },
 ]
 
 export function CounsellorSidebar({ activeTab, onSelectTab }: CounsellorSidebarProps) {
