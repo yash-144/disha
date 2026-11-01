@@ -1,0 +1,12 @@
+{"interventions": [
+  {"id": "mentor_call", "title": "Mentor check-in call", "active": true, "reason_codes": ["LOW_ATTENDANCE"],
+   "description": "Mentor phones the student within 3 working days to understand barriers and agree a plan.",
+   "owner_role": "mentor", "typical_duration": "2 weeks"},
+  {"id": "counselling_referral", "title": "Counselling referral", "active": true, "reason_codes": ["WELLBEING_SIGNAL"],
+   "description": "Refer to campus counselling following the referral procedure; consent required.",
+   "owner_role": "counsellor"},
+  {"id": "fee_plan", "title": "Fee instalment plan", "active": true, "reason_codes": ["FEE_DUES"],
+   "description": "Finance offers an instalment plan under the campus scholarship and fee-relief rules.",
+   "owner_role": "finance"},
+  {"id": "retired_buddy", "title": "Retired buddy scheme", "active": false, "description": "No longer offered."}
+]}

@@ -50,10 +50,13 @@ def build_estimator(model: str, numeric: List[str], categorical: List[str], seed
     return Pipeline([("pre", pre), ("clf", clf)])
 
 
-def calibrated(estimator: Pipeline, method: str, folds: int, seed: int) -> CalibratedClassifierCV:
-    """Wrap a model so its probabilities match observed rates (see training guide)."""
+def calibrated(estimator: Pipeline, method: str, folds: int, seed: int, cv=None) -> CalibratedClassifierCV:
+    """Wrap a model so its probabilities match observed rates (see training guide).
+
+    `cv` overrides the default stratified folds, for example a list of GroupKFold splits.
+    """
     return CalibratedClassifierCV(
         estimator=estimator,
         method=method,
-        cv=StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed),
+        cv=cv if cv is not None else StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed),
     )

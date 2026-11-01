@@ -1,0 +1,21 @@
+[project]
+name = "disha-meko"
+version = "0.1.0"
+description = "Thin, fail-safe client for Meko (Yugabyte agent context engine) used across DISHA"
+requires-python = ">=3.11"
+dependencies = ["mcp>=1.9", "httpx"]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-asyncio"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["disha_meko"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]

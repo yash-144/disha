@@ -105,7 +105,7 @@ export function DashboardLayout() {
         <div className="relative z-10 flex items-center justify-between px-3 py-1 text-[10px] text-white/80 lg:hidden border-b border-white/10 mb-1">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#0f9d58] animate-pulse" />
-            <span className="font-bold tracking-wider">SKILLSUP COCKPIT</span>
+            <span className="font-bold tracking-wider">DISHA COCKPIT</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="font-mono text-white/70">{currentTime}</span>

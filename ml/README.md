@@ -9,6 +9,16 @@ early academic risk signals. Ground rules:
 
 The Python package is `disha_ml`.
 
+> **Status (2026-11-01).** DISHA now has two model families.
+> * **Rolling risk model (primary):** scores every student at every assessment
+>   due date, on OULAD, through a level-agnostic input schema. Code in
+>   `disha_ml/rolling/`. See sections 27 to 34. Output contract:
+>   [`../docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md).
+> * **Legacy semester models (`cp0`/`cp1`/`cp2`):** the first-year checkpoint
+>   pipeline on the Portugal (UCI) and Spain (UPV) datasets, described in
+>   sections 1 to 26. Artifacts are kept in `artifacts/` and `artifacts_upv/`.
+>   They are secondary and are not what the backend should call.
+
 This folder trains and runs the machine-learning part of DISHA: it looks at a
 student's academic record and decides whether to raise an **early risk
 signal** for an advisor to review. This README explains everything: what data
@@ -50,10 +60,22 @@ Deeper design documents: [`../blueprint/16-risk-signal-pipeline.md`](../blueprin
 23. [Tests](#23-tests)
 24. [Limits and honest caveats](#24-limits-and-honest-caveats)
 25. [Questions judges may ask](#25-questions-judges-may-ask)
+26. [Second dataset: UPV Spain and a time-based test](#26-second-dataset-upv-spain-and-a-time-based-test)
+27. [Rolling risk model (primary): overview](#27-rolling-risk-model-primary-overview)
+28. [Rolling model: data (OULAD) and converter](#28-rolling-model-data-oulad-and-converter)
+29. [Rolling model: canonical input schema](#29-rolling-model-canonical-input-schema)
+30. [Rolling model: snapshots and features](#30-rolling-model-snapshots-and-features)
+31. [Rolling model: training](#31-rolling-model-training)
+32. [Rolling model: scoring and the insights payload](#32-rolling-model-scoring-and-the-insights-payload)
+33. [Rolling model: results](#33-rolling-model-results)
+34. [Rolling model: Meko memories, limits and gaps](#34-rolling-model-meko-memories-limits-and-gaps)
+35. [CLO (course outcome) insights](#35-clo-course-outcome-insights)
 
 ---
 
 ## 1. What it does, in one paragraph
+
+*(Legacy semester models. The primary rolling model is described in section 27.)*
 
 At three points in a student's first year — at admission, after semester 1,
 after semester 2 — the system looks only at **academic data known at that
@@ -431,6 +453,30 @@ Read `report.md` in this order:
 
 All numbers come from the run; none are written by hand.
 
+### Alert precision is not accuracy (legacy `cp1` / `cp2`)
+
+The legacy reports show **signal precision**: of the students who received an
+alert after the capacity cap, the share who really were at risk. On the
+Portuguese held-out split (851 students, 30.9% at risk):
+
+| Checkpoint | Alerts | Alert precision | Recall of at-risk students | ROC AUC | Accuracy (probability >= 0.5) | Majority-class baseline |
+|---|---|---|---|---|---|---|
+| `cp1` | 127 (14.9%), 147 more removed by the cap | 94.5% | 45.6% | 0.896 | 84.1% | 69.1% |
+| `cp2` | 127 (14.9%), 170 more removed by the cap | 97.6% | 47.1% | 0.932 | 88.4% | 69.1% |
+
+Do **not** call 94.5% or 97.6% "accuracy". They are precision on a small,
+capped, hand-picked-by-cutoff group. Accuracy over all students is about 84%
+(`cp1`) and 88% (`cp2`) against 69% for always predicting "not at risk". The
+precision, recall and AUC figures are in `artifacts/<cp>/manifest.json`;
+accuracy is not stored there, so it was computed by scoring the same held-out
+split with the saved bundles (threshold 0.5).
+
+Why `cp2` looks so good: 124 of its 127 alerts (97.6%) were students who had
+passed **zero** semester-2 subjects (at `cp1`, 74% had passed zero in semester 1),
+so `cp2` mostly confirms students who have already stopped, i.e. it is late.
+That is the reason the rolling model drops enrolments that are already
+withdrawn and scores at every assessment, long before the end of a year.
+
 ## 19. Scoring students for the demo
 
 ```bash
@@ -511,7 +557,13 @@ ml/
 │   ├── evaluate.py          metrics, calibration table, fairness
 │   ├── train.py             training CLI, release check, reports
 │   ├── score.py             scoring CLI with model hash check
-│   └── synthetic.py         invented data for tests only
+│   ├── synthetic.py         invented data for tests only
+│   ├── meko_hooks.py        optional Meko hooks (train summary, scoring trace, assessment updates)
+│   ├── converters/          oulad.py (rolling model), upv.py (legacy UPV file)
+│   └── rolling/             primary model: schema, config, features, insights, evaluate, train, score
+├── artifacts/               legacy UCI cp0/cp1/cp2 (model.joblib, manifest.json, report.md)
+├── artifacts_upv/           legacy UPV cp0/cp1/cp2
+├── artifacts_rolling/       rolling model: model.joblib, manifest.json, report.md
 ├── data/
 │   ├── raw/                 immutable source datasets (UCI dataset as downloaded)
 │   ├── processed/           normalised, validated datasets ready for training
@@ -534,6 +586,9 @@ python -m pytest tests -q
 | `test_cutoffs_and_tiers.py` | Cutoffs meet the precision target and stop before a weak band; no cutoff when unreachable; ties; tier logic; rule corroboration; capacity cap |
 | `test_train_and_score.py` | Full training on all checkpoints; artifacts and hashes; later checkpoints rank better; capacity respected; tampered model refused; scoring output; `NO_DATA` for students without a semester record |
 | `test_own_dataset.py` | Custom headers, SGPA 0–10 scale, custom outcome labels, missing semester 2; template generator; bad mappings rejected; train + score with saved mapping |
+| `test_rolling.py` | Snapshots use no data after day t; withdrawn enrolments get no row; student-grouped folds never share a student; hand-built features at day 30; exam rows trigger no snapshot; demographics are not inputs; schema validation; reason texts; drift events; PSI; ECE; per-snapshot capacity cap; lead time; end-to-end training and `score_snapshot` payload |
+| `test_meko_hooks.py` | Hooks are no-ops without a key; `--no-meko`; assessment-update memories only on a tier change or drift event, hashed ids, no raw marks |
+| `test_upv_and_time_split.py` | UPV converter mapping and filtering; Retained outcome; attendance never taken from a later semester; time-based split; end-to-end training with a time split |
 
 Tests run on **synthetic** data from `synthetic.py`. Synthetic numbers are
 never presented as results.
@@ -555,6 +610,9 @@ never presented as results.
 - **Fees are excluded by choice** although they are predictive in this dataset.
 - A saved model must be loaded with the **same scikit-learn version** it was
   trained with (recorded in the manifest).
+- **Legacy figures are precision, not accuracy.** See §18. The semester models
+  alert late (mostly after a student has passed nothing in semester 2); the
+  rolling model (§27) exists to fix that.
 
 ## 25. Questions judges may ask
 
@@ -587,3 +645,287 @@ approving it.
 The same code trains on your data through a mapping file. Whether it is
 accurate enough there is measured by the same release check on your students
 before it is used.
+
+## 26. Second dataset: UPV Spain and a time-based test
+
+A second, larger, real dataset is supported to check that the pipeline holds up
+beyond the Portuguese data, and to test it the way it would be used: train on
+past intakes, predict a **later** intake.
+
+**Source:** *StudentDropoutDataset*, Universitat Politècnica de València
+(Spain), Igualde-Sáez et al., Zenodo 2025,
+<https://doi.org/10.5281/zenodo.17239943>, licence **CC BY 4.0**. Descriptor:
+<https://doi.org/10.3390/data10100162>. Converted file:
+`data/processed/upv_first_year.csv` (see `data/processed/UPV_SOURCE.md`).
+
+**What we use:** first-year bachelor's students from three intakes, one row each.
+
+| Intake | Students | Dropped out | Attendance (Wi-Fi) data |
+|---|---|---|---|
+| 2018 | 3,075 | 437 (14.2%) | none |
+| 2021 | 2,828 | 313 (11.1%) | for 82% of students |
+| 2022 | 3,096 | 394 (12.7%) | for 82% of students |
+
+**How it is converted** (`disha_ml/converters/upv.py`):
+
+| Pipeline field | UPV source | Note |
+|---|---|---|
+| Subjects registered / passed | credits ÷ 6 | UPV records credits; 6 credits ≈ one subject (approximation) |
+| Semester 2 | semester-B + year-long subjects | year-long subjects finish with semester 2 |
+| Average grade | yearly course average × 2 (0–20) | yearly only, so used from `cp2`; no semester-1 grade |
+| Attendance | average campus Wi-Fi days per month (Sep–Jan, Feb–Jun) | a stand-in for class attendance |
+| Prior grades, course | entry grades, degree | |
+| Outcome | `abandono`: A → Dropout, B → Retained | Retained = did not drop out; `not_on_time` is unavailable |
+| Leaky fields dropped | `matricula_activa`, `baja_fecha` | they describe what happened after the year |
+
+**Run it (locally or on Kaggle):**
+```bash
+python kaggle_train.py --dataset upv
+```
+This uses logistic regression and trains on the 2018 and 2021 intakes, then
+tests once on the 2022 intake. Output goes to `artifacts_upv/` and
+`demo_scored_cp1_upv.csv`. If the converted file is missing, it downloads the
+three Zenodo files (~41 MB, needs Internet) into `data/raw/upv/` (git-ignored)
+and converts them. To rebuild by hand:
+`python -m disha_ml.converters.upv --download`.
+
+**Time-based test for any dataset:** add a `cohort_year` column, then
+`python -m disha_ml.train --data file.csv --test-cohort 2022`.
+
+**What the UPV results showed** (each report's numbers are in
+`artifacts_upv/<cp>/report.md` after a run):
+
+- UPV is **harder** than the Portuguese data: dropout is rarer (about 12%), there
+  is no semester-1 grade and no exam-attendance count, and the test is on a
+  later year rather than a random sample.
+- `cp1` (after semester 1) is **not approved** on UPV: no cutoff reaches 85%
+  precision. Its signals are about two-thirds correct, still better than
+  rules alone.
+- `cp2` (after semester 2) is **approved**: the HIGH tier was about 87%
+  correct on the 2022 intake, while MEDIUM was about 50% — lower than on training
+  data, which is year-to-year drift.
+- A **random split overstates** results on this data (a noticeably higher ROC
+  AUC than the 2022 test). This is why the time-based test matters before using a
+  model on a new intake.
+- **Logistic regression did at least as well as gradient boosting** here, so it
+  is the UPV default.
+- **Attendance helped a little** (a small gain in ranking at both checkpoints),
+  and at `cp1` it is what made any signals possible.
+
+**What this means for DISHA:** the strong Portuguese results are not
+automatically transferable. Each campus model must be tested on a later intake
+of that campus before use — the release check already enforces the precision
+target, and the time-based split makes that check realistic.
+
+## 27. Rolling risk model (primary): overview
+
+The rolling model answers "who is likely to fail or withdraw, and why, *right now*" every time marks reach the
+ERP, instead of once per semester.
+
+| Item | Value (from `artifacts_rolling/manifest.json`) |
+|---|---|
+| Code | `disha_ml/rolling/` (`schema.py`, `config.py`, `features.py`, `insights.py`, `evaluate.py`, `train.py`, `score.py`), converter `disha_ml/converters/oulad.py` |
+| Data | OULAD, 22 course presentations across 4 terms (2013B, 2013J, 2014B, 2014J); source, licence and SHA in `data/raw/oulad/SOURCE.md` |
+| Unit of prediction | one student in one course-term at one snapshot day |
+| When it scores | at every non-exam assessment due date ("whenever marks reach the ERP"), plus fixed points at 10%, 25%, 50%, 75% of the term, plus the `as_of` day when scoring |
+| Who is scored | enrolments still active at that day; enrolments already withdrawn get no row |
+| Label | `at_risk` = final result Fail or Withdrawn |
+| Split | temporal: train 2013B, 2013J, 2014B; test 2014J. Cross-validation is `GroupKFold` by student (5 folds) |
+| Model | histogram gradient boosting with isotonic calibration, 23 features, 44,340 parameters, 4.09 MB, trained in about 107 s on CPU |
+| Tiers | same HIGH / MEDIUM / WATCH / ON_TRACK logic as the legacy models (`thresholds.py`, `signal.py`), capacity cap 25% per (course, term, day) |
+| Output | `InsightsPayload` JSON, specified in [`../docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md) |
+
+```mermaid
+flowchart LR
+  T[Canonical tables<br/>students, enrolments, assessments,<br/>results, activity, withdrawals] --> S[Snapshots at day t<br/>data dated <= t only]
+  S --> F[23 features]
+  F --> M[HGB + isotonic<br/>probability of Fail / Withdrawn]
+  M --> TI[Tiers + rules + capacity cap]
+  M --> X[Ablation reasons, drift events, PSI]
+  TI --> P[InsightsPayload JSON]
+  X --> P
+  P -.-> K[Meko: tier-change memories]
+```
+
+## 28. Rolling model: data (OULAD) and converter
+
+OULAD (Open University Learning Analytics Dataset): about 32,600 enrolments, 22 course presentations, 10.6M LMS click
+rows, licence CC BY 4.0 (Kuzilek, Hlosta, Zdrahal, *Scientific Data* 4, 170171, 2017). The official download link no
+longer serves the zip; the copy used is the Internet Archive capture of that link (taken 2025-04-30). URL, byte size
+and SHA-256 are in `data/raw/oulad/SOURCE.md`; the manifest also records the SHA-256 of `studentInfo.csv`. The raw
+CSVs are git-ignored; only the note is tracked.
+
+```bash
+python -m disha_ml.converters.oulad --raw data/raw/oulad --out data/processed/oulad
+```
+
+| Canonical | OULAD |
+|---|---|
+| `students.student_id`, audit columns | `id_student`; `gender`, `region`, `imd_band`, `disability`, `age_band` |
+| `students.program_level` | `ug` for every student |
+| `students.prior_education_ord` | `highest_education` mapped to 0 to 4 (stands in for 10th/12th/entrance marks, which OULAD lacks) |
+| `enrolments` | `code_module` as `course_id`, `code_presentation` as `term_id`, `module_presentation_length` as `term_length_days`, `final_result` as `outcome`, `num_of_prev_attempts`, `studied_credits` |
+| `assessments` | `date` as `due_day` (exam without a date: end of term), `weight`, `assessment_type` as `type` (TMA, CMA, Exam) |
+| `results` | `date_submitted`, `score` |
+| `activity` | `studentVle.sum_click` summed per student per day |
+| `withdrawals` | `studentRegistration.date_unregistration` |
+
+## 29. Rolling model: canonical input schema
+
+Level-agnostic: the same six tables serve school, UG year 1 to 4 and PG. Marks are percentages 0 to 100; every `day`
+is relative to term start. Validation lives in `rolling/schema.py` (`validate`, `load_tables`, `save_tables`).
+
+| Table | Required columns | Optional columns |
+|---|---|---|
+| `students` (table optional) | `student_id` | `program_level` (school/ug/pg), `year_of_study`, `tenth_pct`, `twelfth_pct`, `entrance_pct`, `prior_education_ord`; audit-only `gender`, `region`, `imd_band`, `disability`, `age_band` |
+| `enrolments` | `student_id`, `term_id`, `course_id`, `term_length_days` | `term_start`, `outcome` (training only), `prev_attempts`, `credit_load` |
+| `assessments` | `assessment_id`, `course_id`, `term_id`, `due_day` | `weight`, `type` |
+| `results` (optional) | `student_id`, `assessment_id`, `submitted_day` | `score_pct` |
+| `activity` (optional) | `student_id`, `course_id`, `term_id`, `day`, `count` | |
+| `withdrawals` (optional) | `student_id`, `course_id`, `term_id`, `day` | |
+
+Rules enforced: marks outside 0 to 100 are rejected; `program_level` must be school, ug or pg; `(student_id, course_id,
+term_id)` must be unique in `enrolments`; `term_length_days` is required. Full column semantics: INSIGHTS_SPEC §2.
+
+## 30. Rolling model: snapshots and features
+
+A snapshot at day t uses only rows dated at or before t (`rolling/features.py` truncates its inputs first; a test
+checks it). Cohort-relative values are computed within the same course and term, over students still active at t.
+
+| Group | Features |
+|---|---|
+| Score level | `mean_score`, `weighted_score`, `last_score`, `standing_pct`, `gap_to_median` |
+| Score trend | `score_change`, `score_slope` |
+| Submissions | `share_submitted`, `n_missed`, `n_late`, `consecutive_misses`, `missed_last3` |
+| Engagement | `activity_vs_median`, `engagement_ratio`, `days_since_activity` |
+| Baseline | `baseline_rank`, `baseline_gap` |
+| Load and history | `prev_attempts`, `credit_load`, `program_level_code`, `year_of_study` |
+| Progress (never a reason) | `term_frac`, `assessment_idx` |
+
+That is 23 features. `gender`, `region`, `imd_band`, `disability` and `age_band` are never inputs; they feed only the
+fairness slices. Academic rules (`rolling/config.py`, `RULES`): missed 2 of the last 3, mean 15 points below the class
+median, last-14-day activity at most half the student's own earlier rate, last score 10 points below the previous,
+percentile gap to baseline of -25, 2 consecutive misses. MEDIUM needs at least one to fire.
+
+## 31. Rolling model: training
+
+```bash
+python -m disha_ml.rolling.train --data data/raw/oulad --out artifacts_rolling [--no-meko]
+```
+
+`--data` is a folder of raw OULAD CSVs (converted once and cached under `data/processed/oulad`) or a folder of
+canonical tables. Steps in `rolling/train.py`:
+
+1. Build snapshots for all terms; train on 2013B, 2013J, 2014B; hold out 2014J.
+2. Out-of-fold probabilities on train with `GroupKFold` by student (5 folds, seed 42), each fold calibrated inside
+   its own training part (3 inner calibration folds).
+3. Tier cutoffs from the out-of-fold probabilities at precision targets 0.85 / 0.70 / 0.50 (`thresholds.py`).
+4. Final HGB with isotonic calibration (5 student-grouped calibration folds) on all of train.
+5. Evaluate once on 2014J: metrics, AUC by term fraction, tiers with the capacity cap, lead time, fairness slices,
+   train/CV/test gap, repeaters check.
+6. Write `model.joblib` (model, feature list, groups, cutoffs, PSI reference sample), `manifest.json` (config,
+   rules, every metric, parameter count, dataset SHA) and `report.md`.
+
+All tunables are in `rolling/config.py` (`RollingConfig`, `RULES`, `DRIFT`) and recorded in the manifest.
+
+## 32. Rolling model: scoring and the insights payload
+
+```python
+from disha_ml.rolling.score import score_snapshot
+payload = score_snapshot(tables, as_of=120)    # tables: dict of DataFrames or a folder path
+payload.to_dict()                              # JSON-ready
+```
+
+```bash
+python -m disha_ml.rolling.score --tables <dir> --as-of 120 [--model artifacts_rolling] [--out f.json] [--no-meko]
+```
+
+Call it once per assessment due date (marks reached the ERP), and optionally weekly for engagement. Top level of the
+payload: `schema_version`, `as_of_day`, `model`, `n_students`, `students[]`, `cohorts[]`, `data_drift`. Per student:
+calibrated probability and tier, change since the previous snapshot, risk history, up to 3 reasons and 2 on-track
+factors (ablation by feature group), drift events (`SCORE_DROP`, `ENGAGEMENT_COLLAPSE`, `FIRST_MISSED_SUBMISSION`),
+next check date and headline numbers. Per course-term: tier distribution, at-risk share, early-warning hotspot,
+time-to-risk curve. `data_drift` reports PSI per feature against the training cohorts and a retrain flag. The exact
+fields, definitions, JSON paths and visuals are in
+[`../docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md), which is the source of truth; it is
+not repeated here. Students in the payload carry the caller's own `student_id`.
+
+## 33. Rolling model: results
+
+All figures below come from `artifacts_rolling/manifest.json` and `report.md` (held-out term 2014J; 80,411 snapshot
+rows, 8,931 students, 35.4% at risk).
+
+| ROC AUC | PR AUC | Brier | ECE | Accuracy | Majority baseline | Rules-only AUC |
+|---|---|---|---|---|---|---|
+| 0.857 | 0.794 | 0.145 | 0.037 | 79.0% | 64.6% | 0.689 |
+
+**How early (AUC at a fraction of the term):**
+
+| Term elapsed | 10% | 25% | 50% | 75% |
+|---|---|---|---|---|
+| ROC AUC | 0.727 | 0.809 | 0.881 | 0.933 |
+
+**Tiers on test (capacity cap applied):** HIGH 23.7% of rows at 81.7% precision; MEDIUM 1.2% at 45.6%; WATCH 54.8%
+at 26.9%; ON_TRACK 20.2% at 3.7%. HIGH+MEDIUM ("signal") is 24.9% of rows at 79.9% precision and 56.2% recall. Per
+student, 48.6% are signalled at some point (67.5% precision, 79.6% recall). Cutoffs: HIGH 0.554, MEDIUM 0.333, WATCH
+0.089. HIGH precision on test (81.7%) is below its 85% training target; there is no automated release check for this
+model yet (see section 34).
+
+**Lead time:** 1,246 of 1,768 withdrawn students with a snapshot (70.5%) were signalled before they withdrew; median
+54 days ahead (interquartile range 25 to 112).
+
+**Overfitting check:** train AUC 0.894, grouped CV AUC 0.883, test AUC 0.857 (gaps +0.011 and +0.026). 14.3% of test
+rows are repeaters seen in training; on unseen students only, test AUC is 0.854.
+
+**Fairness (false-positive-rate ratio, largest group over smallest):** gender 1.20, disability 1.21, region 1.87, age
+band 1.94, IMD band 2.02. Demographics are not inputs; the slices are in `report.md`. No bound is enforced.
+
+## 34. Rolling model: Meko memories, limits and gaps
+
+* **Meko.** After a scoring run the CLI calls `meko_hooks.record_assessment_updates(payload)`. It writes one short
+  academic-story memory per student **only** when the tier changed since the previous snapshot or a drift event
+  fired, never otherwise. Student ids are hashed (`MEKO_PII_SALT`), tags include `journey:<hash>` so one student's
+  updates can be recalled together, and no raw marks are sent: only the headline mean and class median in words; exact
+  marks stay in the canonical tables. `--no-meko` disables it and a missing key makes it a no-op. See
+  [`../docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTEGRATION.md). `rolling/train.py` only
+  honours `--no-meko`; it records no Meko run summary (the legacy `train.py` still does).
+* **OULAD is a UK distance-learning dataset.** It proves the pipeline end to end, not accuracy at an Indian campus.
+  Retrain and re-measure on campus data before relying on it.
+* **Not yet implemented:** a release check and fairness bound for the rolling model; calendar-date output without
+  `term_start`; school and PG data (the schema allows them, only OULAD has been run); any backend endpoint or worker
+  job that calls `score_snapshot` (the API has no insights route yet).
+* The MEDIUM tier is almost empty on test (1.2%) because HIGH fills the 25% capacity cap first.
+
+---
+
+## 35. CLO (course outcome) insights
+
+`disha_ml/clo/` tells faculty which course outcomes (COs) and topics students struggle with and whether it is a
+**teaching gap** or a **student gap**. Input is what Indian colleges already keep for NBA/NAAC: each exam question
+mapped to a CO (and Bloom level) plus question-wise marks. No ML and no answer-sheet scanning; every number is traceable.
+Full contract, thresholds, JSON paths and visuals: [`../docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md).
+
+```bash
+python -m disha_ml.clo.synthetic --out /tmp/clo_demo            # demo course with planted patterns
+python -m disha_ml.clo.analyze --tables /tmp/clo_demo --course CS201 --term 2026-odd --no-meko
+```
+
+```python
+from disha_ml.clo.analyze import analyze_course
+payload = analyze_course(tables, "CS201", "2026-odd")          # CloPayload; .to_dict() is plain JSON
+```
+
+* **Schema:** optional tables `course_outcomes`, `questions`, `question_results`, `topic_feedback`, `teaching_actions`
+  and an optional `enrolments.section` column, validated in `rolling/schema.py`.
+* **Outputs:** CO attainment with an NBA-style level 0 to 3 (internal 0.4 / end-semester 0.6), item difficulty and
+  discrimination, gap type per question and CO, Bloom matrix, MCQ misconceptions, trend, section comparison,
+  muddiest points, recommendations, and a mentor-only `student_gaps` section. Groups under 5 students are suppressed.
+* **Rolling link:** `clo/link.py` adds "Weak on CO3 (Recursion): 35%" to a student's reasons in the rolling payload when
+  CO data exists (nothing changes without it). The OULAD model is **not retrained**: OULAD has no question-level data.
+  `weakest_co_pct` and `n_cos_below_target` can join a model only once a college supplies CO data.
+* **Meko:** aggregate-only course memories, recalled history in `context.recalled`, recurring learnings promoted
+  (`MEKO_INTEGRATION.md`). `--no-meko` disables it.
+* **Demo output:** `examples/clo_demo_output.json`. **Tests:** `tests/test_clo.py`.
+* **Gaps:** no API route or worker job calls it yet; thresholds are defaults from the NBA convention and item-analysis
+  practice, not tuned on real campus data; one CO per question; the gap type needs at least 5 students per top/bottom
+  group (about 19 students).

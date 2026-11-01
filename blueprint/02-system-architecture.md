@@ -131,10 +131,7 @@ sequenceDiagram
 | Retention purge | Daily | Delete or redact rows past `expires_at` per retention class |
 | Model drift report | Daily / weekly | Compute score distribution and alert rate from inference log |
 
-**Current implementation:** `OutboxWorker.process_outbox_batch` and
-`scan_and_escalate_overdue_cases` (`app/services/worker.py`) contain the
-logic, but nothing runs them outside tests, and without a dispatcher items are
-marked `sent` without delivery (audit A2).
+**Current implementation:** `worker/scheduler.py` (APScheduler) registers the jobs, but `outbox_dispatch` and `deadline_escalation` are **not yet implemented (stubs)**; the case service writes notification outbox rows and nothing dispatches them ([07](07-case-workflow-and-worker.md) §8).
 
 ## 6. Clients
 
@@ -171,7 +168,7 @@ catalogue.
 | Identity provider | Supabase Auth; ES256/RS256 via JWKS, HS256 via shared secret | Asymmetric only in production; pinned issuer and audience; fail closed when JWKS is unavailable; no fallback key (audit S3) |
 | Database host | Supabase Postgres | Any Postgres-compatible service; RLS generated from the model list in CI (audit S6) |
 | LLM | `mock` provider active; `OpenAIProvider` present but `openai` package not in requirements; `GEMINI_API_KEY` configured but no provider (audit A7, T4) | See [09](09-ai-assistance.md) |
-| Translation | Sarvam AI via Next.js route `/api/translate` | Static UI strings only, from a reviewed catalogue; authenticated; rate-limited (audit F1, S5) |
+| Translation | Third-party translation API via Next.js route `/api/translate` (audit F1) | Local AI4Bharat IndicTrans2 on the API host: `POST /api/v1/translate`, flag `DISHA_TRANSLATE_ENABLED`, no cache, no external call. Built; see [05](05-api-specification.md) §4.4. Static UI strings from a reviewed catalogue remain the target for the frontend |
 | Blockchain | Base Sepolia (chain id 84532) via `web3.py`; document registry and identity NFT contracts | See [11](11-documents-and-anchoring.md) |
 | IPFS pinning | Pinata (`PINATA_JWT`) for identity artwork | Optional |
 | CBDC | `SimulatedSBIDigitalRupeeProvider`; interface `issue_incentive_voucher`, `redeem_voucher`, `query_voucher_status` | Out of scope until a real sandbox and agreement exist; do not ship a simulated provider in production builds |

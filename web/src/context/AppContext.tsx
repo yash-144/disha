@@ -23,6 +23,122 @@ import {
   BLOG_POSTS,
 } from '../mockData'
 
+export function parseLocationState(): {
+  view: ViewMode
+  role: UserRole
+  tab: DashboardTab
+} {
+  if (typeof window === 'undefined') {
+    return { view: 'landing', role: 'instructor', tab: 'overview' }
+  }
+
+  const rawPath = window.location.pathname.toLowerCase()
+  const path = rawPath.replace(/\/+$/, '') || '/'
+  const params = new URLSearchParams(window.location.search)
+
+  const queryView = params.get('view') as ViewMode | null
+  const queryRole = params.get('role') as UserRole | null
+  const queryTab = params.get('tab') as DashboardTab | null
+
+  // 1. Root / -> landing page default
+  if (path === '/') {
+    if (queryView) {
+      return {
+        view: queryView,
+        role: queryRole || 'instructor',
+        tab: queryTab || 'overview',
+      }
+    }
+    return { view: 'landing', role: 'instructor', tab: 'overview' }
+  }
+
+  // 2. Auth / Login / Register (both signin and register map to login)
+  if (
+    path === '/login' ||
+    path === '/auth/login' ||
+    path === '/signin' ||
+    path === '/auth' ||
+    path === '/register' ||
+    path === '/signup'
+  ) {
+    return { view: 'login', role: queryRole || 'counsellor', tab: 'overview' }
+  }
+
+  // 3. Onboarding
+  if (path === '/onboarding') {
+    return { view: 'onboarding', role: queryRole || 'student', tab: 'overview' }
+  }
+
+  // 4. Landing subpages
+  if (path === '/courses') {
+    return { view: 'courses', role: 'instructor', tab: 'overview' }
+  }
+  if (path === '/live-classes' || path === '/cohorts') {
+    return { view: 'live-classes', role: 'instructor', tab: 'overview' }
+  }
+  if (path === '/blogs' || path === '/blog') {
+    return { view: 'blogs', role: 'instructor', tab: 'overview' }
+  }
+  if (path === '/about') {
+    return { view: 'about', role: 'instructor', tab: 'overview' }
+  }
+  if (path === '/contact') {
+    return { view: 'contact', role: 'instructor', tab: 'overview' }
+  }
+
+  // 5. Counsellor Portal (/counsellor, /counsellor/:tab)
+  if (path.startsWith('/counsellor')) {
+    const parts = path.split('/').filter(Boolean)
+    const subTab = (parts[1] as DashboardTab) || queryTab || 'overview'
+    return { view: 'dashboard', role: 'counsellor', tab: subTab }
+  }
+
+  // 6. Faculty / Instructor Portal (/faculty, /faculty/:tab, /instructor, /instructor/:tab)
+  if (path.startsWith('/faculty') || path.startsWith('/instructor')) {
+    const parts = path.split('/').filter(Boolean)
+    const subTab = (parts[1] as DashboardTab) || queryTab || 'overview'
+    return { view: 'dashboard', role: 'instructor', tab: subTab }
+  }
+
+  // 7. Student Portal (/student, /student/:tab)
+  if (path.startsWith('/student')) {
+    const parts = path.split('/').filter(Boolean)
+    const subTab = (parts[1] as DashboardTab) || queryTab || 'overview'
+    return { view: 'dashboard', role: 'student', tab: subTab }
+  }
+
+  // 8. Admin Portal (/admin, /admin/:tab)
+  if (path.startsWith('/admin')) {
+    const parts = path.split('/').filter(Boolean)
+    const subTab = (parts[1] as DashboardTab) || queryTab || 'overview'
+    return { view: 'dashboard', role: 'admin', tab: subTab }
+  }
+
+  // 9. Generic Dashboard (/dashboard, /dashboard/:tab)
+  if (path.startsWith('/dashboard')) {
+    const parts = path.split('/').filter(Boolean)
+    const subTab = (parts[1] as DashboardTab) || queryTab || 'overview'
+    return { view: 'dashboard', role: queryRole || 'instructor', tab: subTab }
+  }
+
+  // Default fallback -> Landing page
+  return { view: 'landing', role: 'instructor', tab: 'overview' }
+}
+
+function getProfileForRole(role: UserRole): UserProfile {
+  switch (role) {
+    case 'student':
+      return STUDENT_USER
+    case 'counsellor':
+      return COUNSELLOR_USER
+    case 'admin':
+      return ADMIN_USER
+    case 'instructor':
+    default:
+      return INSTRUCTOR_USER
+  }
+}
+
 interface AppContextType {
   currentView: ViewMode
   setCurrentView: (view: ViewMode) => void
@@ -61,47 +177,12 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentView, setCurrentView] = useState<ViewMode>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const v = params.get('view') as ViewMode
-      if (v) return v
-    }
-    return 'dashboard'
-  })
-  const [dashboardTab, setDashboardTab] = useState<DashboardTab>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const t = params.get('tab') as DashboardTab
-      if (t) return t
-    }
-    return 'cases'
-  })
-  const [userRole, setUserRole] = useState<UserRole>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const r = params.get('role') as UserRole
-      if (r && ['instructor', 'student', 'counsellor', 'admin'].includes(r)) return r
-      const path = window.location.pathname.toLowerCase()
-      if (path.startsWith('/counsellor')) return 'counsellor'
-      if (path.startsWith('/admin')) return 'admin'
-      if (path.startsWith('/student')) return 'student'
-      if (path.startsWith('/faculty') || path.startsWith('/instructor')) return 'instructor'
-    }
-    return 'instructor'
-  })
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const r = params.get('role') as UserRole
-      const path = window.location.pathname.toLowerCase()
-      const role = r || (path.startsWith('/counsellor') ? 'counsellor' : path.startsWith('/admin') ? 'admin' : path.startsWith('/student') ? 'student' : 'instructor')
-      if (role === 'counsellor') return COUNSELLOR_USER
-      if (role === 'admin') return ADMIN_USER
-      if (role === 'student') return STUDENT_USER
-    }
-    return INSTRUCTOR_USER
-  })
+  const initial = parseLocationState()
+  const [currentView, setCurrentView] = useState<ViewMode>(initial.view)
+  const [dashboardTab, setDashboardTab] = useState<DashboardTab>(initial.tab)
+  const [userRole, setUserRole] = useState<UserRole>(initial.role)
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => getProfileForRole(initial.role))
+
   const [courses, setCourses] = useState<Course[]>(COURSES_DATA)
   const [activeClasses, setActiveClasses] = useState<ClassItem[]>(ACTIVE_CLASSES_DATA)
   const [students, setStudents] = useState<StudentRecord[]>(STUDENTS_DATA)
@@ -128,13 +209,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [])
 
+  // Synchronize browser history and back/forward buttons (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const state = parseLocationState()
+      setCurrentView(state.view)
+      setUserRole(state.role)
+      setDashboardTab(state.tab)
+      setCurrentUser(getProfileForRole(state.role))
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
   const addToast = (
-    title: string,
-    message?: string,
-    type: 'success' | 'info' | 'warning' | 'error' = 'success'
+    _title: string,
+    _message?: string,
+    _type: 'success' | 'info' | 'warning' | 'error' = 'success'
   ) => {
-    const id = Math.random().toString(36).substring(2, 9)
-    setToasts((prev) => [...prev, { id, title, message, type }])
+    // Notifications disabled per user request
   }
 
   const removeToast = (id: string) => {
@@ -223,7 +316,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   const openAuthModal = (mode: 'signin' | 'register' = 'signin') => {
-    setAuthModal({ isOpen: true, mode })
+    setAuthModal({ isOpen: false, mode })
+    navigateTo('login')
   }
 
   const closeAuthModal = () => {
@@ -232,18 +326,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const switchRole = (role: UserRole) => {
     setUserRole(role)
-    const rolePrefix = role === 'instructor' ? 'faculty' : role
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ role }, '', `/${rolePrefix}/overview`)
-    }
-    if (role === 'instructor') {
-      setCurrentUser(INSTRUCTOR_USER)
-    } else if (role === 'student') {
-      setCurrentUser(STUDENT_USER)
-    } else if (role === 'counsellor') {
-      setCurrentUser(COUNSELLOR_USER)
-    } else if (role === 'admin') {
-      setCurrentUser(ADMIN_USER)
+    setCurrentUser(getProfileForRole(role))
+
+    if (typeof window !== 'undefined' && currentView === 'dashboard') {
+      const rolePrefix = role === 'instructor' ? 'faculty' : role
+      const targetPath = `/${rolePrefix}/${dashboardTab || 'overview'}`
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view: 'dashboard', role, tab: dashboardTab || 'overview' }, '', targetPath)
+      }
     }
   }
 
@@ -252,6 +342,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (tab) {
       setDashboardTab(tab)
     }
+
+    if (typeof window !== 'undefined') {
+      let targetPath = '/'
+      if (view === 'landing') {
+        targetPath = '/'
+      } else if (view === 'login') {
+        targetPath = '/login'
+      } else if (view === 'onboarding') {
+        targetPath = '/onboarding'
+      } else if (view === 'courses') {
+        targetPath = '/courses'
+      } else if (view === 'live-classes') {
+        targetPath = '/live-classes'
+      } else if (view === 'blogs') {
+        targetPath = '/blogs'
+      } else if (view === 'about') {
+        targetPath = '/about'
+      } else if (view === 'contact') {
+        targetPath = '/contact'
+      } else if (view === 'dashboard') {
+        const rolePrefix = userRole === 'instructor' ? 'faculty' : userRole
+        const activeTab = tab || dashboardTab || 'overview'
+        targetPath = `/${rolePrefix}/${activeTab}`
+      }
+
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view, tab, role: userRole }, '', targetPath)
+      }
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 

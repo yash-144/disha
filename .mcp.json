@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "meko": {
+      "type": "http",
+      "url": "https://mcp.mekodata.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MEKO_API_KEY}",
+        "User-Agent": "meko-mcp-installer/1.0"
+      }
+    }
+  }
+}

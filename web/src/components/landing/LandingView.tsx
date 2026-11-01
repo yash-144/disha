@@ -1,41 +1,22 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Header } from '../common/Header'
 import { HeroSection } from './HeroSection'
-import { MarqueeBanner } from './MarqueeBanner'
-import { CategorySection } from './CategorySection'
-import { BenefitsSection } from './BenefitsSection'
+import { WhyDishaSection } from './WhyDishaSection'
+import { SolutionsSection } from './SolutionsSection'
+import { FaqSection } from './FaqSection'
 import { CourseCatalog } from './CourseCatalog'
 import { LiveClassesSection } from './LiveClassesSection'
-import { LmsPreviewSection } from './LmsPreviewSection'
-import { TestimonialsSection } from './TestimonialsSection'
-import { FaqSection } from './FaqSection'
-import { TeamSection } from './TeamSection'
 import { BlogSection } from './BlogSection'
-import { NewsletterSection } from './NewsletterSection'
 import { ContactSection } from './ContactSection'
 import { Footer } from '../common/Footer'
 import { useApp } from '../../context/AppContext'
-import { ArrowUp } from 'lucide-react'
 
 export function LandingView() {
-  const { currentView, navigateTo } = useApp()
-  const [showScrollTop, setShowScrollTop] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const { currentView } = useApp()
 
   if (currentView === 'courses') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] text-ink font-mono">
+      <div className="min-h-screen bg-white text-slate-900 font-sans">
         <Header />
         <CourseCatalog isFullPage={true} />
         <Footer />
@@ -45,10 +26,9 @@ export function LandingView() {
 
   if (currentView === 'live-classes') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] text-ink font-mono">
+      <div className="min-h-screen bg-white text-slate-900 font-sans">
         <Header />
         <LiveClassesSection />
-        <LmsPreviewSection />
         <Footer />
       </div>
     )
@@ -56,7 +36,7 @@ export function LandingView() {
 
   if (currentView === 'blogs') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] text-ink font-mono">
+      <div className="min-h-screen bg-white text-slate-900 font-sans">
         <Header />
         <BlogSection />
         <Footer />
@@ -66,10 +46,10 @@ export function LandingView() {
 
   if (currentView === 'about') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] text-ink font-mono">
+      <div className="min-h-screen bg-white text-slate-900 font-sans">
         <Header />
-        <TeamSection />
-        <BenefitsSection />
+        <WhyDishaSection />
+        <SolutionsSection />
         <Footer />
       </div>
     )
@@ -77,7 +57,7 @@ export function LandingView() {
 
   if (currentView === 'contact') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] text-ink font-mono">
+      <div className="min-h-screen bg-white text-slate-900 font-sans">
         <Header />
         <ContactSection />
         <Footer />
@@ -85,61 +65,29 @@ export function LandingView() {
     )
   }
 
-  // Default Landing Page ('landing')
+  // Default Minimalist Landing Page (following reference architecture)
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] text-ink font-mono relative">
-      <Header />
+    <div className="min-h-screen w-full overflow-x-hidden bg-white text-slate-900 font-sans relative">
+      {/* 1. Cinematic Hero Section with video background & top floating frosted glass navbar */}
       <HeroSection />
-      <MarqueeBanner />
-      <CategorySection />
-      <BenefitsSection />
-      <CourseCatalog />
-      <div className="text-center pb-12">
-        <button
-          onClick={() => navigateTo('courses')}
-          className="border-2 border-ink bg-white px-5 py-2 text-xs font-bold text-brand shadow-[3px_3px_0_#0d1b3e] hover:bg-gray-50 transition"
-        >
-          View all 60+ industry courses &amp; syllabi →
-        </button>
+
+      {/* 2. Signature Section 1: /WHY DISHA */}
+      <div id="why-disha">
+        <WhyDishaSection />
       </div>
 
-      {/* Real-time cohort video & schedule */}
-      <LiveClassesSection />
+      {/* 3. Signature Section 2: /SOLUTIONS */}
+      <div id="solutions">
+        <SolutionsSection />
+      </div>
 
-      {/* Interactive LMS Canvas & Assessment Test Drive */}
-      <LmsPreviewSection />
+      {/* 4. Minimalist FAQs Section */}
+      <div id="faqs">
+        <FaqSection />
+      </div>
 
-      {/* Social Proof */}
-      <TestimonialsSection />
-
-      {/* Instructors & Mentors */}
-      <TeamSection />
-
-      {/* Interactive FAQ */}
-      <FaqSection />
-
-      {/* Technical Blog */}
-      <BlogSection />
-
-      {/* Newsletter */}
-      <NewsletterSection />
-
-      {/* Contact */}
-      <ContactSection />
-
-      {/* Footer */}
+      {/* 5. Minimalist Aesthetic Footer with Giant DISHA Wordmark */}
       <Footer />
-
-      {/* Floating Scroll-to-Top Button */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-          className="fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center border-2 border-ink bg-[#0f9d58] text-white shadow-[3px_3px_0_#0d1b3e] transition hover:-translate-y-1 hover:bg-[#0b7a43]"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </button>
-      )}
     </div>
   )
 }

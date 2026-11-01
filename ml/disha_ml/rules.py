@@ -13,6 +13,11 @@ import pandas as pd
 from .config import RULES
 
 
+def _n(x: float) -> str:
+    """Whole numbers without decimals; converted values (e.g. credits / 6) with one."""
+    return str(int(round(x))) if abs(x - round(x)) < 1e-9 else f"{x:.1f}"
+
+
 def _sem_rules(row: pd.Series, s: str, label: str, th: Dict[str, float]) -> List[Dict]:
     out: List[Dict] = []
     enrolled = row.get(f"{s}_enrolled")
@@ -23,11 +28,11 @@ def _sem_rules(row: pd.Series, s: str, label: str, th: Dict[str, float]) -> List
     grade = row[f"{s}_grade"]
     rate = approved / enrolled
     if rate < th["LOW_PASS_RATE"]:
-        out.append({"code": "LOW_PASS_RATE", "text": f"passed {int(approved)} of {int(enrolled)} subjects in {label}"})
+        out.append({"code": "LOW_PASS_RATE", "text": f"passed {_n(approved)} of {_n(enrolled)} subjects in {label}"})
     if no_eval >= th["EXAM_NO_SHOW"]:
-        out.append({"code": "EXAM_NO_SHOW", "text": f"no exam taken in {int(no_eval)} subject(s) in {label}"})
+        out.append({"code": "EXAM_NO_SHOW", "text": f"no exam taken in {_n(no_eval)} subject(s) in {label}"})
     if enrolled - approved >= th["FAILED_UNITS"]:
-        out.append({"code": "FAILED_UNITS", "text": f"{int(enrolled - approved)} subjects not passed in {label}"})
+        out.append({"code": "FAILED_UNITS", "text": f"{_n(enrolled - approved)} subjects not passed in {label}"})
     if pd.notna(grade) and grade < th["LOW_GRADE"]:
         out.append({"code": "LOW_GRADE", "text": f"{label} average grade {grade:.1f}/20"})
     return out
