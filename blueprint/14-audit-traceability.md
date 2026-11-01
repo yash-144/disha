@@ -34,7 +34,7 @@ Status of the current repository at commit `7df0b08`: S1 has been fixed in
 | M2 | Protected attributes as inputs; 3.5× false-positive gap | INV-04, ML-FC-04, fairness gate ([08](08-ml-subsystem.md) §5), NFR-PRIV-01 |
 | M3 | 51% flagged at 56% precision | Capacity threshold gate ([08](08-ml-subsystem.md) §5) |
 | M4 | "Platt calibrated" label on uncalibrated model | Calibration gate, `calibration_method` in evidence card |
-| F1 | All on-screen text sent to Sarvam | FE-18…21, INV-05, AI-12 |
+| F1 | All on-screen text sent to a third-party translation API | FE-18…21, INV-05, AI-12 |
 | F2 | Access control only in the browser | FE-01…03, FE-06 |
 | T1 | No CI or deployment definition | CI pipeline ([13](13-quality-and-operations.md) §3), DEP-01…06 |
 | T2 | No negative authorisation tests | AUTHZ-03, negative tests ([04](04-security-and-access.md) §6) |

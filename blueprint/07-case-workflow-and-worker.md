@@ -1,9 +1,15 @@
 # 07 · Case Workflow and Worker
 
+> **Status (2026-11-01).** Sections 1 to 7 are the target specification and
+> describe the earlier SUTRA code as "Current implementation". The new backend
+> (`api/app/modules/cases/`, `worker/`) implements most of it; section 8 lists
+> exactly what is built and what is not. Where they differ, section 8 wins.
+
 ## 1. Case state machine
 
-**Current implementation:** `ALLOWED_TRANSITIONS` in
-`app/services/case_service.py` (14 states). Cases are created directly in
+**Earlier (SUTRA) implementation:** `ALLOWED_TRANSITIONS` in
+`app/services/case_service.py` (14 states); the new `TRANSITIONS` table in
+`api/app/modules/cases/services.py` has the same transitions (§8). Cases are created directly in
 `action_planned` from an approved signal.
 
 ```mermaid
@@ -90,7 +96,7 @@ created in those states.
 
 ## 4. Deadlines and escalation
 
-**Current implementation:** `scan_and_escalate_overdue_cases` selects
+**Earlier (SUTRA) design, not in the current code (see §8):** `scan_and_escalate_overdue_cases` selects
 non-terminal cases with `due_at < now` and `is_escalated = false`, sets
 `is_escalated = true`, increments version, writes `CASE_ESCALATED` with
 `actor_kind = system_worker` and an outbox intent
@@ -109,7 +115,7 @@ non-terminal cases with `due_at < now` and `is_escalated = false`, sets
 
 ## 5. Outbox and delivery
 
-**Current implementation:** `OutboxWorker.process_outbox_batch` locks up to 50
+**Earlier (SUTRA) implementation, superseded by §8:** `OutboxWorker.process_outbox_batch` locks up to 50
 due `pending` rows (`SKIP LOCKED`), calls an optional dispatcher, marks `sent`
 even without a dispatcher, retries with backoff `5 s × 2^(attempt-1)`, and sets
 `dead_letter` after 5 attempts (audit A2).
@@ -150,3 +156,40 @@ A verification endpoint (admin only) recomputes the chain and reports the first
 break. The application database role has `INSERT` and `SELECT` only on audit
 tables. The superseded prototype (`backend/`) contained a hash-chained
 "Support Evidence Ledger"; `app/` has none.
+
+## 8. Implementation status (API `modules/cases`, worker)
+
+The backend team's implementation (merged from their `main`) replaced our earlier SUTRA-port cases, outbox and
+campus-membership code. Current state:
+
+- **Lifecycle**: 14 states (`CaseState` in `api/app/shared/enums.py`); transition rules in
+  `api/app/modules/cases/state_machine.py`, applied by `CaseLifecycleService` in `services.py`. Models in
+  `models.py`: `Case`, `CaseEvent` (`disha_case_events`), `CaseNote`, `Signal`, `Intervention`,
+  `InterventionCatalogue`, `InterventionOutcome` (`disha_intervention_outcomes`), `FollowUp`, `FollowUpNote`.
+  Audit trail: the `modules/audit` module (hash-chain tests in `api/tests/unit/test_audit_hash_chain.py`).
+- **HTTP surface** (`cases/routes.py`, mounted at `/api/v1/cases`): `POST /`, `GET /`, `GET /{id}`, `PATCH /{id}`,
+  `POST /{id}/transition`, `/assign`, `/reopen`, `/dismiss`, `/accept`, `/close`, `GET /{id}/events`.
+  Outcome, follow-up and notification behaviour is whatever their `services.py` does; read it before relying on it.
+- **Auth and tenancy**: `get_tenancy_context` (`api/app/core/dependencies.py`) validates the token, the active user
+  and an active `Membership` (`modules/identity/models.py`) for the `X-Campus-ID` campus, returning a `TenancyContext`.
+  Routes use `require_role(...)` or `require_permission(Action...)`; `Role` and `Action` are in
+  `core/permissions.py`.
+- **Notification outbox**: the case service writes notification outbox rows (`disha_notifications`,
+  `modules/notifications/models.py`) in the same transaction as the case change.
+- **Worker** (`worker/scheduler.py`, APScheduler, one run per job at a time): `outbox_dispatch` every 10 s,
+  `deadline_escalation` every 60 s, `anchor_confirmation` every 300 s, `retention_purge` and `model_drift_report`
+  daily, `meko_weekly_outcomes` weekly. **Not yet implemented (stubs):** `outbox_dispatch`, `deadline_escalation`,
+  `anchor_confirmation`, `retention_purge` and `model_drift_report` only log a line; the case service writes
+  notification outbox rows but nothing dispatches them, and nothing escalates overdue cases. `meko_weekly_outcomes`
+  is wired but `fetch_weekly_outcomes()` returns `[]` (TODO), so it writes nothing yet. Repo docs are no longer
+  synced to Meko.
+- **Meko feed** (optional, background): `POST /api/v1/meko/flags/review` writes a decision trace only (no case is
+  created); `POST /api/v1/meko/outcomes` writes an outcome memory (hashed case id) and promotes a recurring good
+  outcome into the shared playbook (`MEKO_PROMOTE_MIN`, default 3). The cases module stays the source of truth for
+  outcomes. `intervention_id` must be active in the campus catalogue when one is configured (AI-07).
+- **Migrations**: `api/migrations/versions/001_counsellor_module_initial.py` then
+  `002_student_faculty_module_initial.py` (`cd api && alembic upgrade head`, uses `DISHA_DATABASE_URL`).
+  Tests: `api/tests/unit/test_case_lifecycle.py`, `test_case_orm_state.py`, `test_cases_persistence.py`.
+- **Not built**: deadline escalation and notification dispatch (worker stubs above), email/SMS adapters, and any
+  worker call to the ML scorer ([05](05-api-specification.md) §4.5).
+

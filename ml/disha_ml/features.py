@@ -37,6 +37,8 @@ def _semester(df: pd.DataFrame, s: str) -> pd.DataFrame:
     out[f"{s}_attempt_rate"] = _ratio(df[f"{s}_evaluations"], enrolled)
     out[f"{s}_noshow_ratio"] = _ratio(df[f"{s}_without_eval"], enrolled)
     out[f"{s}_failed_units"] = (enrolled - df[f"{s}_approved"]).clip(lower=0)
+    # Optional attendance measure; dropped from the model if the dataset has none.
+    out[f"{s}_attendance"] = df[f"{s}_attendance"]
     return out
 
 
@@ -65,7 +67,7 @@ def feature_columns(checkpoint: str) -> Dict[str, List[str]]:
         {c: [1.0] for c in [
             "prev_qual_grade", "admission_grade",
             *[f"{s}_{k}" for s in ("s1", "s2") for k in
-              ("credited", "enrolled", "evaluations", "approved", "grade", "without_eval")],
+              ("credited", "enrolled", "evaluations", "approved", "grade", "without_eval", "attendance")],
         ]}
     )
     sample["course"] = ["0"]
@@ -86,6 +88,7 @@ def explanation_groups(checkpoint: str) -> Dict[str, List[str]]:
         groups[f"{label}_exam_attendance"] = [f"{s}_attempt_rate", f"{s}_noshow_ratio"]
         groups[f"{label}_grade"] = [f"{s}_grade", f"{s}_no_grade"]
         groups[f"{label}_load"] = [f"{s}_enrolled", f"{s}_credited", f"{s}_no_units"]
+        groups[f"{label}_attendance"] = [f"{s}_attendance"]
     if checkpoint == "cp2":
         groups["trend"] = ["grade_delta", "pass_rate_delta", "total_failed_units"]
     return groups
@@ -98,9 +101,11 @@ GROUP_TEXT = {
     "sem1_exam_attendance": "exams taken in semester 1",
     "sem1_grade": "semester 1 average grade",
     "sem1_load": "semester 1 subject load",
+    "sem1_attendance": "attendance in semester 1",
     "sem2_pass_rate": "subjects passed in semester 2",
     "sem2_exam_attendance": "exams taken in semester 2",
     "sem2_grade": "semester 2 average grade",
     "sem2_load": "semester 2 subject load",
+    "sem2_attendance": "attendance in semester 2",
     "trend": "change from semester 1 to semester 2",
 }

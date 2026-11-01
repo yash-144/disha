@@ -221,11 +221,147 @@ accept any `studentId` (audit S5, D2, A4, F5).
 | `GET /datasets/research/oulad/{id}`, `/datasets/research/synthetic/{id}`, `/datasets/provenance` | Research lookups; belong in the offline ML tooling |
 | Root-level ML aliases (`/model-info`, `/predict`, `/predict/batch`) | ADR-005 compatibility aliases; one path per operation |
 | `POST /documents/cbdc/issue-voucher` | Simulated provider only |
-| Next.js `/api/translate`, `/api/shop/*` | Business logic and third-party proxy outside the API (audit S5, F5) |
+| Next.js `/api/translate` (third-party proxy), `/api/shop/*` | Business logic and third-party proxy outside the API (audit S5, F5). Translation is now `POST /api/v1/translate` (section 4.4) |
 | `POST /ml/predict/student/{id}` | Duplicate of `/students/{id}/predict` |
+
+Note: the third-party-backed Next.js `/api/translate` is replaced by the local
+IndicTrans2 route `POST /api/v1/translate` (section 4.4).
 
 ## 3. OpenAPI
 
 The OpenAPI document is generated from code and checked into CI as an
 artifact. A contract test fails when a response model changes without a
 version or changelog entry. Clients (web, CLI) generate their types from it.
+
+## 4. Implementation status (2026-11-01)
+
+Sections 1 and 2 are the target contract. This section lists what the code in
+`api/app/` serves **today** (source: `api/app/main.py` and the module
+`routes.py` files). Where it differs from section 2, the code wins until the
+route is brought in line. Everything is mounted under `/api/v1`.
+
+| Router | Prefix | State |
+|---|---|---|
+| Cases | `/cases` | Built (section 4.2) |
+| Meko | `/meko` | Built (section 4.3) |
+| Translate | `/translate` | Built, behind a flag (section 4.4) |
+| Identity, roster, ingestion, analytics, wellbeing | `/identity`, `/roster`, `/ingestion`, `/analytics`, `/wellbeing` | Stubs: each has only `GET /` |
+| ML | none | `modules/ml/routes.py` is a stub (`GET /` returns `{"module": "ml", "status": "active"}`) and is not mounted. **Not yet implemented:** `/ml/*` and any insights route |
+| System | `GET /health` (outside `/api/v1`) | Built |
+
+### 4.1 Conventions as implemented
+
+| Topic | Today |
+|---|---|
+| Campus context | Header `X-Campus-ID`. `get_tenancy_context` (`api/app/core/dependencies.py`) checks the user is active and has an active `Membership` for that campus (platform admins excepted); `require_role(...)` / `require_permission(Action)` then gate the route and return a `TenancyContext`. Meko routes use `require_role`; `/translate` needs only a valid token |
+| Auth | HS256 JWT (`DISHA_JWT_SECRET`); roles from the `roles` claim; staff roles are faculty, mentor, hod, counsellor, finance, placement, leadership, institution_admin |
+| Concurrency | `version` in the request body (not `If-Match`); the check is part of the `UPDATE`; mismatch → 409 |
+| Idempotency | Not via `Idempotency-Key`: case creation is idempotent per `(campus, flag_id)` |
+| Errors | `DishaBaseException` and `HTTPException`; the envelope in §1.1 is **not** uniform yet |
+| Migrations | `cd api && alembic upgrade head` (`api/migrations/versions/001_counsellor_module_initial.py`, `002_student_faculty_module_initial.py`; reads `DISHA_DATABASE_URL`) |
+
+### 4.2 Cases (`/api/v1/cases`, backend team's implementation)
+
+Routes in `api/app/modules/cases/routes.py`; lifecycle in `state_machine.py` and `services.py` (14 states,
+`CaseState` in `api/app/shared/enums.py`). Request and response shapes: `cases/schemas.py`.
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/` (201) | Create a case |
+| GET | `/` | List cases |
+| GET | `/{case_id}` | Case detail |
+| PATCH | `/{case_id}` | Update case fields |
+| POST | `/{case_id}/transition` | Move to another state (rules in `state_machine.py`) |
+| POST | `/{case_id}/assign` | Assign an owner |
+| POST | `/{case_id}/accept` | Owner accepts the assignment |
+| POST | `/{case_id}/reopen` | Reopen a case |
+| POST | `/{case_id}/dismiss` | Dismiss a case |
+| POST | `/{case_id}/close` | Close a case |
+| GET | `/{case_id}/events` | `CaseEvent` history |
+
+Not implemented: `/outcomes/stats`, `/flags/review` and `/{id}/outcome` under `/cases` (removed in the merge; Meko
+feeds are in §4.3). Escalation and notification dispatch are worker stubs: [07](07-case-workflow-and-worker.md) §8.
+
+### 4.3 Meko (`/api/v1/meko`)
+
+Meko is optional; without `MEKO_API_KEY` reads return empty results and writes are no-ops.
+
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| GET | `/health` | no auth | `{configured, reachable, datapack, tool_count, last_error}`; never fails |
+| GET | `/tools` | staff (campus from `TenancyContext`) | Discovered Meko tools and the logical-op mapping |
+| POST | `/recall` | staff (campus from `TenancyContext`) | `{query (3-500 chars), k (1-20)}` → `{answer, sources[]}`. The query is redacted first; do not paste student names |
+| POST | `/knowledge` | admin, HoD (campus from `TenancyContext`) | Multipart upload of campus knowledge: `file` (pdf, txt, md, json, csv; max `MEKO_KB_MAX_BYTES`, default 5 MiB), `doc_type`, `intervention_id?`, `reason_codes`. 415 wrong type, 413 too large, 422 if the PII guard finds an email, phone number or student id, 503 if Meko is off, 502 if Meko fails. Never used for repo docs |
+| GET | `/knowledge/search` | staff (campus from `TenancyContext`) | `q`, `limit` → chunks with `document_id` |
+| DELETE | `/knowledge/{document_id}` | admin, HoD (campus from `TenancyContext`) | |
+| POST | `/flags/review` | staff | `{flag_id, student_id, action, reason_codes[], tier?, note?, case_id?}`. Writes a Meko decision trace only (background, IDs hashed); creates no case. Returns `{flag_id, action, recorded, case_id}` |
+| POST | `/outcomes` | staff | `{case_id, outcome, intervention_id, reason_codes[], tier?, checkpoint?}`. 422 if `intervention_id` is not active in the campus catalogue (when configured); writes an outcome memory and may promote it. Returns `{case_id, outcome, recorded}`. The cases module stays the source of truth for outcomes |
+| GET | `/playbook` | staff (campus from `TenancyContext`) | `reason_codes` (comma list), `tier?` → interventions that improved similar profiles, limited to the active campus catalogue (`MEKO_CATALOG_PATH`); advice only |
+
+### 4.4 Translate (`POST /api/v1/translate`)
+
+Local AI4Bharat IndicTrans2 distilled 200M models on CPU, loaded on first use. No result cache, no third-party
+translation API; student text never leaves the machine. Enabled by `DISHA_TRANSLATE_ENABLED=true` (default false →
+503). Needs the extra `pip install -e "api[translate]"` and a Hugging Face token for the gated models (`HF_TOKEN`).
+
+Request: exactly one of `text` (1-2000 chars) or `texts` (1-32 items, each 1-2000 chars); `source_lang`, `target_lang` as
+FLORES codes (`hin_Deva`) or BCP-47 (`hi-IN`). One side must be English (`eng_Latn`); Indic to Indic is rejected (422).
+Response: `{source_lang, target_lang, translations[]}` (FLORES codes). Any valid bearer token works (no campus
+header). 503 when disabled or when the extra is missing.
+
+### 4.5 ML scoring contract and insights payload (library, not yet an endpoint)
+
+The scoring contract is a Python library call and CLI in `ml/`, not an HTTP route:
+
+```python
+from disha_ml.rolling.score import score_snapshot
+payload = score_snapshot(tables, as_of)        # -> InsightsPayload
+```
+
+```bash
+python -m disha_ml.rolling.score --tables <dir> --as-of <day> [--model <dir>] [--out file.json] [--no-meko]
+```
+
+* `tables`: dict of DataFrames in the six canonical tables (`students`, `enrolments`, `assessments`, `results`,
+  `activity`, `withdrawals`; [18](18-dataset-requirements.md) §7) or a folder of `<table>.csv[.gz]`.
+* `as_of`: integer day since term start; applies to every course-term in `tables`.
+* Result `payload.to_dict()`: `schema_version`, `as_of_day`, `model`, `n_students`, `students[]`, `cohorts[]`,
+  `data_drift`. Every field, JSON path and definition:
+  [`docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md) (source of truth).
+* Call once per assessment due date, optionally weekly for engagement. Scoring all 32k OULAD enrolments takes about 15 s.
+* Students are keyed by the caller's `student_id`; hash it before logging elsewhere.
+
+**Not yet implemented:** an HTTP route (for example `POST /ml/insights`) or worker job that loads the canonical tables
+from Postgres, calls `score_snapshot`, stores the payload, and turns tier changes into reviewable flags for
+`/api/v1/meko/flags/review` or the cases module. §2.4 and §2.10 stay as the target for per-student prediction; the backend team should agree
+whether those routes return `StudentInsight` entries from the payload.
+
+### 4.6 CLO insights contract (backend to expose)
+
+Course-outcome insights for faculty, as a library call and CLI in `ml/` (not yet an HTTP route):
+
+```python
+from disha_ml.clo.analyze import analyze_course
+payload = analyze_course(tables, course_id, term_id)     # -> CloPayload; payload.to_dict()
+```
+
+```bash
+python -m disha_ml.clo.analyze --tables <dir> --course <id> --term <id> [--as-of <day>] [--out f.json] [--no-meko]
+```
+
+Suggested routes: `GET /api/v1/courses/{course_id}/terms/{term_id}/clo` (faculty roles; everything except `student_gaps`) and `GET .../clo/student-gaps` (mentor role only, `audience: mentor`). Top-level fields: `co_attainment`, `items`, `bloom`, `misconceptions`, `trends`, `section_comparison`, `muddiest`, `learnings`, `recommendations`, `student_gaps`, `context` (`context.recalled` = Meko hits verbatim for display), `suppressed`. Every field, threshold and visual: [`docs/architecture/CLO_SPEC.md`](../docs/architecture/CLO_SPEC.md). Input tables: [18](18-dataset-requirements.md) §10.
+
+### 4.7 Student journey in Meko (Backend to expose)
+
+Wrappers over `MekoClient` (`meko/disha_meko`); not yet HTTP routes. Spec: [`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTEGRATION.md) "Student academic journey". The student id in the path is the raw ERP id; the backend hashes it (needs `MEKO_PII_SALT`). Without Meko or a salt, reads return empty results.
+
+| Method | Path | Request | Response |
+|---|---|---|---|
+| GET | `/api/v1/students/{id}/journey` | `limit` (default 100) | `{"turns": [{input, output, reasoning, metadata: {event_type, kind, student, course?, term?, day?, tier?, ...}, ...}]}` in order, as Meko returned them (`client.journey_timeline`) |
+| GET | `/api/v1/students/{id}/briefing` | `meko=on\|off` (default on), `q?` | `{"enabled": bool, "student": "s_<12 hex>", "question": str\|null, "items": [{"id": str, "source": "memory"\|"conversation", "text": str}]}`; `meko=off` gives empty `items` (`client.journey_briefing`) |
+| PATCH | `/api/v1/meko/memories/{memory_id}` | `{"text": str}` | `{"ok": bool}`; the text passes the PII guard; 422 if empty after cleaning |
+| DELETE | `/api/v1/meko/memories/{memory_id}` | | `{"ok": bool}` |
+| DELETE | `/api/v1/students/{id}/meko` | | `{"student": hash, "memories_deleted": int, "conversation_deleted": bool}`; right to erasure (DPDP Act): `erase_student` deletes every memory extracted from the journey, then the conversation. Admin or data-protection officer only; audit-logged |
+
+Roles: the mentor or counsellor assigned to that student only (campus membership checked); other staff get 403. Briefing items are returned verbatim with their Meko `id` and `source`, never rewritten, so the UI can show provenance and offer correct/forget on each item.
+

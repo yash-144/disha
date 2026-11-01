@@ -12,7 +12,7 @@
 | API client | `lib/api.ts` (1,907 lines) mixes HTTP client with offline mock responses; base URL overridable from `localStorage` or `window.__DISHA_API_URL__` (audit F3, S8) |
 | Server routes | `app/api/translate`, `app/api/shop/{balance,history,redeem}` run business logic in server memory (audit S5, F5) |
 | Static-data features | Courses, community, messages, internships, rewards, shop render bundled data from `lib/skillhub-data.ts`, `lib/shop-data.ts` |
-| Localisation | `lib/language-context.tsx` walks the DOM with `TreeWalker` + `MutationObserver`, posts every text node to Sarvam via `/api/translate`, caches in `localStorage`; `data-no-translate` used 0 times (audit F1, F6) |
+| Localisation | `lib/language-context.tsx` walks the DOM with `TreeWalker` + `MutationObserver`, posts every text node to a third-party translation API via `/api/translate`, caches in `localStorage`; `data-no-translate` used 0 times (audit F1, F6) |
 | Quality gates | `eslint.ignoreDuringBuilds: true`; 132 `any` casts; `npm test` runs `tsc --noEmit` and three contract scripts; `__tests__/` unit files not run (audit F4) |
 | Images | `next.config.mjs` allows optimisation for any `http`/`https` host (audit S8) |
 | PWA | Service worker bypasses `/api` and caches static assets only |

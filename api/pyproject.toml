@@ -12,12 +12,22 @@ dependencies = [
     "pydantic-settings>=2.2.0",
     "sqlalchemy[asyncio]>=2.0.28",
     "asyncpg>=0.29.0",
+    "aiosqlite>=0.20.0",
     "alembic>=1.13.1",
-    "python-jose[cryptography]>=3.3.0",
-    "passlib[bcrypt]>=1.7.4",
+    "pyjwt>=2.8.0",
+    "cryptography>=42.0.0",
+    "passlib[bcrypt,argon2]>=1.7.4",
+    "bcrypt>=4.0.0",
+    "argon2-cffi>=23.1.0",
     "python-multipart>=0.0.9",
     "httpx>=0.27.0"
 ]
+
+[project.optional-dependencies]
+meko = ["disha-meko"]  # pip install -e ../meko
+test = ["pytest", "aiosqlite", "alembic"]
+# optional local IndicTrans2 translation (DISHA_TRANSLATE_ENABLED=true); CPU torch is enough
+translate = ["torch", "transformers>=4.45,<5", "sentencepiece", "IndicTransToolkit"]
 
 [build-system]
 requires = ["setuptools>=61.0"]

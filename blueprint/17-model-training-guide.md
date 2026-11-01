@@ -3,6 +3,10 @@
 Step-by-step procedure to train, check and use the risk-signal models. Code is
 in `ml/`. The method is explained in [16](16-risk-signal-pipeline.md).
 
+> **Status (2026-11-01).** Sections 1 to 12 train the **legacy semester
+> models** (`cp0`/`cp1`/`cp2`). The **primary rolling risk model** is trained
+> and scored as in section 13.
+
 ## 1. Time and hardware
 
 | Item | Value |
@@ -201,3 +205,65 @@ invented for display, label them as sample names.
 | `ml/disha_ml/synthetic.py` | Invented data for tests only |
 | `ml/kaggle_train.py` | One-command Kaggle runner |
 | `ml/tests/` | Leakage, protected-column, cutoff, tier, end-to-end tests |
+
+## 13. The rolling risk model (primary)
+
+Code: `ml/disha_ml/rolling/`. Background: [16](16-risk-signal-pipeline.md) §12.
+
+### 13.1 Data
+
+OULAD (CC BY 4.0) in `ml/data/raw/oulad/` (git-ignored; the tracked note
+`SOURCE.md` has the Internet Archive URL, size and SHA-256). Recreate it by
+downloading the zip named there and running `unzip -j` into that folder. Convert
+to the canonical tables:
+
+```bash
+cd ml
+python -m disha_ml.converters.oulad --raw data/raw/oulad --out data/processed/oulad
+```
+
+### 13.2 Train
+
+```bash
+python -m disha_ml.rolling.train --data data/raw/oulad --out artifacts_rolling --no-meko
+```
+
+`--data` accepts raw OULAD CSVs (converted and cached) or a folder of canonical
+tables. About 107 s on CPU. Settings (`RollingConfig` in `rolling/config.py`):
+train terms 2013B / 2013J / 2014B, test term 2014J, fixed term fractions 0.1 /
+0.25 / 0.5 / 0.75, isotonic calibration, 5 folds grouped by student, seed 42,
+precision targets 0.85 / 0.70 / 0.50, minimum 30 alerts, capacity share 0.25.
+
+Output in `ml/artifacts_rolling/`: `model.joblib`, `manifest.json` (config,
+rules, features, all metrics, parameter count, `studentInfo.csv` SHA-256),
+`report.md`. Read `report.md` in this order: test metrics, AUC by term fraction,
+lead time, tiers, overfitting check (train vs CV vs test), model size, fairness
+slices.
+
+### 13.3 Score
+
+```bash
+python -m disha_ml.rolling.score --tables data/processed/oulad --as-of 120 --out insights.json --no-meko
+```
+
+Library: `score_snapshot(tables, as_of) -> InsightsPayload`. Payload and field
+definitions: [`docs/architecture/INSIGHTS_SPEC.md`](../docs/architecture/INSIGHTS_SPEC.md).
+Scoring all 32k OULAD enrolments takes about 15 s, so score per course-term or
+per day. Without `--no-meko`, tier-change memories are written to Meko
+([`docs/architecture/MEKO_INTEGRATION.md`](../docs/architecture/MEKO_INTEGRATION.md)).
+
+### 13.4 Tests
+
+`ml/tests/test_rolling.py` (no data after day t, withdrawn rows excluded,
+student-grouped folds, hand-built features, schema validation, reasons, drift,
+PSI, ECE, per-snapshot cap, lead time, end-to-end train and score) and
+`ml/tests/test_meko_hooks.py`.
+
+### 13.5 Retraining and moving to campus data
+
+Replace OULAD with the campus tables ([18](18-dataset-requirements.md) §7 and
+§9), keep the temporal split (train on earlier terms, test on the newest), and
+compare against the OULAD model on the campus test term. **Not yet
+implemented:** a release check and fairness bound for the rolling trainer
+(the legacy trainer has one), and automatic retraining from case outcomes.
+

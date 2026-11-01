@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 from .data import clean, eligible_rows, load_mapping, map_columns, read_csv
+from . import meko_hooks
 from .explain import group_contributions, top_factors
 from .features import build_features
 from .rules import evaluate_rules
@@ -88,7 +89,10 @@ def main(argv=None) -> None:
     ap.add_argument("--output", default="scored.csv")
     ap.add_argument("--mapping", default=None,
                     help="mapping JSON; defaults to the mapping saved with the model at training time")
+    ap.add_argument("--no-meko", action="store_true", help="do not write to Meko")
     a = ap.parse_args(argv)
+    if a.no_meko:
+        meko_hooks.disable()
     bundle = load_bundle(a.model)
     mapping = load_mapping(a.mapping) if a.mapping else bundle.get("mapping")
     raw_in = read_csv(a.input)
@@ -98,6 +102,7 @@ def main(argv=None) -> None:
     scored.sort_values("risk_probability", ascending=False).to_csv(a.output, index=False)
     counts = scored["tier"].value_counts().to_dict()
     print(f"Scored {len(scored)} students with {bundle['checkpoint']}: {counts}; signals={int(scored['signal'].sum())} -> {a.output}")
+    meko_hooks.record_scoring(bundle, scored)
 
 
 if __name__ == "__main__":

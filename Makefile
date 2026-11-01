@@ -1,4 +1,4 @@
-.PHONY: help install lint test test-dataset build run-api run-web run-worker clean
+.PHONY: help install lint test test-dataset build run-api run-web run-worker clean meko-doctor
 
 help:
 	@echo "DISHA Management Commands:"
@@ -9,9 +9,11 @@ help:
 	@echo "  make run-api       Start the FastAPI development server"
 	@echo "  make run-web       Start the Next.js development server"
 	@echo "  make run-worker    Start the background task worker"
+	@echo "  make meko-doctor   Check the Meko connection and tool mapping"
 	@echo "  make clean         Remove build artifacts and caches"
 
 install:
+	pip install -e meko
 	cd api && pip install -e .
 	cd web && npm install
 	cd cli && cargo build
@@ -22,6 +24,7 @@ lint:
 
 test: test-dataset
 	pytest api/tests worker/tests ml/tests
+	cd meko && pytest tests
 
 test-dataset:
 	python -m unittest tests/test_dataset.py -v
@@ -34,6 +37,10 @@ run-web:
 
 run-worker:
 	cd worker && python main.py
+
+meko-doctor:
+	python -m disha_meko doctor
+
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
