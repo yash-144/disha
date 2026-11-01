@@ -20,8 +20,6 @@ export type AdminNavId =
   | 'student-directory'
   | 'interventions'
   | 'analytics'
-  | 'document-integrity'
-  | 'reward-fulfilment'
   | 'data-import'
   | 'risk-model'
 
@@ -44,8 +42,6 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'student-directory', label: 'Student Directory', route: '/admin/student-directory', icon: GraduationCap },
   { id: 'interventions', label: 'Interventions & Protocols', route: '/admin/interventions', icon: Sliders },
   { id: 'analytics', label: 'Institution Analytics', route: '/admin/analytics', icon: BarChart3 },
-  { id: 'document-integrity', label: 'Document Integrity', route: '/admin/document-integrity', icon: ShieldCheck },
-  { id: 'reward-fulfilment', label: 'Reward Fulfilment', route: '/admin/reward-fulfilment', icon: Award },
   { id: 'data-import', label: 'Data Import', route: '/admin/data-import', icon: UploadCloud },
   { id: 'risk-model', label: 'Risk Model', route: '/admin/risk-model', icon: Cpu },
 ]

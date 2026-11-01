@@ -60,6 +60,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         queryClient.clear()
         sessionStore.setCampusId(null)
         setHasToken(false)
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
       }),
     [queryClient],
   )
@@ -82,6 +85,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     queryClient.clear()
     sessionStore.setCampusId(null)
     setHasToken(false)
+    window.location.href = '/login'
   }, [queryClient])
 
   const value = useMemo<SessionValue>(() => {

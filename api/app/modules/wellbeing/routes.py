@@ -20,6 +20,7 @@ router = APIRouter()
 admin = require_role(Role.INSTITUTION_ADMIN)
 # Aggregates only (blueprint 04 `pulse.aggregate`): hod, counsellor, leadership, institution_admin.
 aggregate_viewer = require_role(Role.INSTITUTION_ADMIN, Role.HOD, Role.COUNSELLOR, Role.LEADERSHIP)
+trend_viewer = require_role(Role.INSTITUTION_ADMIN, Role.HOD, Role.COUNSELLOR, Role.LEADERSHIP, Role.STUDENT)
 
 
 @router.post("/pulse/questionnaires", response_model=QuestionnaireResponse, status_code=status.HTTP_201_CREATED)
@@ -84,5 +85,5 @@ async def aggregate(period_id: str = Query(...), ctx: TenancyContext = Depends(a
 
 
 @router.get("/pulse/trends", response_model=List[TrendPoint])
-async def trends(ctx: TenancyContext = Depends(aggregate_viewer), db: AsyncSession = Depends(get_db)):
+async def trends(ctx: TenancyContext = Depends(trend_viewer), db: AsyncSession = Depends(get_db)):
     return await WellbeingService.trends(db, ctx.campus_id)

@@ -8,6 +8,14 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleAuthRequest(BaseModel):
+    email: str
+    full_name: Optional[str] = None
+    role: Optional[str] = "counsellor"
+    campus_id: Optional[str] = "campus-1"
+    avatar_url: Optional[str] = None
+
+
 class CampusMembershipOut(BaseModel):
     id: Optional[str] = None
     campus_id: str

@@ -3,16 +3,15 @@ import { Users, Activity, Flag } from 'lucide-react'
 import { TeacherSidebar } from './TeacherSidebar'
 import { TeacherHeader } from './TeacherHeader'
 import { StatCard } from './StatCard'
-import { NotAvailable } from '../common/NotAvailable'
 import { QueryState } from '../common/QueryState'
 import { useFacultyDashboard } from '../../lib/api/endpoints/faculty.hooks'
 import { MyCases } from './MyCases'
+import { UpcomingSessionsCard } from './UpcomingSessionsCard'
 import { TeacherProfilePanel } from './TeacherProfilePanel'
 import { ScheduleCallsPage } from './ScheduleCallsPage'
 import { MyCasesPage } from './MyCasesPage'
 import { StudentDirectoryPage } from './StudentDirectoryPage'
 import { InterventionsProtocolsPage } from './InterventionsProtocolsPage'
-import { DocumentIntegrityPage } from './DocumentIntegrityPage'
 import { TeacherAssessmentsPage } from './TeacherAssessmentsPage'
 import { useApp } from '../../context/AppContext'
 
@@ -106,8 +105,6 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
         return <InterventionsProtocolsPage />
       case 'assessment':
         return <TeacherAssessmentsPage />
-      case 'integrity':
-        return <DocumentIntegrityPage />
       case 'overview':
       default:
         return (
@@ -122,10 +119,10 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
                 <Stats />
               </section>
 
-              {/* Middle Row: Recent Messages and My Cases */}
-              <section aria-label="Messages and cases">
+              {/* Middle Row: Upcoming Consultations and My Cases */}
+              <section aria-label="Sessions and cases">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <NotAvailable title="Messages" />
+                  <UpcomingSessionsCard onViewSchedule={() => handleTabChange('schedule')} />
                   <MyCases onViewAll={() => handleTabChange('cases')} />
                 </div>
               </section>

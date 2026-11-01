@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { StudentSidebar, StudentNavId } from './StudentSidebar'
 import { StudentHeader } from './StudentHeader'
-import { NotAvailable } from '../common/NotAvailable'
 import { StudentOverview } from './StudentOverview'
-import { StudentRewardsPage } from './StudentRewardsPage'
 import { StudentMyCasesPage } from './StudentMyCasesPage'
 import { StudentAssessmentPage } from './StudentAssessmentPage'
+import { StudentRequestSupportPage } from './StudentRequestSupportPage'
+import { StudentMessagesPage } from './StudentMessagesPage'
 
 interface StudentDashboardProps {
   initialTab?: StudentNavId
@@ -20,15 +20,12 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
       if (path.includes('request-support')) return 'request-support'
       if (path.includes('assessment')) return 'assessment'
       if (path.includes('messages')) return 'messages'
-      if (path.includes('leaderboard')) return 'leaderboard'
       const params = new URLSearchParams(window.location.search)
       const tab = params.get('tab') as StudentNavId
       if (tab) return tab
     }
     return 'overview'
   })
-
-
 
   const handleSelectTab = (tab: StudentNavId) => {
     setActiveTab(tab)
@@ -48,7 +45,6 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
       else if (path.includes('request-support')) setActiveTab('request-support')
       else if (path.includes('assessment')) setActiveTab('assessment')
       else if (path.includes('messages')) setActiveTab('messages')
-      else if (path.includes('leaderboard')) setActiveTab('leaderboard')
       else if (path.includes('overview') || path === '/student') setActiveTab('overview')
     }
     window.addEventListener('popstate', handlePopState)
@@ -65,8 +61,6 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
         return 'Wellbeing Assessment'
       case 'messages':
         return 'Messages'
-      case 'leaderboard':
-        return 'Leaderboard & Rewards'
       case 'overview':
       default:
         return undefined
@@ -83,8 +77,6 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
         return "Take a moment to understand how you've been feeling lately."
       case 'messages':
         return 'Communicate with your assigned faculty mentor and student counsellors in a secure, confidential environment.'
-      case 'leaderboard':
-        return 'Earn wellbeing points, sustain healthy streaks, and redeem campus wellness rewards.'
       case 'overview':
       default:
         return "Here's your wellbeing overview for this week."
@@ -112,19 +104,16 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
           {activeTab === 'cases' ? (
             <StudentMyCasesPage />
           ) : activeTab === 'request-support' ? (
-            <NotAvailable title="Request Support" message="Requesting support needs a faculty directory endpoint, which the server does not expose yet." />
+            <StudentRequestSupportPage />
           ) : activeTab === 'assessment' ? (
             <StudentAssessmentPage />
           ) : activeTab === 'messages' ? (
-            <NotAvailable title="Messages" />
-          ) : activeTab === 'leaderboard' ? (
-            <StudentRewardsPage />
+            <StudentMessagesPage />
           ) : (
             <StudentOverview onCheckIn={() => handleSelectTab('assessment')} />
           )}
         </main>
       </div>
-
     </div>
   )
 }

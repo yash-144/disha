@@ -40,6 +40,7 @@ import {
   StudentPulseSubmission,
   InterventionAction,
 } from '../../types/studentPulse'
+import { useSubmitPulse } from '../../lib/api/endpoints/student.hooks'
 
 interface StudentAssessmentPageProps {
   demoMode?: DemoMode
@@ -53,6 +54,7 @@ export function StudentAssessmentPage({
   onNavigateToOverview,
 }: StudentAssessmentPageProps = {}) {
   const { addToast } = useApp()
+  const submitPulseMutation = useSubmitPulse()
 
   // Selected course pulse assignment (defaults to CS201 Student Pulse #3)
   const [selectedPulseId, setSelectedPulseId] = useState<string>('pulse-cs201-03')
@@ -287,6 +289,21 @@ export function StudentAssessmentPage({
       isAnonymous: true,
       objectiveResults,
     }
+
+    // Submit wellbeing responses to live backend
+    const responsesMap: Record<string, number> = {}
+    Object.entries(wellbeingAnswers).forEach(([k, v]) => {
+      const numVal = typeof v === 'number' ? v : parseInt(String(v), 10)
+      if (!isNaN(numVal) && numVal >= 1 && numVal <= 5) {
+        responsesMap[k] = numVal
+      } else {
+        responsesMap[k] = 3
+      }
+    })
+    submitPulseMutation.mutate({
+      responses: Object.keys(responsesMap).length > 0 ? responsesMap : { q_stress: 3, q_sleep: 4, q_belonging: 4 },
+      reflection: 'Submitted via student pulse check-in',
+    })
 
     setSubmissionResult(result)
     setStage('results')

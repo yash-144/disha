@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.modules.identity.services import IdentityService
-from app.modules.identity.schemas import LoginRequest, TokenResponse, UserOut
+from app.modules.identity.schemas import LoginRequest, GoogleAuthRequest, TokenResponse, UserOut
 
 router = APIRouter()
 
@@ -17,6 +17,26 @@ async def list_identity():
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     """Authenticate a user with institutional email and password to receive JWT."""
     result = await IdentityService.login(db, payload.email, payload.password)
+    return TokenResponse(
+        access_token=result["access_token"],
+        token_type=result["token_type"],
+        user_id=result["user_id"],
+        email=result["email"],
+        full_name=result["full_name"],
+        memberships=result["memberships"],
+    )
+
+
+@router.post("/google", response_model=TokenResponse)
+async def google_login(payload: GoogleAuthRequest, db: AsyncSession = Depends(get_db)):
+    """Authenticate or register a user via Google OAuth and issue a DISHA JWT."""
+    result = await IdentityService.google_login(
+        db,
+        email=payload.email,
+        full_name=payload.full_name,
+        role=payload.role,
+        campus_id=payload.campus_id,
+    )
     return TokenResponse(
         access_token=result["access_token"],
         token_type=result["token_type"],

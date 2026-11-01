@@ -7,7 +7,8 @@ export type ViewMode =
   | 'contact'
   | 'login'
   | 'onboarding'
-  | 'dashboard';
+  | 'dashboard'
+  | 'auth-callback';
 
 export type DashboardTab = 
   | 'overview' 

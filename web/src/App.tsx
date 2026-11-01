@@ -3,6 +3,7 @@ import { useApp } from './context/AppContext'
 import { useSession } from './lib/auth/SessionProvider'
 import { LandingView } from './components/landing/LandingView'
 import { LoginPage } from './components/auth/LoginPage'
+import { AuthCallback } from './components/auth/AuthCallback'
 import { OnboardingView } from './components/onboarding/OnboardingView'
 import { TeacherDashboard } from './components/teacher-dashboard/TeacherDashboard'
 import { StudentDashboard } from './components/student-portal/StudentDashboard'
@@ -20,10 +21,19 @@ import {
 
 function Portal() {
   const { status, portal } = useSession()
-  const { userRole } = useApp()
 
   if (status === 'loading') {
     return <SessionLoading />
+  }
+
+  // If unauthenticated, redirect to login:
+  if (status === 'unauthenticated') {
+    return <LoginPage />
+  }
+
+  // If user has no active campus membership:
+  if (status === 'not_provisioned') {
+    return <NoPortalForRole />
   }
 
   // If authenticated with real server session, honor the verified role:
@@ -42,18 +52,7 @@ function Portal() {
     }
   }
 
-  // If in demo/unauthenticated mode, fall back to the selected userRole:
-  switch (userRole) {
-    case 'student':
-      return <StudentDashboard />
-    case 'counsellor':
-      return <CounsellorDashboard />
-    case 'admin':
-      return <AdminDashboard />
-    case 'instructor':
-    default:
-      return <TeacherDashboard />
-  }
+  return <LoginPage />
 }
 
 export default function App() {
@@ -66,6 +65,8 @@ export default function App() {
         <Portal />
       ) : currentView === 'login' ? (
         <LoginPage />
+      ) : currentView === 'auth-callback' ? (
+        <AuthCallback />
       ) : currentView === 'onboarding' ? (
         <OnboardingView />
       ) : (
