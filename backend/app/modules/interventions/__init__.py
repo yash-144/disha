@@ -1,4 +1,0 @@
-"""
-DISHA Interventions Module
-"""
-
