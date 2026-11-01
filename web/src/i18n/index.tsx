@@ -19,24 +19,75 @@ function translateNode(node: Node, dict: Record<string, string>) {
       originalTextMap.set(node, original)
     }
     const trimmed = original.trim()
-    if (trimmed && dict[trimmed]) {
+    if (!trimmed) return
+
+    // 1. Exact match
+    if (dict[trimmed]) {
       const leading = original.match(/^\s*/)?.[0] ?? ''
       const trailing = original.match(/\s*$/)?.[0] ?? ''
       node.nodeValue = leading + dict[trimmed] + trailing
+      return
+    }
+
+    // 2. Trailing punctuation like ":" or "."
+    const withoutPunct = trimmed.replace(/[:.?!]$/, '')
+    if (dict[withoutPunct]) {
+      const punct = trimmed.slice(withoutPunct.length)
+      const leading = original.match(/^\s*/)?.[0] ?? ''
+      const trailing = original.match(/\s*$/)?.[0] ?? ''
+      node.nodeValue = leading + dict[withoutPunct] + punct + trailing
+      return
+    }
+
+    // 3. Dynamic phrase replacements
+    let updated = original
+    if (updated.includes('need attention this week')) {
+      updated = updated.replace(/need attention this week/g, 'को इस सप्ताह ध्यान देने की आवश्यकता है')
+    }
+    if (updated.includes('got worse')) {
+      updated = updated.replace(/got worse/g, 'स्थिति बिगड़ी')
+    }
+    if (updated.includes('improved')) {
+      updated = updated.replace(/improved/g, 'सुधार हुआ')
+    }
+    if (/Week \d+/i.test(updated)) {
+      updated = updated.replace(/Week (\d+)/gi, 'सप्ताह $1')
+    }
+    if (/median \d+/i.test(updated)) {
+      updated = updated.replace(/median (\d+)/gi, 'मध्यक $1')
+    }
+    if (updated !== original) {
+      node.nodeValue = updated
     }
     return
   }
-  const tag = (node as Element).tagName
+
+  const el = node as Element
+  const tag = el.tagName
   if (
     tag === 'SCRIPT' ||
     tag === 'STYLE' ||
-    tag === 'INPUT' ||
-    tag === 'TEXTAREA' ||
     tag === 'CODE' ||
     tag === 'PRE'
   ) {
     return
   }
+
+  if (tag === 'INPUT' || tag === 'TEXTAREA') {
+    const ph = el.getAttribute('placeholder')
+    if (ph && dict[ph.trim()]) {
+      el.setAttribute('placeholder', dict[ph.trim()])
+    }
+    return
+  }
+
+  if (el.getAttribute) {
+    const titleAttr = el.getAttribute('title')
+    if (titleAttr && dict[titleAttr.trim()]) {
+      el.setAttribute('title', dict[titleAttr.trim()])
+    }
+  }
+
   for (let i = 0; i < node.childNodes.length; i++) {
     translateNode(node.childNodes[i], dict)
   }
@@ -50,10 +101,9 @@ function restoreNode(node: Node) {
     }
     return
   }
-  const tag = (node as Element).tagName
-  if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'INPUT' || tag === 'TEXTAREA') {
-    return
-  }
+  const el = node as Element
+  const tag = el.tagName
+  if (tag === 'SCRIPT' || tag === 'STYLE') return
   for (let i = 0; i < node.childNodes.length; i++) {
     restoreNode(node.childNodes[i])
   }
