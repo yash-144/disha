@@ -12,6 +12,7 @@ import { MyCasesPage } from './MyCasesPage'
 import { StudentDirectoryPage } from './StudentDirectoryPage'
 import { InterventionsProtocolsPage } from './InterventionsProtocolsPage'
 import { DocumentIntegrityPage } from './DocumentIntegrityPage'
+import { TeacherAssessmentsPage } from './TeacherAssessmentsPage'
 import { useApp } from '../../context/AppContext'
 
 interface TeacherDashboardProps {
@@ -87,6 +88,8 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
         return <StudentDirectoryPage />
       case 'interventions':
         return <InterventionsProtocolsPage />
+      case 'assessment':
+        return <TeacherAssessmentsPage />
       case 'integrity':
         return <DocumentIntegrityPage />
       case 'overview':

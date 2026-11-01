@@ -1,11 +1,15 @@
 import logging
 import sys
+from app.core.config import settings
+
 
 def setup_logging():
+    level = getattr(logging, settings.DISHA_LOG_LEVEL.upper(), logging.INFO)
     logging.basicConfig(
-        level=logging.INFO,
+        level=level,
         format="%(asctime)s [%(levelname)s] [DISHA] %(name)s: %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)]
     )
 
-logger = logging.getLogger("disha.backend")
+
+logger = logging.getLogger("disha")
