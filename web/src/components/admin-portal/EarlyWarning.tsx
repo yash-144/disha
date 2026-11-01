@@ -34,12 +34,11 @@ export function EarlyWarningHero() {
   const half = c.flagged_in_first_half_of_term
   return (
     <section aria-label="How early we catch students" className="grid gap-4 lg:grid-cols-5">
-      <Card className="lg:col-span-2" title="Warning before students leave" tip="Benchmark from a held-out test on real student data, not this campus.">
-        <p className="font-display text-[56px] leading-none text-accent">{Math.round(b.median_days_warning)} <span className="text-2xl text-ink-2">days</span></p>
-        <p className="mt-2 text-base font-semibold text-ink">median warning before a student left the course.</p>
+      <Card className="lg:col-span-2" title="Days of warning before students leave" tip="Benchmark from a held-out test on real student data, not this campus.">
+        <p className="text-base font-semibold text-ink">When students who later left were first flagged.</p>
         <p className="mt-1 text-sm text-ink-2"><b>{pct(b.detection_rate)}</b> of students who later withdrew were flagged first ({b.flagged_before_leaving.toLocaleString()} of {b.left_course.toLocaleString()}).</p>
         <WarningRange p25={b.p25_days} med={b.median_days_warning} p75={b.p75_days} />
-        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">Benchmark: held-out test data.</p>
+        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">Proven on a past term the model never saw.</p>
       </Card>
       <Card className="lg:col-span-3" title="Students flagged as the term goes on" tip="Cumulative student-courses flagged High or Medium at each weekly scoring run on this campus.">
         <p className="text-base font-semibold text-ink">

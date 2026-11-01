@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { QueryState, EmptyState, ErrorState, LoadingSkeleton } from '../common/QueryState'
-import { Bars, Button, Card, Direction, Kpi, KpiStrip, TierBadge, TIERS, TIER_STYLE, pct, type Bucket, type Tier } from '../common/ui'
+import { Bars, Button, Card, Direction, TierBadge, TIERS, TIER_STYLE, pct, type Bucket, type Tier } from '../common/ui'
 import { useAnalyticsOverview, useCohorts, useRuns } from '../../lib/api/endpoints/admin.hooks'
 import { buildPeopleIndex, displayName, useAllCases, useAllScores, type ScoreRow } from '../../lib/api/endpoints/risk'
 import { EarlyWarningHero } from './EarlyWarning'
+import { ProofCards } from './ProofCards'
 import { RankedBars, Sparkline, TierDonut, TierRunsChart } from './charts'
 import { StudentInsightDrawer } from './StudentInsightDrawer'
 
@@ -122,13 +123,7 @@ export function AdminOverviewPage({ onNavigateTab }: { onNavigateTab: (tab: stri
 
   return (
     <div className="flex flex-col gap-10 font-sans">
-      <KpiStrip>
-        <Kpi label="Students scored" value={scores.data ? studentCount : '…'} hint={`${total} student-courses`} tip="Each student is scored once per course, every week." />
-        <Kpi label="Need attention" value={flagged} tone="text-tier-high" delta={delta(flagged, previous ? flaggedOf(previous.tier_counts as Record<string, number>) : undefined)} spark={<Sparkline values={chrono.map((r) => flaggedOf(r.tier_counts as Record<string, number>))} color="#B3261E" />} tip="High and Medium risk student-courses this week." onClick={() => onNavigateTab('risk-model')} />
-        <Kpi label="Open cases" value={a.cases?.open_cases ?? '…'} hint={`${a.cases?.total_cases ?? 0} cases in total`} tip="Cases a counsellor is still working on." onClick={() => onNavigateTab('case-management')} />
-        <Kpi label="Overdue" value={overdue ?? '…'} tone={overdue ? 'text-tier-medium' : 'text-tier-ok'} hint="Open cases past due" tip="Open cases whose next action is late." onClick={() => onNavigateTab('case-management')} />
-        <Kpi label="Follow-ups done" value={pct(a.followups?.completion_rate)} hint={`${pct(a.followups?.on_time_rate)} on time`} tip="Share of planned follow-ups that were completed." />
-      </KpiStrip>
+      <ProofCards />
 
       <Section title={`${flagged} of ${total} student-courses need attention this week`} sub={`Scoring run on day ${latest.as_of_day} of the term. Click a student to see why.`}>
         <div className="grid gap-4 lg:grid-cols-5">

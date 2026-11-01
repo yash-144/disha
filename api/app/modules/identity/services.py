@@ -150,6 +150,16 @@ class IdentityService:
             await db.commit()
 
         _u = user
+        # The display name always follows the Google profile (so seeded or placeholder names never stick).
+        if full_name and full_name.strip() and full_name.strip() != _u.full_name:
+            _u.full_name = full_name.strip()
+            try:
+                from app.modules.roster.models import Student as _Student
+                from sqlalchemy import update as _update
+                await db.execute(_update(_Student).where(_Student.user_id == _u.id).values(full_name=_u.full_name))
+            except Exception:
+                pass
+            await db.commit()
         user_id, user_email, user_name = _u.id, _u.email, _u.full_name  # a rollback below expires `user`
 
         # Claim any pending invitations for the verified email

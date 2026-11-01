@@ -8,8 +8,8 @@ export function OnboardingView() {
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [selectedRole, setSelectedRole] = useState<UserRole>(currentUser.role || 'student')
-  const [fullName, setFullName] = useState(currentUser.name || 'Aarav Sharma')
-  const [email, setEmail] = useState(currentUser.email || 'aarav.sharma@iitb.ac.in')
+  const [fullName, setFullName] = useState(currentUser.name)
+  const [email, setEmail] = useState(currentUser.email)
   const [campus, setCampus] = useState('IIT Bombay')
   const [idNumber, setIdNumber] = useState('2024CS-0842')
 
@@ -148,7 +148,7 @@ export function OnboardingView() {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Aarav Sharma"
+                    placeholder="Your full name"
                     className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-950"
                   />
                 </div>

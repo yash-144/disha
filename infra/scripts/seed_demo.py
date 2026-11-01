@@ -653,12 +653,28 @@ async def grant_all_roles(email: str) -> None:
         cols = [(r[0], r[1]) for r in await db.execute(text(
             "select table_name, column_name from information_schema.columns where table_schema='public' and table_name like 'disha\\_%' "
             "and data_type = 'character varying' and character_maximum_length >= 36 and table_name <> 'disha_audit_events' and not (table_name='disha_identity' and column_name='email')"))]
+        # One server-side block per persona: a single round trip instead of hundreds (the database may be far away).
         for old, _mail in personas:
-            for t, c in cols:
-                if t == "disha_identity" and c == "id":
-                    continue
-                await db.execute(text(f'update "{t}" set "{c}" = :n where "{c}" = :o'), {"n": target, "o": old})
-            await db.execute(text("delete from disha_identity where id=:o"), {"o": old})
+            await db.execute(text("""
+                do $$
+                declare r record;
+                begin
+                  for r in select table_name t, column_name c from information_schema.columns
+                           where table_schema='public' and table_name like 'disha\\_%'
+                             and data_type='character varying' and character_maximum_length >= 36
+                             and table_name <> 'disha_audit_events'
+                             and not (table_name='disha_identity')
+                  loop
+                    execute format('update %I set %I = %L where %I = %L', r.t, r.c, '""" + target + """', r.c, '""" + old + """');
+                  end loop;
+                  delete from disha_identity where id = '""" + old + """';
+                end $$;
+            """))
+        for role in ("institution_admin", "counsellor", "faculty", "student"):  # make sure every role exists, admin included
+            await db.execute(text("insert into disha_memberships (id,user_id,campus_id,role,department,is_active,created_at) "
+                                  "select cast(:m as varchar),cast(:u as varchar),cast(:c as varchar),cast(:r as varchar),'Demo',true,now() where not exists "
+                                  "(select 1 from disha_memberships where user_id=cast(:u as varchar) and campus_id=cast(:c as varchar) and role=cast(:r as varchar))"),
+                             {"m": uid(), "u": target, "c": CAMPUS_ID, "r": role})
         await db.execute(text("update disha_identity set full_name=full_name where id=:i"), {"i": target})
         await db.commit()
         roles = [r[0] for r in await db.execute(text("select role from disha_memberships where user_id=:i and is_active"), {"i": target})]

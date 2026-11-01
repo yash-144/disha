@@ -776,7 +776,7 @@ export function StudentAssessmentPage({
                   A Supportive Conversation is Always Available
                 </h3>
                 <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Your wellbeing matters most. Dr. Meera Nambiar (Lead Student Counsellor) is available for confidential one-on-one sessions. Faculty, peers, and mentors cannot view your individual responses.
+                  Your wellbeing matters most. A student counsellor is available for confidential one-on-one sessions. Faculty, peers, and mentors cannot view your individual responses.
                 </p>
               </div>
 
@@ -787,7 +787,7 @@ export function StudentAssessmentPage({
                       type="button"
                       onClick={() => {
                         setCounsellorOfferStatus('ACCEPTED')
-                        addToast('Confidential Session Accepted 💜', 'Dr. Meera Nambiar has been notified. Meeting schedule opened.', 'success')
+                        addToast('Confidential Session Accepted 💜', 'Your counsellor has been notified. Meeting schedule opened.', 'success')
                       }}
                       className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                     >
@@ -808,7 +808,7 @@ export function StudentAssessmentPage({
                 ) : counsellorOfferStatus === 'ACCEPTED' ? (
                   <div className="flex items-center gap-2 text-xs font-bold text-purple-800 bg-white px-4 py-2 rounded-xl border border-purple-200 shadow-2xs">
                     <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                    <span>Session Scheduled with Dr. Meera Nambiar</span>
+                    <span>Session scheduled with your counsellor</span>
                   </div>
                 ) : (
                   <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-line">

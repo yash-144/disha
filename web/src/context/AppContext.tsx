@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'
+import { useSession } from '../lib/auth/SessionProvider'
 import {
   ViewMode,
   DashboardTab,
@@ -186,7 +187,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentView, setCurrentView] = useState<ViewMode>(initial.view)
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>(initial.tab)
   const [userRole, setUserRole] = useState<UserRole>(initial.role)
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() => getProfileForRole(initial.role))
+  const { user: sessionUser } = useSession()
+  const [profileBase, setCurrentUser] = useState<UserProfile>(() => getProfileForRole(initial.role))
+  // Name and email always come from the signed-in account, never from demo constants.
+  const currentUser = useMemo<UserProfile>(
+    () => ({ ...profileBase, name: sessionUser?.full_name ?? profileBase.name, email: sessionUser?.email ?? profileBase.email }),
+    [profileBase, sessionUser],
+  )
 
   const [courses, setCourses] = useState<Course[]>(COURSES_DATA)
   const [activeClasses, setActiveClasses] = useState<ClassItem[]>(ACTIVE_CLASSES_DATA)

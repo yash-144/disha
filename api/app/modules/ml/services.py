@@ -411,6 +411,7 @@ async def early_warning(db: AsyncSession, campus_id: str) -> Dict[str, Any]:
     from app.modules.ingestion.models import MlEnrolment, MlWithdrawal
     model = await get_model()
     bench = (model.manifest.get("results") or {}).get("lead_time") or {}
+    ever = (((model.manifest.get("results") or {}).get("tiers") or {}).get("EVER SIGNALLED (per student)")) or {}
 
     batch_ids = await active_batch_ids(db, campus_id)
     lengths = {(r.student_ref, r.course_id, r.term_id): r.term_length_days for r in (await db.execute(
@@ -458,5 +459,7 @@ async def early_warning(db: AsyncSession, campus_id: str) -> Dict[str, Any]:
             "left_course": bench.get("withdrawn_scorable"), "flagged_before_leaving": bench.get("withdrawn_signalled"),
             "detection_rate": bench.get("detection_rate"), "median_days_warning": bench.get("median_days"),
             "p25_days": bench.get("p25_days"), "p75_days": bench.get("p75_days"),
+            # plain-language pair: how many struggling students we catch, and how many flags were right
+            "struggling_students_caught": ever.get("recall"), "flagged_who_really_struggled": ever.get("precision"),
         },
     }

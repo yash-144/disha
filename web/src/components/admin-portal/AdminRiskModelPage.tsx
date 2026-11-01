@@ -5,8 +5,9 @@ import { errorMessage } from '../../lib/api/errors'
 import { useSession } from '../../lib/auth/SessionProvider'
 import { useCohorts, useDrift, useModelInfo, useRuns, useTriggerRun } from '../../lib/api/endpoints/admin.hooks'
 import { buildPeopleIndex, displayName, useAllCases, useAllScores, type DriftFeature, type ScoreRow } from '../../lib/api/endpoints/risk'
-import { Button, Card, KpiStrip, ColorLegend, DetailsDisclosure, Direction, InfoTip, Kpi, LineChart, TierBadge, TIERS, TIER_STYLE, fmtDateTime, pct, pretty, type Tier } from '../common/ui'
+import { Button, Card, ColorLegend, DetailsDisclosure, Direction, InfoTip, LineChart, TierBadge, TIERS, TIER_STYLE, fmtDateTime, pct, pretty, type Tier } from '../common/ui'
 import { EarlyWarningHero } from './EarlyWarning'
+import { ProofCards } from './ProofCards'
 import { TierRunsChart } from './charts'
 import { StudentInsightDrawer } from './StudentInsightDrawer'
 
@@ -25,7 +26,6 @@ function Fact({ icon: Icon, title, text }: { icon: React.ComponentType<{ classNa
 }
 
 function ModelHeader() {
-  const info = useModelInfo()
   const runs = useRuns()
   const latest = runs.data?.items?.[0]
   return (
@@ -46,61 +46,71 @@ function ModelHeader() {
           <Fact icon={ShieldCheck} title="Why a student is flagged" text="Every flag comes with plain-language reasons." />
         </div>
       </div>
-      <div className="mt-4">
-        <QueryState query={info}>
-          {(m) => (
-            <DetailsDisclosure summary="Model details (technical)">
-              <p>Version: {m.model_version}</p>
-              <p>Bundle: {m.bundle_sha256}</p>
-              <p>Trained on: {m.dataset} · terms {m.trained_terms.join(', ')}</p>
-              <p>Inputs ({m.features.length}): {m.features.join(', ')}</p>
-              <p>Tier cut-offs: high {m.cutoffs.high?.toFixed(3)}, medium {m.cutoffs.medium?.toFixed(3)}, watch {m.cutoffs.watch?.toFixed(3)} · alert capacity {pct(m.capacity_share)}</p>
-            </DetailsDisclosure>
-          )}
-        </QueryState>
-      </div>
     </Card>
   )
 }
 
-function Reliability() {
+function Metric({ label, value, caption }: { label: string; value: string; caption: string }) {
+  return (
+    <div className="bg-panel p-4">
+      <p className="font-display text-3xl leading-none tabular-nums">{value}</p>
+      <p className="mt-2 text-sm font-semibold text-ink">{label}</p>
+      <p className="text-xs text-muted">{caption}</p>
+    </div>
+  )
+}
+
+function ModelDetails() {
   const info = useModelInfo()
   return (
-    <QueryState query={info}>
-      {(m) => {
-        const h = m.headline_metrics as Record<string, any>
-        const prec = (h.alert_precision_at_cutoff ?? {}) as Record<string, number>
-        return (
-          <div className="grid gap-4 lg:grid-cols-5">
-            <KpiStrip cols="lg:grid-cols-2" className="lg:col-span-2 self-start">
-              <Kpi label="Ranking quality" value={h.roc_auc != null ? h.roc_auc.toFixed(2) : '—'} hint="ROC-AUC" tip="How well the model puts struggling students above others. 0.5 is a coin flip, 1.0 is perfect." />
-              <Kpi label="Precision / recall" value={h.pr_auc != null ? h.pr_auc.toFixed(2) : '—'} hint="PR-AUC" tip="Balance between catching at-risk students and avoiding false alarms. Higher is better." />
-              <Kpi label="Calibration error" value={h.ece != null ? h.ece.toFixed(3) : '—'} hint="ECE · lower is better" tip="When the model says 70%, about how far off is that from reality. Near 0 means the percentages can be trusted." />
-              <Kpi label="Brier score" value={h.brier != null ? h.brier.toFixed(3) : '—'} hint="lower is better" tip="Average squared error of the predicted chances. 0 is perfect." />
-            </KpiStrip>
-            <Card className="lg:col-span-3" title="How reliable are the alerts?" tip="Alert precision: of the students flagged at this level, the share who really ended up failing or withdrawing. It is not overall accuracy.">
-              <ul className="space-y-3">
-                {(['high', 'medium', 'watch'] as const).map((k) => {
-                  const t = k.toUpperCase() as Tier
-                  const v = prec[k]
-                  return (
-                    <li key={k} className="text-xs">
-                      <div className="mb-1 flex items-center justify-between">
-                        <span className="flex items-center gap-2 font-semibold text-ink"><TierBadge tier={t} /> alerts</span>
-                        <span className="font-bold tabular-nums">{pct(v)}</span>
-                      </div>
-                      <div className="h-2.5 rounded-full bg-gray-100"><div className="h-2.5 rounded-full" style={{ width: `${(v ?? 0) * 100}%`, background: TIER_STYLE[t].color }} /></div>
-                      <p className="mt-0.5 text-xs text-muted">About {Math.round((v ?? 0) * 100)} of every 100 {TIER_STYLE[t].label.toLowerCase()} alerts were students who really struggled.</p>
-                    </li>
-                  )
-                })}
-              </ul>
-              <p className="mt-3 flex items-start gap-1.5 text-xs text-muted"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" /> Percentages are calibrated: a 70% risk really means roughly 7 in 10 similar students struggled. Measured on past terms, not this campus.</p>
-            </Card>
-          </div>
-        )
-      }}
-    </QueryState>
+    <details className="group rounded-lg border border-line bg-panel">
+      <summary className="cursor-pointer select-none px-5 py-4 text-sm font-bold text-ink">Model details <span className="font-normal text-muted">for data teams and auditors</span></summary>
+      <div className="flex flex-col gap-4 border-t border-line p-5">
+        <QueryState query={info}>
+          {(m) => {
+            const h = m.headline_metrics as Record<string, any>
+            const prec = (h.alert_precision_at_cutoff ?? {}) as Record<string, number>
+            const f = (v: unknown, d: number) => (typeof v === 'number' ? v.toFixed(d) : '—')
+            return (
+              <>
+                <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line lg:grid-cols-4">
+                  <Metric label="Ranking quality (ROC-AUC)" value={f(h.roc_auc, 2)} caption="Struggling students are ranked above others. 0.5 is a coin flip." />
+                  <Metric label="Catch vs false alarms (PR-AUC)" value={f(h.pr_auc, 2)} caption="Higher means fewer missed students and fewer false alarms." />
+                  <Metric label="Calibration error (ECE)" value={f(h.ece, 3)} caption="Calibrated: when we say 80%, about 80% struggle. Lower is better." />
+                  <Metric label="Brier score" value={f(h.brier, 3)} caption="Average error of the predicted chances. Lower is better." />
+                </div>
+                <Card title="How right are the flags at each tier?" tip="Of the students flagged at this tier, the share who really struggled.">
+                  <ul className="space-y-3">
+                    {(['high', 'medium', 'watch'] as const).map((k) => {
+                      const t = k.toUpperCase() as Tier
+                      const v = prec[k]
+                      return (
+                        <li key={k} className="text-sm">
+                          <div className="mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-2 font-semibold text-ink"><TierBadge tier={t} /> flags</span>
+                            <span className="font-bold tabular-nums">{pct(v)}</span>
+                          </div>
+                          <div className="h-2.5 rounded-full bg-sunken"><div className="h-2.5 rounded-full" style={{ width: `${(v ?? 0) * 100}%`, background: TIER_STYLE[t].color }} /></div>
+                          <p className="mt-0.5 text-xs text-muted">About {Math.round((v ?? 0) * 100)} of every 100 {TIER_STYLE[t].label.toLowerCase()} flags were students who really struggled.</p>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  <p className="mt-3 flex items-start gap-1.5 text-xs text-muted"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-tier-ok" /> Measured on a past term the model never saw, not on this campus.</p>
+                </Card>
+                <DetailsDisclosure summary="Version and inputs">
+                  <p>Version: {m.model_version}</p>
+                  <p>Bundle: {m.bundle_sha256}</p>
+                  <p>Inputs ({m.features.length}): {m.features.join(', ')}</p>
+                  <p>Tier cut-offs: high {m.cutoffs.high?.toFixed(3)}, medium {m.cutoffs.medium?.toFixed(3)}, watch {m.cutoffs.watch?.toFixed(3)} · alert capacity {pct(m.capacity_share)}</p>
+                </DetailsDisclosure>
+              </>
+            )
+          }}
+        </QueryState>
+        <Drift />
+      </div>
+    </details>
   )
 }
 
@@ -246,7 +256,7 @@ function Hotspots() {
 function Drift() {
   const q = useDrift()
   return (
-    <Card title="Has the data changed since training?" tip="PSI compares this campus's data with the data the model learned from. Above 0.2 means the inputs look quite different, so scores deserve extra care.">
+    <Card title="Has the data changed since the model learned?" tip="Compares this campus's data with the data the model learned from (PSI). Above 0.2 means inputs look quite different.">
       <QueryState query={q} empty={<EmptyState title="No drift report" message="Run scoring first." />} isEmpty={(d) => !d.data_drift}>
         {(d) => {
           const dd = d.data_drift as { features?: DriftFeature[]; retrain_recommended?: boolean; max_psi?: number; current_rows?: number; reference_rows?: number }
@@ -290,8 +300,8 @@ export function AdminRiskModelPage() {
   return (
     <div className="flex flex-col gap-4 font-sans">
       <ModelHeader />
+      <ProofCards />
       <EarlyWarningHero />
-      <Reliability />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Risk across scoring runs" tip="Each column is one weekly scoring run. Watch the red and orange shrink as support works.">
           {runs.isPending ? <LoadingSkeleton rows={2} /> : runs.isError ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} /> : trend.length < 2 ? <p className="text-xs text-muted">Needs at least two runs.</p> : (<><TierRunsChart runs={trend} /><div className="mt-2"><ColorLegend /></div></>)}
@@ -302,7 +312,7 @@ export function AdminRiskModelPage() {
         {(d) => <Movement rows={d.items} name={name} onOpen={openRow} />}
       </QueryState>
       <Hotspots />
-      <Drift />
+      <ModelDetails />
       <StudentInsightDrawer studentKey={open?.key ?? null} name={open?.name} onClose={() => setOpen(null)} />
     </div>
   )

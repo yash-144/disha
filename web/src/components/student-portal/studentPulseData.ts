@@ -1300,7 +1300,7 @@ export const PULSE_DEMO_SCENARIOS: Record<string, PulseDemoScenario> = {
     wellbeingScore: 42.0,
     expectedActions: ['COUNSELLOR_OFFER'],
     dialogTitle: 'Confidential Support Available',
-    dialogMessage: 'A private check-in with Dr. Meera Nambiar (Lead Student Counsellor) is available if you choose to connect.',
+    dialogMessage: 'A private check-in with A student counsellor is available if you choose to connect.',
   },
   scenario3: {
     id: 'scenario3',
@@ -1583,7 +1583,7 @@ export const INITIAL_STUDENT_SUBMISSION: StudentPulseSubmission = {
       isCorrect: true,
       marksAwarded: 4.0,
       maxMarks: 5.0,
-      explanation: 'Descriptive response awarded 4.0/5.0 by Prof. Sharma: Excellent conceptual articulation of queue vs stack mechanisms.',
+      explanation: 'Descriptive response awarded 4.0/5.0 by your mentor: Excellent conceptual articulation of queue vs stack mechanisms.',
     },
   ],
 }
