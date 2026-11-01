@@ -1,0 +1,496 @@
+{
+  "model": "rolling-hgb-isotonic",
+  "bundle_version": 1,
+  "dataset": "OULAD (CC BY 4.0), see data/raw/oulad/SOURCE.md",
+  "studentInfo_sha256": "7e6f3e474a5eee00639d2a414a6c7e928745823c2d2c2563ca1780145f99b0d6",
+  "config": {
+    "train_terms": [
+      "2013B",
+      "2013J",
+      "2014B"
+    ],
+    "test_terms": [
+      "2014J"
+    ],
+    "fixed_fracs": [
+      0.1,
+      0.25,
+      0.5,
+      0.75
+    ],
+    "calibration": "isotonic",
+    "cv_folds": 5,
+    "seed": 42,
+    "tiers": {
+      "high_precision": 0.85,
+      "medium_precision": 0.7,
+      "watch_precision": 0.5,
+      "min_alerts": 30,
+      "capacity_share": 0.25
+    }
+  },
+  "rules": {
+    "MISSED_LAST3": 2,
+    "BELOW_MEDIAN_PTS": -15.0,
+    "ENGAGEMENT_RATIO": 0.5,
+    "SCORE_DROP_PTS": -10.0,
+    "BELOW_BASELINE_PTS": -25.0,
+    "CONSECUTIVE_MISSES": 2
+  },
+  "drift_events": {
+    "SCORE_DROP_PTS": 15.0,
+    "ENGAGEMENT_COLLAPSE_RATIO": 0.4
+  },
+  "min_effect": 0.02,
+  "features": [
+    "mean_score",
+    "weighted_score",
+    "last_score",
+    "score_change",
+    "score_slope",
+    "standing_pct",
+    "gap_to_median",
+    "share_submitted",
+    "n_missed",
+    "n_late",
+    "consecutive_misses",
+    "missed_last3",
+    "activity_vs_median",
+    "engagement_ratio",
+    "days_since_activity",
+    "term_frac",
+    "assessment_idx",
+    "baseline_rank",
+    "baseline_gap",
+    "prev_attempts",
+    "credit_load",
+    "program_level_code",
+    "year_of_study"
+  ],
+  "feature_groups": {
+    "score_level": [
+      "mean_score",
+      "weighted_score",
+      "last_score",
+      "standing_pct",
+      "gap_to_median"
+    ],
+    "score_trend": [
+      "score_change",
+      "score_slope"
+    ],
+    "submissions": [
+      "share_submitted",
+      "n_missed",
+      "n_late",
+      "consecutive_misses",
+      "missed_last3"
+    ],
+    "engagement": [
+      "activity_vs_median",
+      "engagement_ratio",
+      "days_since_activity"
+    ],
+    "baseline": [
+      "baseline_rank",
+      "baseline_gap"
+    ],
+    "load_history": [
+      "prev_attempts",
+      "credit_load",
+      "program_level_code",
+      "year_of_study"
+    ]
+  },
+  "excluded_as_inputs": [
+    "gender",
+    "region",
+    "imd_band",
+    "disability",
+    "age_band"
+  ],
+  "rows": {
+    "train": 173960,
+    "test": 80411,
+    "train_students": 17488,
+    "test_students": 8931,
+    "train_base_rate": 0.4191365831225569,
+    "test_base_rate": 0.35426745097063833
+  },
+  "cutoffs": {
+    "high": {
+      "threshold": 0.5539610251029136,
+      "precision": 0.8500099932772498,
+      "recall": 0.6416139783029089,
+      "flagged": 55037,
+      "flag_rate": 0.31637732812140723
+    },
+    "medium": {
+      "threshold": 0.33325531021544963,
+      "precision": 0.7000509271047941,
+      "recall": 0.8295228560064735,
+      "flagged": 86398,
+      "flag_rate": 0.496654403311106
+    },
+    "watch": {
+      "threshold": 0.08856908856908857,
+      "precision": 0.5000698177756057,
+      "recall": 0.9823351117084744,
+      "flagged": 143230,
+      "flag_rate": 0.8233501954472292
+    }
+  },
+  "parameters": {
+    "folds": 5,
+    "trees": 1500,
+    "split_nodes": 21000,
+    "leaves": 22500,
+    "calibration_points": 840,
+    "total": 44340
+  },
+  "artifact_bytes": 4088787,
+  "train_seconds": 101.2,
+  "results": {
+    "test": {
+      "n": 80411,
+      "base_rate": 0.35426745097063833,
+      "roc_auc": 0.8566096357993397,
+      "pr_auc": 0.7942645565531359,
+      "brier": 0.1453242390850838,
+      "ece": 0.036665368257561906,
+      "accuracy": 0.789854621880091,
+      "majority_accuracy": 0.6457325490293617
+    },
+    "train_auc": 0.8935330267255783,
+    "cv_auc": 0.8825923804706421,
+    "test_auc": 0.8566096357993397,
+    "gap_train_cv": 0.010940646254936182,
+    "gap_cv_test": 0.02598274467130246,
+    "test_auc_unseen_students": 0.8535060150191912,
+    "test_students_seen_in_train": 0.14317692852967878,
+    "rules_only_auc": 0.6886108885274205,
+    "auc_by_term_fraction": [
+      {
+        "term_fraction": 0.1,
+        "n": 9223,
+        "base_rate": 0.40832700856554266,
+        "roc_auc": 0.7268992716775415
+      },
+      {
+        "term_fraction": 0.25,
+        "n": 8746,
+        "base_rate": 0.3760576263434713,
+        "roc_auc": 0.8091336044822193
+      },
+      {
+        "term_fraction": 0.5,
+        "n": 8160,
+        "base_rate": 0.33125,
+        "roc_auc": 0.8811087945435037
+      },
+      {
+        "term_fraction": 0.75,
+        "n": 7648,
+        "base_rate": 0.28648012552301255,
+        "roc_auc": 0.9331575931558017
+      }
+    ],
+    "tiers": {
+      "HIGH": {
+        "n": 19085,
+        "share": 0.2373431495690888,
+        "precision": 0.8166623002357872,
+        "recall": 0.5471267595745428
+      },
+      "MEDIUM": {
+        "n": 957,
+        "share": 0.011901356779545087,
+        "precision": 0.4555903866248694,
+        "recall": 0.01530522694562432
+      },
+      "WATCH": {
+        "n": 44090,
+        "share": 0.5483080673042245,
+        "precision": 0.2690859605352688,
+        "recall": 0.4164706708323095
+      },
+      "ON_TRACK": {
+        "n": 16279,
+        "share": 0.20244742634714155,
+        "precision": 0.036918729651698505,
+        "recall": 0.021097342647523432
+      },
+      "SIGNAL (HIGH+MEDIUM)": {
+        "n": 20042,
+        "share": 0.2492445063486339,
+        "precision": 0.7994212154475602,
+        "recall": 0.5624319865201671
+      },
+      "EVER SIGNALLED (per student)": {
+        "n": 4515,
+        "share": 0.4860587792012057,
+        "precision": 0.6753045404208194,
+        "recall": 0.7956680584551148
+      }
+    },
+    "lead_time": {
+      "withdrawn_scorable": 1768,
+      "withdrawn_signalled": 1246,
+      "detection_rate": 0.7047511312217195,
+      "median_days": 54.0,
+      "p25_days": 25.25,
+      "p75_days": 112.0
+    },
+    "fairness": {
+      "gender": {
+        "groups": [
+          {
+            "group": "F",
+            "n": 33135,
+            "signal_rate": 0.23630602082390223,
+            "false_positive_rate": 0.08577765707043274,
+            "miss_rate": 0.46255546500045275
+          },
+          {
+            "group": "M",
+            "n": 47276,
+            "signal_rate": 0.2583128860309671,
+            "false_positive_rate": 0.07123223384285331,
+            "miss_rate": 0.42174959871589085
+          }
+        ],
+        "fpr_ratio_max_min": 1.2041972074000704
+      },
+      "region": {
+        "groups": [
+          {
+            "group": "East Anglian Region",
+            "n": 7447,
+            "signal_rate": 0.22492278769974486,
+            "false_positive_rate": 0.08331688055281343,
+            "miss_rate": 0.4739714525608732
+          },
+          {
+            "group": "East Midlands Region",
+            "n": 5447,
+            "signal_rate": 0.22122269138975584,
+            "false_positive_rate": 0.07201309328968904,
+            "miss_rate": 0.4716451431779899
+          },
+          {
+            "group": "Ireland",
+            "n": 3717,
+            "signal_rate": 0.22141511972020447,
+            "false_positive_rate": 0.05609756097560976,
+            "miss_rate": 0.45505171042163883
+          },
+          {
+            "group": "London Region",
+            "n": 7154,
+            "signal_rate": 0.26460721274811294,
+            "false_positive_rate": 0.07988556338028169,
+            "miss_rate": 0.41379310344827586
+          },
+          {
+            "group": "North Region",
+            "n": 4662,
+            "signal_rate": 0.2097812097812098,
+            "false_positive_rate": 0.07184886961907712,
+            "miss_rate": 0.479413817166783
+          },
+          {
+            "group": "North Western Region",
+            "n": 6446,
+            "signal_rate": 0.2998758920260627,
+            "false_positive_rate": 0.08629572385368367,
+            "miss_rate": 0.37675507020280813
+          },
+          {
+            "group": "Scotland",
+            "n": 11279,
+            "signal_rate": 0.257026332121642,
+            "false_positive_rate": 0.05760470242468773,
+            "miss_rate": 0.43965131873044255
+          },
+          {
+            "group": "South East Region",
+            "n": 5148,
+            "signal_rate": 0.2437839937839938,
+            "false_positive_rate": 0.10469722693831353,
+            "miss_rate": 0.4516728624535316
+          },
+          {
+            "group": "South Region",
+            "n": 7335,
+            "signal_rate": 0.21772324471710974,
+            "false_positive_rate": 0.07420494699646643,
+            "miss_rate": 0.45604640785363676
+          },
+          {
+            "group": "South West Region",
+            "n": 5929,
+            "signal_rate": 0.24287400910777535,
+            "false_positive_rate": 0.07415036045314109,
+            "miss_rate": 0.4366748166259169
+          },
+          {
+            "group": "Wales",
+            "n": 5761,
+            "signal_rate": 0.2931782676618643,
+            "false_positive_rate": 0.08694353152076487,
+            "miss_rate": 0.4208782104391052
+          },
+          {
+            "group": "West Midlands Region",
+            "n": 5577,
+            "signal_rate": 0.2653756499910346,
+            "false_positive_rate": 0.07991921523369878,
+            "miss_rate": 0.43012790146849833
+          },
+          {
+            "group": "Yorkshire Region",
+            "n": 4509,
+            "signal_rate": 0.2605899312486139,
+            "false_positive_rate": 0.09158751696065129,
+            "miss_rate": 0.4202434336963485
+          }
+        ],
+        "fpr_ratio_max_min": 1.8663418715090672
+      },
+      "imd_band": {
+        "groups": [
+          {
+            "group": "0-10%",
+            "n": 6959,
+            "signal_rate": 0.30694065239258517,
+            "false_positive_rate": 0.09250317662007623,
+            "miss_rate": 0.414021164021164
+          },
+          {
+            "group": "10-20",
+            "n": 7774,
+            "signal_rate": 0.312194494468742,
+            "false_positive_rate": 0.0962566844919786,
+            "miss_rate": 0.3928788800973828
+          },
+          {
+            "group": "20-30%",
+            "n": 8351,
+            "signal_rate": 0.28559453957609865,
+            "false_positive_rate": 0.07509563116569358,
+            "miss_rate": 0.40543735224586286
+          },
+          {
+            "group": "30-40%",
+            "n": 8520,
+            "signal_rate": 0.2612676056338028,
+            "false_positive_rate": 0.08376193975018369,
+            "miss_rate": 0.4245773732119636
+          },
+          {
+            "group": "40-50%",
+            "n": 7996,
+            "signal_rate": 0.2610055027513757,
+            "false_positive_rate": 0.08917197452229299,
+            "miss_rate": 0.4227353463587922
+          },
+          {
+            "group": "50-60%",
+            "n": 8041,
+            "signal_rate": 0.2482278323591593,
+            "false_positive_rate": 0.0768787238131847,
+            "miss_rate": 0.4376321353065539
+          },
+          {
+            "group": "60-70%",
+            "n": 7769,
+            "signal_rate": 0.22499678208263613,
+            "false_positive_rate": 0.07598086124401913,
+            "miss_rate": 0.46894654088050314
+          },
+          {
+            "group": "70-80%",
+            "n": 7702,
+            "signal_rate": 0.23292651259413139,
+            "false_positive_rate": 0.06351404827859121,
+            "miss_rate": 0.4437311178247734
+          },
+          {
+            "group": "80-90%",
+            "n": 7235,
+            "signal_rate": 0.20414651002073256,
+            "false_positive_rate": 0.07948871579788297,
+            "miss_rate": 0.5157091561938959
+          },
+          {
+            "group": "90-100%",
+            "n": 6632,
+            "signal_rate": 0.18802774427020508,
+            "false_positive_rate": 0.06084600958533028,
+            "miss_rate": 0.4789961811238407
+          },
+          {
+            "group": "unknown",
+            "n": 3432,
+            "signal_rate": 0.15122377622377622,
+            "false_positive_rate": 0.04769172071728348,
+            "miss_rate": 0.5141800246609125
+          }
+        ],
+        "fpr_ratio_max_min": 2.018310160427807
+      },
+      "disability": {
+        "groups": [
+          {
+            "group": "N",
+            "n": 73282,
+            "signal_rate": 0.23997707486149394,
+            "false_positive_rate": 0.07624968809781253,
+            "miss_rate": 0.44743946010321556
+          },
+          {
+            "group": "Y",
+            "n": 7129,
+            "signal_rate": 0.34450834619161175,
+            "false_positive_rate": 0.09211899791231733,
+            "miss_rate": 0.362147406733394
+          }
+        ],
+        "fpr_ratio_max_min": 1.2081229472591122
+      },
+      "age_band": {
+        "groups": [
+          {
+            "group": "0-35",
+            "n": 55526,
+            "signal_rate": 0.267982566725498,
+            "false_positive_rate": 0.08222546244675072,
+            "miss_rate": 0.41583532045355004
+          },
+          {
+            "group": "35-55",
+            "n": 24123,
+            "signal_rate": 0.20814160759441197,
+            "false_positive_rate": 0.06833699097781029,
+            "miss_rate": 0.49475320637388265
+          },
+          {
+            "group": "55<=",
+            "n": 762,
+            "signal_rate": 0.18503937007874016,
+            "false_positive_rate": 0.0423572744014733,
+            "miss_rate": 0.4611872146118721
+          }
+        ],
+        "fpr_ratio_max_min": 1.941235917764593
+      }
+    },
+    "calibration_oof": 0.0033998112995821303
+  },
+  "libs": {
+    "python": "3.11.17",
+    "sklearn": "1.7.2",
+    "pandas": "3.1.0",
+    "numpy": "2.4.6"
+  }
+}
