@@ -1,95 +1,90 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { QueryState, EmptyState } from '../common/QueryState'
-import {
-  useCaseload,
-  useCounsellorDashboard,
-  useCounsellingSessions,
-  useFollowups,
-} from '../../lib/api/endpoints/counsellor.hooks'
+import { Card, Kpi, KpiStrip, Pill, fmtDateTime, pretty } from '../common/ui'
+import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
+import { useCaseload, useCounsellorDashboard, useCounsellingSessions, useFollowups } from '../../lib/api/endpoints/counsellor.hooks'
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4">
-      <p className="text-2xl font-bold text-[#1E2433]">{value}</p>
-      <p className="text-xs text-[#717E95]">{label}</p>
-    </div>
-  )
-}
+const PRIORITY: Record<string, string> = { urgent: 'bg-rose-50 text-rose-700', critical: 'bg-rose-50 text-rose-700', high: 'bg-orange-50 text-orange-700', medium: 'bg-amber-50 text-amber-700', low: 'bg-sunken text-ink-2' }
+const ORDER: Record<string, number> = { urgent: 0, critical: 0, high: 1, medium: 2, low: 3 }
 
 export function CounsellorOverview() {
   const dash = useCounsellorDashboard()
   const caseload = useCaseload()
   const followups = useFollowups()
   const sessions = useCounsellingSessions()
+  const [openCase, setOpenCase] = useState<string | null>(null)
+
   return (
     <div className="flex flex-col gap-4 font-sans">
       <QueryState query={dash}>
         {(d) => (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-            <Stat label="Active cases" value={d.active_cases} />
-            <Stat label="Overdue cases" value={d.overdue_cases} />
-            <Stat label="Escalated" value={d.escalated_cases} />
-            <Stat label="Upcoming sessions" value={d.upcoming_sessions} />
-            <Stat label="Overdue follow-ups" value={d.overdue_followups} />
-            <Stat label="Unread notifications" value={d.unread_notifications} />
-          </div>
+          <KpiStrip cols="lg:grid-cols-5">
+            <Kpi label="Active cases" value={d.active_cases} tip="Cases assigned to you that are still open." />
+            <Kpi label="Overdue follow-ups" value={d.overdue_followups} tone={d.overdue_followups ? 'text-tier-high' : 'text-tier-ok'} tip="Check-ins that were planned but not done yet." />
+            <Kpi label="Upcoming sessions" value={d.upcoming_sessions} tip="Counselling sessions still to happen." />
+            <Kpi label="Overdue cases" value={d.overdue_cases} tone={d.overdue_cases ? 'text-tier-high' : undefined} tip="Cases past their due date." />
+            <Kpi label="Escalated" value={d.escalated_cases} tip="Cases passed up for more help." />
+          </KpiStrip>
         )}
       </QueryState>
-      <div className="grid gap-4 lg:grid-cols-3">
-        <section className="rounded-3xl border border-gray-100 bg-white p-5">
-          <h2 className="text-sm font-bold">My caseload</h2>
-          <div className="mt-3">
-            <QueryState query={caseload} empty={<EmptyState title="No cases assigned" />}>
-              {(rows) => (
-                <ul className="space-y-2 text-xs">
-                  {rows.map((c) => (
-                    <li key={c.case_id} className="flex justify-between gap-2">
-                      <span>{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      <span className="text-[#717E95]">
-                        {c.state}, {c.priority}{c.is_overdue ? ', overdue' : ''}
+
+      <div className="grid gap-4 lg:grid-cols-5">
+        <Card className="lg:col-span-3" title="My caseload" tip="Highest priority first. Open a case to add notes, interventions and follow-ups.">
+          <QueryState query={caseload} empty={<EmptyState title="No cases assigned to you" />}>
+            {(rows) => (
+              <ul className="divide-y divide-line">
+                {[...rows].sort((a, b) => Number(b.is_overdue) - Number(a.is_overdue) || (ORDER[a.priority] ?? 9) - (ORDER[b.priority] ?? 9)).map((c) => (
+                  <li key={c.case_id}>
+                    <button type="button" onClick={() => setOpenCase(c.case_id)} className="flex w-full items-center justify-between gap-3 py-2.5 text-left text-xs hover:bg-sunken/60">
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
+                        <span className="text-xs text-muted">{pretty(c.state)}</span>
                       </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </QueryState>
-          </div>
-        </section>
-        <section className="rounded-3xl border border-gray-100 bg-white p-5">
-          <h2 className="text-sm font-bold">Upcoming follow-ups</h2>
-          <div className="mt-3">
-            <QueryState query={followups} empty={<EmptyState title="No upcoming follow-ups" />}>
+                      <span className="flex shrink-0 items-center gap-1.5">
+                        {c.is_overdue && <Pill tone="bg-rose-50 text-rose-700">Overdue</Pill>}
+                        <Pill tone={PRIORITY[c.priority] ?? PRIORITY.low}>{pretty(c.priority)}</Pill>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </QueryState>
+        </Card>
+        <div className="flex flex-col gap-4 lg:col-span-2">
+          <Card title="Follow-ups due" tip="Planned check-ins, soonest first.">
+            <QueryState query={followups} empty={<EmptyState title="Nothing due" />}>
               {(rows) => (
-                <ul className="space-y-2 text-xs">
-                  {rows.map((f) => (
-                    <li key={f.id} className="flex justify-between gap-2">
-                      <span>{f.title}</span>
-                      <span className="text-[#717E95]">{new Date(f.scheduled_at).toLocaleString()}</span>
+                <ul className="divide-y divide-line">
+                  {[...rows].sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at)).slice(0, 6).map((f) => (
+                    <li key={f.id}>
+                      <button type="button" onClick={() => setOpenCase(f.case_id)} className="flex w-full items-center justify-between gap-2 py-2 text-left text-xs hover:bg-sunken/60">
+                        <span className="truncate font-medium">{f.title}</span>
+                        <span className={`shrink-0 tabular-nums ${f.is_overdue ? 'font-semibold text-tier-high' : 'text-muted'}`}>{f.is_overdue ? 'Overdue · ' : ''}{fmtDateTime(f.scheduled_at)}</span>
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
             </QueryState>
-          </div>
-        </section>
-        <section className="rounded-3xl border border-gray-100 bg-white p-5">
-          <h2 className="text-sm font-bold">Sessions</h2>
-          <div className="mt-3">
-            <QueryState query={sessions} empty={<EmptyState title="No sessions scheduled" />}>
+          </Card>
+          <Card title="Next sessions" tip="Your upcoming counselling sessions.">
+            <QueryState query={sessions} isEmpty={(r) => !r.some((s) => s.status === 'scheduled')} empty={<EmptyState title="No sessions scheduled" />}>
               {(rows) => (
-                <ul className="space-y-2 text-xs">
-                  {rows.map((s) => (
-                    <li key={s.id} className="flex justify-between gap-2">
-                      <span>{s.student_name ?? 'Student'} ({s.status})</span>
-                      <span className="text-[#717E95]">{new Date(s.scheduled_at).toLocaleString()}</span>
+                <ul className="divide-y divide-line">
+                  {rows.filter((s) => s.status === 'scheduled').sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at)).slice(0, 5).map((s) => (
+                    <li key={s.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+                      <span className="truncate font-medium">{s.student_name ?? 'Student'}</span>
+                      <span className="shrink-0 tabular-nums text-muted">{fmtDateTime(s.scheduled_at)}</span>
                     </li>
                   ))}
                 </ul>
               )}
             </QueryState>
-          </div>
-        </section>
+          </Card>
+        </div>
       </div>
+      {openCase && <CaseDetailDrawer caseId={openCase} onClose={() => setOpenCase(null)} userRole="counsellor" />}
     </div>
   )
 }

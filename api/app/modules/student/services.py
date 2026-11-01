@@ -265,13 +265,24 @@ class StudentService:
     ) -> Dict[str, Any]:
         student = await StudentService._get_current_student(db, tenancy)
 
+        faculty_id = payload.faculty_id
+        if not faculty_id:
+            from app.modules.faculty.models import CourseEnrollment, CourseSection
+            row = await db.execute(
+                select(CourseSection.faculty_id).join(CourseEnrollment, CourseEnrollment.section_id == CourseSection.id)
+                .where(CourseEnrollment.student_id == student.id).limit(1)
+            )
+            faculty_id = row.scalar_one_or_none()
+            if not faculty_id:
+                raise HTTPException(status_code=422, detail="You are not enrolled in any course yet")
+
         now = utc_now()
         async with transaction_scope(db):
             req = SupportRequest(
                 id=str(uuid.uuid4()),
                 campus_id=tenancy.campus_id,
                 student_id=student.id,
-                faculty_id=payload.faculty_id,
+                faculty_id=faculty_id,
                 course_id=payload.course_id,
                 category=payload.category,
                 preferred_slot=payload.preferred_slot,

@@ -343,7 +343,7 @@ export function OnboardingView() {
                   onChange={(e) => setAttendanceAlertThreshold(Number(e.target.value))}
                   className="w-full accent-slate-950"
                 />
-                <div className="flex justify-between text-[11px] text-slate-400">
+                <div className="flex justify-between text-xs text-slate-400">
                   <span>60%</span>
                   <span className="font-medium text-slate-600">75% (UGC Standard)</span>
                   <span>90%</span>
@@ -373,7 +373,7 @@ export function OnboardingView() {
                       />
                       <div>
                         <div className="text-xs font-medium text-slate-950">{item.label}</div>
-                        <div className="text-[11px] text-slate-500">{item.desc}</div>
+                        <div className="text-xs text-slate-500">{item.desc}</div>
                       </div>
                     </label>
                   ))}

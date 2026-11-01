@@ -1,68 +1,62 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { AlertTriangle, ChevronRight } from 'lucide-react'
 import { QueryState, EmptyState } from '../common/QueryState'
-import { useAdminCases } from '../../lib/api/endpoints/admin.hooks'
 import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
-import { ChevronRight, AlertTriangle } from 'lucide-react'
+import { Pill, SearchInput, Tabs, fmtDate, pretty } from '../common/ui'
+import { useAllCases } from '../../lib/api/endpoints/risk'
+
+const CLOSED = ['closed', 'dismissed']
+const PRIORITY: Record<string, string> = { urgent: 'bg-rose-50 text-rose-700', critical: 'bg-rose-50 text-rose-700', high: 'bg-orange-50 text-orange-700', medium: 'bg-amber-50 text-amber-700', low: 'bg-sunken text-ink-2' }
+type Filter = 'open' | 'unassigned' | 'overdue' | 'closed' | 'all'
 
 export function AdminCaseManagementPage() {
-  const q = useAdminCases()
-  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null)
+  const q = useAllCases()
+  const [selected, setSelected] = useState<string | null>(null)
+  const [filter, setFilter] = useState<Filter>('open')
+  const [search, setSearch] = useState('')
+
+  const rows = useMemo(() => {
+    const list = q.data ?? []
+    return list.filter((c) => {
+      const open = !CLOSED.includes(c.state)
+      const ok = filter === 'all' ? true : filter === 'open' ? open : filter === 'unassigned' ? open && !c.owner_name : filter === 'overdue' ? open && c.is_overdue : !open
+      return ok && (!search || `${c.student_name ?? ''} ${c.student_ref ?? ''} ${c.owner_name ?? ''} ${c.department ?? ''}`.toLowerCase().includes(search.toLowerCase()))
+    })
+  }, [q.data, filter, search])
+  const n = (f: Filter) => (q.data ?? []).filter((c) => (f === 'open' ? !CLOSED.includes(c.state) : f === 'unassigned' ? !CLOSED.includes(c.state) && !c.owner_name : f === 'overdue' ? !CLOSED.includes(c.state) && c.is_overdue : f === 'closed' ? CLOSED.includes(c.state) : true)).length
 
   return (
-    <div className="font-sans">
-      <div className="mb-3 flex justify-between items-center">
-        <div>
-          <h2 className="text-base font-bold text-[#1E2433]">Campus Case Governance</h2>
-          <p className="text-xs text-gray-500">Monitor multi-campus escalations, case owners, and SLA deadlines.</p>
-        </div>
+    <div className="flex flex-col gap-3 font-sans">
+      <div className="flex flex-wrap items-center gap-3">
+        <Tabs value={filter} onChange={setFilter} items={(['open', 'unassigned', 'overdue', 'closed', 'all'] as Filter[]).map((f) => ({ id: f, label: `${pretty(f)} ${q.data ? n(f) : ''}` }))} />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search student or owner" />
       </div>
-
-      <QueryState query={q} empty={<EmptyState title="No active cases across campus" />}>
-        {(rows) => (
-          <div className="rounded-2xl border border-gray-100 bg-white shadow-xs overflow-hidden">
-            <ul className="divide-y divide-gray-100 text-xs">
-              {rows.map((c) => (
-                <li
-                  key={c.id}
-                  onClick={() => setSelectedCaseId(c.id)}
-                  className="flex justify-between items-center gap-3 p-3.5 hover:bg-gray-50 transition cursor-pointer"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      {c.department && <span className="text-[#717E95]">({c.department})</span>}
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase font-semibold">
-                        {c.priority}
-                      </span>
-                      {c.is_overdue && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
-                          <AlertTriangle className="w-3 h-3" /> Overdue
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[#717E95] text-[11px]">
-                      State: <span className="font-semibold uppercase text-indigo-600">{c.state}</span>
-                      {c.owner_name && <> • Assigned to: <span className="text-gray-700 font-medium">{c.owner_name}</span></>}
-                    </span>
-                  </div>
-
-                  <span className="text-xs text-indigo-600 font-bold flex items-center gap-0.5 hover:underline">
-                    Govern &amp; Audit <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+      <QueryState query={q} empty={<EmptyState title="No cases yet" message="Cases appear when the risk model flags a student or a student asks for support." />}>
+        {() =>
+          rows.length === 0 ? (
+            <EmptyState title="No cases match" />
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-line bg-panel">
+              <table className="w-full min-w-[680px] text-left text-xs">
+                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Stage</th><th className="p-3 font-semibold">Priority</th><th className="p-3 font-semibold">Owner</th><th className="p-3 font-semibold">Due</th><th /></tr></thead>
+                <tbody>
+                  {rows.map((c) => (
+                    <tr key={c.id} tabIndex={0} onClick={() => setSelected(c.id)} onKeyDown={(e) => e.key === 'Enter' && setSelected(c.id)} className="cursor-pointer border-b border-line/60 hover:bg-sunken/60 focus:bg-sunken/60 focus:outline-none">
+                      <td className="p-3"><p className="font-semibold">{c.student_name ?? c.student_ref ?? 'Student'}</p>{c.department && <p className="text-xs text-muted">{c.department}</p>}</td>
+                      <td className="p-3">{pretty(c.state)}</td>
+                      <td className="p-3"><Pill tone={PRIORITY[c.priority] ?? PRIORITY.low}>{pretty(c.priority)}</Pill></td>
+                      <td className="p-3">{c.owner_name ?? <span className="text-tier-medium">Unassigned</span>}</td>
+                      <td className="p-3 tabular-nums">{c.is_overdue ? <span className="flex items-center gap-1 font-semibold text-tier-high"><AlertTriangle className="h-3 w-3" /> Overdue</span> : fmtDate(c.due_at)}</td>
+                      <td className="p-3 text-right text-accent"><ChevronRight className="inline h-4 w-4" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
       </QueryState>
-
-      {selectedCaseId && (
-        <CaseDetailDrawer
-          caseId={selectedCaseId}
-          onClose={() => setSelectedCaseId(null)}
-          userRole="admin"
-        />
-      )}
+      {selected && <CaseDetailDrawer caseId={selected} onClose={() => setSelected(null)} userRole="admin" />}
     </div>
   )
 }

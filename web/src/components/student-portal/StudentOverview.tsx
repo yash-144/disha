@@ -13,7 +13,7 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
   return (
     <div className="mt-3 flex flex-col gap-4 font-sans">
       {/* Check-in section */}
-      <section className="rounded-3xl border border-gray-100 bg-white p-5 text-xs shadow-xs">
+      <section className="rounded-3xl border border-line bg-white p-5 text-xs shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HeartHandshake className="w-4 h-4 text-purple-600" />
@@ -31,7 +31,7 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
               <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-purple-50 p-4 rounded-2xl border border-purple-100">
                 <div>
                   <p className="font-semibold text-purple-950 text-xs">A new pulse check-in is waiting for you</p>
-                  <p className="text-[11px] text-purple-700 mt-0.5">
+                  <p className="text-xs text-purple-700 mt-0.5">
                     Takes less than 2 minutes and helps your advisors provide tailored academic support.
                   </p>
                 </div>
@@ -49,7 +49,7 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
       </section>
 
       {/* Wellbeing trend section */}
-      <section className="rounded-3xl border border-gray-100 bg-white p-5 text-xs shadow-xs">
+      <section className="rounded-3xl border border-line bg-white p-5 text-xs shadow-xs">
         <div className="flex items-center gap-2 mb-2">
           <TrendingUp className="w-4 h-4 text-blue-600" />
           <h2 className="text-sm font-bold text-gray-900">Wellbeing trend</h2>
@@ -58,8 +58,8 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
           {(pts) => (
             <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
               {pts.map((p) => (
-                <div key={p.period_id} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                  <p className="text-[11px] text-gray-500 font-medium">{p.label}</p>
+                <div key={p.period_id} className="p-3 bg-gray-50 rounded-xl border border-line">
+                  <p className="text-xs text-gray-500 font-medium">{p.label}</p>
                   <p className="text-base font-bold text-gray-800 mt-1">
                     {p.suppressed || p.index_score == null
                       ? 'Aggregated'
@@ -74,7 +74,7 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
 
       {/* Support Requests & Academic Health Overview */}
       <div className="grid gap-4 md:grid-cols-2 text-xs">
-        <section className="rounded-3xl border border-gray-100 bg-white p-5 shadow-xs">
+        <section className="rounded-3xl border border-line bg-white p-5 shadow-xs">
           <div className="flex items-center gap-2 mb-2">
             <HeartHandshake className="w-4 h-4 text-indigo-600" />
             <h2 className="text-sm font-bold text-gray-900">Support requests</h2>
@@ -91,20 +91,20 @@ export function StudentOverview({ onCheckIn }: { onCheckIn: () => void }) {
           </QueryState>
         </section>
 
-        <section className="rounded-3xl border border-gray-100 bg-white p-5 shadow-xs">
+        <section className="rounded-3xl border border-line bg-white p-5 shadow-xs">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="w-4 h-4 text-emerald-600" />
             <h2 className="text-sm font-bold text-gray-900">Academic & Attendance</h2>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <div className="p-2.5 bg-gray-50 rounded-xl">
-              <span className="text-[11px] text-gray-500">CGPA / GPA</span>
+              <span className="text-xs text-gray-500">CGPA / GPA</span>
               <QueryState query={academics} empty={<p className="text-sm font-bold text-gray-700 mt-0.5">—</p>}>
                 {(a) => <p className="text-sm font-bold text-gray-800 mt-0.5">{a?.cgpa ?? a?.gpa ?? 'Good standing'}</p>}
               </QueryState>
             </div>
             <div className="p-2.5 bg-gray-50 rounded-xl">
-              <span className="text-[11px] text-gray-500">Attendance</span>
+              <span className="text-xs text-gray-500">Attendance</span>
               <QueryState query={attendance} empty={<p className="text-sm font-bold text-gray-700 mt-0.5">—</p>}>
                 {(att) => (
                   <p className="text-sm font-bold text-gray-800 mt-0.5">

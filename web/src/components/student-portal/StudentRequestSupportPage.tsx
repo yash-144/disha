@@ -43,7 +43,7 @@ export function StudentRequestSupportPage() {
           setStudentNote('')
           setMsg({
             ok: true,
-            text: 'Your confidential support request has been submitted. A designated campus counselor will reach out shortly.',
+            text: 'Request sent.',
           })
         },
         onError: (err) => {
@@ -56,7 +56,7 @@ export function StudentRequestSupportPage() {
   return (
     <div className="mt-2 space-y-6 font-sans">
       {/* Submission Form */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs">
+      <div className="bg-white rounded-3xl border border-line p-6 shadow-xs">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-xl bg-purple-50 text-purple-700">
             <HeartHandshake className="w-5 h-5" />
@@ -83,13 +83,13 @@ export function StudentRequestSupportPage() {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
                 Support Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs"
+                className="w-full p-2.5 rounded-xl border border-line bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -100,13 +100,13 @@ export function StudentRequestSupportPage() {
             </div>
 
             <div>
-              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
                 Preferred Meeting Window
               </label>
               <select
                 value={preferredSlot}
                 onChange={(e) => setPreferredSlot(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs"
+                className="w-full p-2.5 rounded-xl border border-line bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs"
               >
                 {SLOTS.map((s) => (
                   <option key={s} value={s}>
@@ -118,7 +118,7 @@ export function StudentRequestSupportPage() {
           </div>
 
           <div>
-            <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-[10px]">
+            <label className="font-bold text-gray-700 block mb-1.5 uppercase tracking-wider text-xs">
               How can we assist you? (Personal Reflection)
             </label>
             <textarea
@@ -126,7 +126,7 @@ export function StudentRequestSupportPage() {
               value={studentNote}
               onChange={(e) => setStudentNote(e.target.value)}
               placeholder="Describe your current situation, challenge, or what kind of guidance would help you most right now..."
-              className="w-full p-3 rounded-2xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs leading-relaxed"
+              className="w-full p-3 rounded-2xl border border-line bg-gray-50/50 focus:bg-white focus:outline-purple-600 text-xs leading-relaxed"
               required
             />
           </div>
@@ -143,19 +143,19 @@ export function StudentRequestSupportPage() {
       </div>
 
       {/* History of Support Requests */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-xs">
+      <div className="bg-white rounded-3xl border border-line p-6 shadow-xs">
         <h3 className="text-sm font-bold text-gray-900 mb-3">Your Support Requests History</h3>
         {reqs.isLoading ? (
-          <p className="text-xs text-gray-400">Loading requests...</p>
+          <p className="text-xs text-muted">Loading requests...</p>
         ) : !reqs.data?.length ? (
-          <p className="text-xs text-gray-400 italic">No support requests submitted yet.</p>
+          <p className="text-xs text-muted italic">No support requests submitted yet.</p>
         ) : (
-          <div className="divide-y divide-gray-100 text-xs space-y-3 pt-1">
+          <div className="divide-y divide-line text-xs space-y-3 pt-1">
             {reqs.data.map((r) => (
               <div key={r.id} className="pt-3 first:pt-0 space-y-1.5">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-gray-900">{r.category}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${
                     r.status === 'resolved' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                   }`}>
                     {r.status}
@@ -163,12 +163,12 @@ export function StudentRequestSupportPage() {
                 </div>
                 <p className="text-gray-600 leading-relaxed">{r.student_note}</p>
                 {r.faculty_response && (
-                  <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-gray-700 text-[11px]">
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-line text-gray-700 text-xs">
                     <span className="font-bold text-purple-700 block mb-0.5">Advisor Response:</span>
                     {r.faculty_response}
                   </div>
                 )}
-                <div className="text-[10px] text-gray-400">
+                <div className="text-xs text-muted">
                   Preferred Slot: {r.preferred_slot} • Submitted {new Date(r.created_at).toLocaleDateString()}
                 </div>
               </div>
@@ -179,3 +179,4 @@ export function StudentRequestSupportPage() {
     </div>
   )
 }
+

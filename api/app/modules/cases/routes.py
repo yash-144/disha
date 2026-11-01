@@ -26,11 +26,21 @@ router = APIRouter(tags=["Cases"])
 def _extract_actor_context(current_user: dict, ctx: TenancyContext):
     actor_id = ctx.user_id
     roles = [ctx.role.value]
-    if "roles" in current_user and isinstance(current_user["roles"], list):
-        roles.extend(current_user["roles"])
+    # Only the role the caller is acting as counts; token roles would let a multi-role user see everything.
     if ctx.is_platform_admin and "platform_admin" not in roles:
         roles.append("platform_admin")
     return actor_id, list(set(roles))
+
+
+def _assert_can_view(ctx: TenancyContext, case) -> None:
+    from app.modules.cases.services import CASE_WIDE_VIEW_ROLES
+    if ctx.is_platform_admin or ctx.role.value in CASE_WIDE_VIEW_ROLES:
+        return
+    if ctx.role.value in ("counsellor", "mentor") and case.assigned_counsellor_id in (None, ctx.user_id):
+        return
+    if ctx.role.value == "faculty":
+        return  # faculty read through /faculty/cases, which is scoped to their sections
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this case")
 
 
 @router.post("", response_model=CaseDetailResponse, status_code=status.HTTP_201_CREATED)
@@ -101,6 +111,7 @@ async def get_case(
         campus_id=ctx.campus_id,
         is_platform_admin=ctx.is_platform_admin,
     )
+    _assert_can_view(ctx, case)
     return case_to_detail_response(case)
 
 

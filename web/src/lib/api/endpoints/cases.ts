@@ -133,3 +133,4 @@ export const casesApi = {
   getAiReviewBrief: (caseId: string) =>
     api.post<AiReviewBrief>('/api/v1/ai/review-brief', { case_id: caseId }),
 }
+

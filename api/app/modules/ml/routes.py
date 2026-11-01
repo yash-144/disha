@@ -92,3 +92,10 @@ async def drift_report(run_id: Optional[str] = None, ctx: TenancyContext = Depen
     """PSI drift of the scored data against the training reference (INSIGHTS_SPEC section 7)."""
     run = await services.get_run(db, ctx.campus_id, run_id) if run_id else await services.latest_run(db, ctx.campus_id)
     return DriftResponse(run_id=run.id, as_of_day=run.as_of_day, finished_at=run.finished_at, data_drift=run.data_drift or {})
+
+
+@router.get("/early-warning")
+async def early_warning(ctx: TenancyContext = Depends(require_role(*READ_ROLES)), db: AsyncSession = Depends(get_db)):
+    """How early students are flagged: first-flag day, share flagged in the first half of term, warning time before
+    a student leaves a course, plus the model's held-out benchmark."""
+    return await services.early_warning(db, ctx.campus_id)

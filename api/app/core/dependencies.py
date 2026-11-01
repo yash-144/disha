@@ -11,6 +11,9 @@ from app.modules.identity.models import User, Membership
 
 security_scheme = HTTPBearer(auto_error=False)
 
+# Default role when a user holds several on one campus and sends no X-Role
+ROLE_PRIORITY = ["institution_admin", "hod", "counsellor", "faculty", "mentor", "student"]
+
 
 class TenancyContext:
     """Encapsulates the trusted, database-verified identity, campus tenancy, and role context."""
@@ -64,6 +67,7 @@ async def get_current_user(
 
 async def get_tenancy_context(
     x_campus_id: Optional[str] = Header(None, alias="X-Campus-ID"),
+    x_role: Optional[str] = Header(None, alias="X-Role"),
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> TenancyContext:
@@ -90,15 +94,9 @@ async def get_tenancy_context(
             detail="User account does not exist or has been deactivated",
         )
 
-    # 2. Check for Platform Admin privilege (global override)
-    platform_mem_result = await db.execute(
-        select(Membership).where(
-            Membership.user_id == user.id,
-            Membership.role == Role.PLATFORM_ADMIN.value,
-            Membership.is_active == True,  # noqa: E712
-        )
-    )
-    platform_membership = platform_mem_result.scalar_one_or_none()
+    # 2. Check for Platform Admin privilege (global override). Memberships arrive with the user (selectin).
+    active = [m for m in user.memberships if m.is_active]
+    platform_membership = next((m for m in active if m.role == Role.PLATFORM_ADMIN.value), None)
     if platform_membership:
         campus_id = x_campus_id or "platform-global"
         return TenancyContext(
@@ -119,14 +117,14 @@ async def get_tenancy_context(
         )
 
     # 4. Verify active membership in the specified campus
-    mem_result = await db.execute(
-        select(Membership).where(
-            Membership.user_id == user.id,
-            Membership.campus_id == campus_id,
-            Membership.is_active == True,  # noqa: E712
-        )
-    )
-    membership = mem_result.scalar_one_or_none()
+    in_campus = [m for m in active if m.campus_id == campus_id]
+    membership = None
+    if x_role:  # the caller picks one of the roles they genuinely hold on this campus
+        membership = next((m for m in in_campus if m.role == x_role), None)
+        if not membership and in_campus:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You do not hold the role '{x_role}' on this campus")
+    elif in_campus:
+        membership = min(in_campus, key=lambda m: ROLE_PRIORITY.index(m.role) if m.role in ROLE_PRIORITY else 99)
     if not membership:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

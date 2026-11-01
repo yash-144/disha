@@ -4,20 +4,29 @@ import { useCaseDecision, useCases } from '../../lib/api/endpoints/counsellor.ho
 import { errorMessage } from '../../lib/api/errors'
 import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
 import { ChevronRight, AlertTriangle } from 'lucide-react'
+import { useT } from '../../i18n'
+
+/** Steps a counsellor may take themselves. Assigning an owner (action_planned -> assigned) is an admin action in the backend. */
+const STEP: Record<string, { target: string; label: string; done: string }> = {
+  suggested: { target: 'under_review', label: 'Start review', done: 'Review started.' },
+  under_review: { target: 'action_planned', label: 'Approve plan', done: 'Plan approved. An admin can now assign an owner.' },
+  assigned: { target: 'accepted', label: 'Accept', done: 'Case accepted.' },
+}
 
 export function CounsellorSupportCases() {
   const cases = useCases()
+  const t = useT()
   const decide = useCaseDecision()
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null)
 
-  const act = (e: React.MouseEvent, id: string, version: number, action: 'accept' | 'dismiss') => {
+  const act = (e: React.MouseEvent, id: string, version: number, target: string, doneText: string) => {
     e.stopPropagation()
     setMsg(null)
     decide.mutate(
-      { id, version, action },
+      { id, version, action: 'advance', target },
       {
-        onSuccess: () => setMsg({ ok: true, text: action === 'accept' ? 'Case accepted.' : 'Case dismissed.' }),
+        onSuccess: () => setMsg({ ok: true, text: doneText }),
         onError: (err) => setMsg({ ok: false, text: errorMessage(err) }),
       },
     )
@@ -33,49 +42,41 @@ export function CounsellorSupportCases() {
 
       <QueryState query={cases} empty={<EmptyState title="No active cases" message="Students requiring accountable interventions will appear here." />}>
         {(rows) => (
-          <div className="rounded-2xl border border-gray-100 bg-white shadow-xs overflow-hidden">
-            <ul className="divide-y divide-gray-100 text-xs">
+          <div className="rounded-2xl border border-line bg-white shadow-xs overflow-hidden">
+            <ul className="divide-y divide-line text-xs">
               {rows.map((c) => (
                 <li
                   key={c.id}
                   onClick={() => setSelectedCaseId(c.id)}
-                  className="flex items-center justify-between gap-3 p-3.5 hover:bg-gray-50 transition cursor-pointer"
+                  className="flex items-center justify-between gap-3 p-3.5 hover:bg-sunken/60 transition cursor-pointer"
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase font-semibold">
+                      <span className="font-bold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-sunken text-ink-2 uppercase font-semibold">
                         {c.priority}
                       </span>
                       {c.is_overdue && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
+                        <span className="text-xs px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
                           <AlertTriangle className="w-3 h-3" /> Overdue
                         </span>
                       )}
                     </div>
-                    <span className="text-gray-500 text-[11px]">
-                      State: <span className="font-semibold uppercase text-indigo-600">{c.state}</span>
+                    <span className="text-muted text-xs">
+                      State: <span className="font-semibold text-accent">{c.state}</span>
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {c.state === 'suggested' ? (
+                    {STEP[c.state] ? (
                       <span className="flex gap-2">
                         <button
                           type="button"
                           disabled={decide.isPending}
-                          onClick={(e) => act(e, c.id, c.version, 'accept')}
-                          className="rounded-full bg-purple-700 px-3 py-1 font-bold text-white hover:bg-purple-800 disabled:opacity-50 cursor-pointer"
+                          onClick={(e) => act(e, c.id, c.version, STEP[c.state].target, STEP[c.state].done)}
+                          className="rounded-md bg-ink px-3 py-1.5 font-semibold text-white hover:bg-ink-2 disabled:opacity-50 cursor-pointer"
                         >
-                          Accept
-                        </button>
-                        <button
-                          type="button"
-                          disabled={decide.isPending}
-                          onClick={(e) => act(e, c.id, c.version, 'dismiss')}
-                          className="rounded-full border border-gray-200 px-3 py-1 font-semibold hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
-                        >
-                          Dismiss
+                          {t(STEP[c.state].label)}
                         </button>
                       </span>
                     ) : (

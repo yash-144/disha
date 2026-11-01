@@ -23,7 +23,7 @@ export function LiveClassesSection() {
             />
 
             {/* Live badge */}
-            <span className="absolute left-4 top-4 flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-3 py-1 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] animate-pulse">
+            <span className="absolute left-4 top-4 flex items-center gap-2 border-2 border-ink bg-accent px-3 py-1 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] animate-pulse">
               <Radio className="h-3.5 w-3.5" /> LIVE
             </span>
 
@@ -45,7 +45,7 @@ export function LiveClassesSection() {
 
         {/* Content & Schedule List */}
         <div>
-          <span className="inline-block border-2 border-ink bg-[#0f9d58] px-2.5 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] mb-3">
+          <span className="inline-block border-2 border-ink bg-accent px-2.5 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] mb-3">
             REAL-TIME COLLABORATION
           </span>
           <h2 className="text-2xl font-bold leading-snug text-brand sm:text-[32px]">
@@ -56,7 +56,7 @@ export function LiveClassesSection() {
             vector canvas, ship projects, and get code reviews before the session ends.
           </p>
 
-          <ul className="mt-7 divide-y-2 divide-ink border-2 border-ink bg-[#f5f5f5] shadow-[4px_4px_0_#0d1b3e]">
+          <ul className="mt-7 divide-y-2 divide-ink border-2 border-ink bg-paper shadow-[4px_4px_0_#0d1b3e]">
             {LIVE_SESSIONS_DATA.map((s) => (
               <li
                 key={s.id}
@@ -64,7 +64,7 @@ export function LiveClassesSection() {
               >
                 <div className="min-w-0">
                   <p className="truncate text-xs font-bold text-ink sm:text-sm">{s.title}</p>
-                  <p className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
+                  <p className="mt-0.5 flex items-center gap-2 text-xs text-muted">
                     <span className="font-bold text-ink">{s.instructor}</span>
                     <span>·</span>
                     <span className="flex items-center gap-1 font-mono text-brand font-bold">
@@ -77,7 +77,7 @@ export function LiveClassesSection() {
                   {s.isLiveNow ? (
                     <button
                       onClick={() => setActiveLiveModal(s)}
-                      className="border-2 border-ink bg-[#0f9d58] px-3.5 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      className="border-2 border-ink bg-accent px-3.5 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
                     >
                       Join Live
                     </button>

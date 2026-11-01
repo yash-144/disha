@@ -21,8 +21,9 @@ export const counsellorApi = {
     api.get<RiskScorePage>('/api/v1/ml/students', { query: { tier, page_size: 50 }, signal }),
   cases: (state?: string, signal?: AbortSignal) =>
     api.get<CaseDetail[]>('/api/v1/cases/', { query: { state, limit: 100 }, signal }),
-  accept: (id: string, expectedVersion: number) =>
-    api.post<CaseDetail>(`/api/v1/cases/${id}/accept`, { target_state: 'accepted', expected_version: expectedVersion }),
+  /** One enforced workflow step (backend returns { status, case, event }). Counsellors cannot self-assign: an admin does that. */
+  advance: (id: string, expectedVersion: number, target: string) =>
+    api.post<{ case: CaseDetail }>(`/api/v1/cases/${id}/transition`, { target_state: target, expected_version: expectedVersion }),
   dismiss: (id: string, expectedVersion: number, notes?: string) =>
     api.post<CaseDetail>(`/api/v1/cases/${id}/dismiss`, { expected_version: expectedVersion, notes }),
 }

@@ -99,3 +99,4 @@ export function useAiReviewBrief() {
     mutationFn: (caseId: string) => casesApi.getAiReviewBrief(caseId),
   })
 }
+

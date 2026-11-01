@@ -14,10 +14,10 @@ export function NewsletterSection() {
   }
 
   return (
-    <section className="border-t-4 border-ink bg-[#0d1b3e] py-14 text-white">
+    <section className="border-t-4 border-ink bg-ink py-14 text-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-6">
         <div className="max-w-md">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0f9d58]">
+          <span className="text-xs font-bold uppercase tracking-wider text-accent">
             Stay ahead of tech curves
           </span>
           <h2 className="mt-1 text-xl font-bold sm:text-2xl">
@@ -42,7 +42,7 @@ export function NewsletterSection() {
           </div>
           <button
             type="submit"
-            className="border-2 border-white bg-[#0f9d58] px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#ffffff] transition hover:bg-[#0b7a43]"
+            className="border-2 border-white bg-accent px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#ffffff] transition hover:bg-accent-dark"
           >
             Subscribe
           </button>

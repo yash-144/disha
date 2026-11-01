@@ -59,3 +59,11 @@ export function useSetRedemptionStatus() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['rewards'] }),
   })
 }
+
+export const useRiskStudents = (tier?: string) =>
+  useQuery({ queryKey: ['ml', 'students', tier ?? 'all'], queryFn: ({ signal }) => adminApi.riskStudents(tier, signal), retry: false })
+export const useCohorts = () =>
+  useQuery({ queryKey: ['ml', 'cohorts'], queryFn: ({ signal }) => adminApi.cohorts(signal), retry: false })
+
+export const useEarlyWarning = () =>
+  useQuery({ queryKey: ['ml', 'early-warning'], queryFn: ({ signal }) => adminApi.earlyWarning(signal), retry: false, staleTime: 60_000 })

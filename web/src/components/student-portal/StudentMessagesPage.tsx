@@ -40,7 +40,7 @@ export function StudentMessagesPage() {
   return (
     <div className="space-y-5 font-sans">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-2xl border border-gray-100 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-2xl border border-line shadow-xs">
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <span>Student Messages &amp; Updates</span>
@@ -60,7 +60,7 @@ export function StudentMessagesPage() {
             type="button"
             onClick={() => markAllRead.mutate()}
             disabled={markAllRead.isPending}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl border border-line transition"
           >
             <CheckCheck className="w-4 h-4" />
             <span>Mark all as read</span>
@@ -70,7 +70,7 @@ export function StudentMessagesPage() {
 
       {/* Notifications List */}
       {isLoading ? (
-        <div className="p-12 text-center text-sm text-gray-500 bg-white rounded-2xl border border-gray-100">
+        <div className="p-12 text-center text-sm text-gray-500 bg-white rounded-2xl border border-line">
           Loading messages...
         </div>
       ) : error ? (
@@ -78,7 +78,7 @@ export function StudentMessagesPage() {
           Unable to load messages: {(error as Error).message}
         </div>
       ) : notifications.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-gray-100 shadow-xs">
+        <div className="p-12 text-center bg-white rounded-2xl border border-line shadow-xs">
           <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
             <Bell className="w-6 h-6" />
           </div>
@@ -109,7 +109,7 @@ export function StudentMessagesPage() {
                 }}
                 className={`p-4 rounded-2xl border transition cursor-pointer flex items-start gap-3.5 ${
                   n.is_read
-                    ? 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50/50'
+                    ? 'bg-white border-line text-gray-700 hover:bg-gray-50/50'
                     : 'bg-blue-50/30 border-blue-100 text-gray-900 shadow-xs hover:bg-blue-50/60'
                 }`}
               >
@@ -130,7 +130,7 @@ export function StudentMessagesPage() {
                     >
                       {n.title}
                     </h4>
-                    <span className="text-[11px] text-gray-400 shrink-0 flex items-center gap-1">
+                    <span className="text-xs text-muted shrink-0 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {dateFormatted}
                     </span>
@@ -141,7 +141,7 @@ export function StudentMessagesPage() {
                   {!n.is_read && (
                     <div className="mt-2.5 flex items-center gap-2">
                       <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />
-                      <span className="text-[11px] font-semibold text-blue-700">Unread</span>
+                      <span className="text-xs font-semibold text-blue-700">Unread</span>
                     </div>
                   )}
                 </div>
@@ -153,3 +153,4 @@ export function StudentMessagesPage() {
     </div>
   )
 }
+

@@ -47,7 +47,9 @@ async def list_audit_events(
     ctx: TenancyContext = Depends(get_tenancy_context),
     db: AsyncSession = Depends(get_db),
 ):
-    """Retrieve campus-scoped audit trail events."""
+    """Retrieve campus-scoped audit trail events. Administrators only."""
+    if ctx.role not in (Role.INSTITUTION_ADMIN, Role.PLATFORM_ADMIN) and not ctx.is_platform_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only administrators may read the audit trail.")
     events = await AuditService.list_events(
         db=db,
         campus_id=ctx.campus_id,

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -175,6 +175,12 @@ async def get_case_detail(
     db: AsyncSession = Depends(get_db),
 ):
     case = await CaseService.get_case(db, case_id, tenancy.campus_id, tenancy.is_platform_admin)
+    visible = await CaseService.list_cases(
+        db=db, campus_id=tenancy.campus_id, actor_id=tenancy.user_id, actor_roles=[tenancy.role.value],
+        is_platform_admin=tenancy.is_platform_admin, student_id=case.student_id, limit=1,
+    )
+    if not visible:
+        raise HTTPException(status_code=403, detail="This student is not in one of your sections")
     return case_to_detail_response(case)
 
 

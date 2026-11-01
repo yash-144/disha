@@ -202,12 +202,12 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                           {pulse.courseId} • {pulse.sectionId}
                         </span>
                         {isCompleted ? (
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center gap-1">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             Completed ({submission.percentage}%)
                           </span>
                         ) : (
-                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
                             Active • Due in 3 days
                           </span>
                         )}
@@ -219,13 +219,13 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
 
                       {/* 3 Categories Badges */}
                       <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[11px] font-semibold border border-purple-100">
+                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-xs font-semibold border border-purple-100">
                           {pulse.academicCount} Academic Qs
                         </span>
-                        <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[11px] font-semibold border border-sky-100">
+                        <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-xs font-semibold border border-sky-100">
                           {pulse.feedbackCount} Feedback Qs
                         </span>
-                        <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-100">
+                        <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-100">
                           {pulse.wellbeingCount} Wellbeing Qs
                         </span>
                       </div>
@@ -235,8 +235,8 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                       </p>
                     </div>
 
-                    <div className="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
-                      <div className="text-[11px] text-gray-500 flex items-center gap-1">
+                    <div className="mt-5 pt-3 border-t border-line flex items-center justify-between">
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         Due {new Date(pulse.dueAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </div>
@@ -295,10 +295,10 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                     ? 'bg-purple-50 border-purple-300 text-purple-900 font-bold'
                     : takingCategoryStep > 1
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    : 'bg-gray-50 border-gray-200 text-gray-400'
+                    : 'bg-gray-50 border-line text-muted'
                 }`}
               >
-                <span className="w-5 h-5 rounded-full bg-current text-white text-[11px] font-bold flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-current text-white text-xs font-bold flex items-center justify-center">
                   1
                 </span>
                 <span className="text-xs">Category A: Academic</span>
@@ -311,10 +311,10 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                     ? 'bg-sky-50 border-sky-300 text-sky-900 font-bold'
                     : takingCategoryStep > 2
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    : 'bg-gray-50 border-gray-200 text-gray-400'
+                    : 'bg-gray-50 border-line text-muted'
                 }`}
               >
-                <span className="w-5 h-5 rounded-full bg-current text-white text-[11px] font-bold flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-current text-white text-xs font-bold flex items-center justify-center">
                   2
                 </span>
                 <span className="text-xs">Category B: Feedback</span>
@@ -325,10 +325,10 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                 className={`flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all ${
                   takingCategoryStep === 3
                     ? 'bg-rose-50 border-rose-300 text-rose-900 font-bold'
-                    : 'bg-gray-50 border-gray-200 text-gray-400'
+                    : 'bg-gray-50 border-line text-muted'
                 }`}
               >
-                <span className="w-5 h-5 rounded-full bg-current text-white text-[11px] font-bold flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-current text-white text-xs font-bold flex items-center justify-center">
                   3
                 </span>
                 <span className="text-xs">Category C: Wellbeing</span>
@@ -347,7 +347,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
               </div>
 
               {academicQuestions.map((q, idx) => (
-                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-[#FAFAFC] border border-gray-200">
+                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-paper border border-line">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-700">Question {idx + 1} of {academicQuestions.length}</span>
                     <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
@@ -374,7 +374,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                             className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center justify-between cursor-pointer ${
                               isSelected
                                 ? 'bg-purple-100/70 border-purple-400 text-purple-950 font-semibold'
-                                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                                : 'bg-white border-line text-gray-700 hover:bg-gray-50'
                             }`}
                           >
                             <span>{opt}</span>
@@ -435,7 +435,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
               </div>
 
               {feedbackQuestions.map((q, idx) => (
-                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-[#FAFAFC] border border-gray-200">
+                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-paper border border-line">
                   <span className="text-xs font-bold text-sky-700 mb-1 block">Feedback Question {idx + 1}</span>
                   <p className="text-sm font-semibold text-gray-900 mb-3">{q.prompt}</p>
 
@@ -457,7 +457,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                           className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'bg-sky-100/70 border-sky-400 text-sky-950 font-semibold'
-                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                              : 'bg-white border-line text-gray-700 hover:bg-gray-50'
                           }`}
                         >
                           <span>{opt}</span>
@@ -507,7 +507,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
               </div>
 
               {wellbeingQuestions.map((q, idx) => (
-                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-[#FAFAFC] border border-gray-200">
+                <div key={q.id} className="p-4 sm:p-5 rounded-2xl bg-paper border border-line">
                   <span className="text-xs font-bold text-rose-700 mb-1 block">Wellbeing Question {idx + 1}</span>
                   <p className="text-sm font-semibold text-gray-900 mb-3">{q.prompt}</p>
 
@@ -528,7 +528,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                           className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'bg-rose-100/70 border-rose-400 text-rose-950 font-semibold'
-                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                              : 'bg-white border-line text-gray-700 hover:bg-gray-50'
                           }`}
                         >
                           <span>{opt}</span>
@@ -546,7 +546,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                 </div>
               ))}
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-4 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setTakingCategoryStep(2)}
@@ -612,8 +612,8 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
           </div>
 
           {/* Objective Question Review Section */}
-          <div className="bg-white rounded-3xl p-6 border border-gray-200/90 shadow-2xs">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+          <div className="bg-white rounded-3xl p-6 border border-line shadow-2xs">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-line">
               <div>
                 <h3 className="text-base font-bold text-gray-900">
                   Academic Question Breakdown & Answers
@@ -676,7 +676,7 @@ export function StudentPulseTakingView({ onBackToOverview }: StudentPulseTakingV
                   </div>
 
                   {item.explanation && (
-                    <div className="p-3 rounded-xl bg-white/80 border border-gray-200 text-xs text-gray-700">
+                    <div className="p-3 rounded-xl bg-white/80 border border-line text-xs text-gray-700">
                       <strong>Concept Explanation:</strong> {item.explanation}
                     </div>
                   )}

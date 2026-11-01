@@ -10,11 +10,11 @@ export function MyCasesPage() {
 
   return (
     <main className="flex-1 p-4 font-sans">
-      <h1 className="mb-3 text-lg font-bold text-[#1E2433]">My Monitored Cases</h1>
+      <h1 className="mb-3 text-lg font-bold text-ink">My Monitored Cases</h1>
       <QueryState query={cases} empty={<EmptyState title="No cases" message="Cases within your academic department or sections will appear here." />}>
         {(rows) => (
-          <div className="rounded-2xl border border-gray-100 bg-white shadow-xs overflow-hidden">
-            <ul className="divide-y divide-gray-100 text-xs">
+          <div className="rounded-2xl border border-line bg-white shadow-xs overflow-hidden">
+            <ul className="divide-y divide-line text-xs">
               {rows.map((c) => (
                 <li
                   key={c.id}
@@ -24,17 +24,17 @@ export function MyCasesPage() {
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-gray-900">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      {c.department && <span className="text-[#717E95]">({c.department})</span>}
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase">
+                      {c.department && <span className="text-muted">({c.department})</span>}
+                      <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase">
                         {c.priority}
                       </span>
                       {c.is_overdue && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
                           <AlertTriangle className="w-3 h-3" /> Overdue
                         </span>
                       )}
                     </div>
-                    <span className="text-[#717E95] text-[11px]">
+                    <span className="text-muted text-xs">
                       State: <span className="font-semibold uppercase text-indigo-600">{c.state}</span>
                     </span>
                   </div>

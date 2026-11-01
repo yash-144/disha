@@ -21,8 +21,8 @@ const SESSIONS = [
     time: '2:00 PM - 3:30 PM',
     title: 'PostgreSQL Query Execution Planning',
     course: 'Database Engineering',
-    color: 'border-l-4 border-l-[#0f9d58] bg-white',
-    badge: 'bg-[#0f9d58] text-white',
+    color: 'border-l-4 border-l-accent bg-white',
+    badge: 'bg-accent text-white',
     students: 24,
   },
   {
@@ -61,8 +61,8 @@ const SESSIONS = [
     time: '11:00 AM - 1:00 PM',
     title: 'Capstone Project Code Review & Q&A',
     course: 'Weekend Cohort',
-    color: 'border-l-4 border-l-[#0f9d58] bg-white',
-    badge: 'bg-[#0f9d58] text-white',
+    color: 'border-l-4 border-l-accent bg-white',
+    badge: 'bg-accent text-white',
     students: 40,
   },
 ]
@@ -79,7 +79,7 @@ export function ScheduleTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               COHORT TIMETABLE
             </span>
             <span className="text-xs text-muted">(UTC+05:30 IST)</span>
@@ -89,7 +89,7 @@ export function ScheduleTab() {
 
         <button
           onClick={() => addToast('Schedule Event', 'Interactive calendar slot picker opened.', 'info')}
-          className="flex items-center gap-1.5 border-2 border-ink bg-[#0f9d58] px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+          className="flex items-center gap-1.5 border-2 border-ink bg-accent px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
         >
           <Plus className="h-4 w-4" /> Add Schedule Slot
         </button>
@@ -121,10 +121,10 @@ export function ScheduleTab() {
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className={`border border-ink px-2 py-0.5 text-[10px] font-bold shadow-[1px_1px_0_#0d1b3e] ${s.badge}`}>
+                <span className={`border border-ink px-2 py-0.5 text-xs font-bold shadow-[1px_1px_0_#0d1b3e] ${s.badge}`}>
                   {s.day} DAY
                 </span>
-                <span className="flex items-center gap-1 text-[11px] font-bold text-gray-600">
+                <span className="flex items-center gap-1 text-xs font-bold text-gray-600">
                   <Clock className="h-3 w-3 text-brand" /> {s.time}
                 </span>
               </div>
@@ -134,12 +134,12 @@ export function ScheduleTab() {
             </div>
 
             <div className="mt-4 border-t border-ink/10 pt-3 flex items-center justify-between">
-              <span className="flex items-center gap-1 text-[11px] font-bold text-[#0f9d58]">
+              <span className="flex items-center gap-1 text-xs font-bold text-accent">
                 <Users className="h-3.5 w-3.5" /> {s.students} Enrolled
               </span>
               <button
                 onClick={() => addToast('Connecting Stream', `Joining live session room: "${s.title}".`, 'info')}
-                className="flex items-center gap-1 border border-ink bg-[#0f9d58] px-2.5 py-1 text-[10px] font-bold text-white shadow-[1px_1px_0_#0d1b3e] hover:bg-[#0b7a43]"
+                className="flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-xs font-bold text-white shadow-[1px_1px_0_#0d1b3e] hover:bg-accent-dark"
               >
                 <Video className="h-3 w-3" /> Join Room
               </button>

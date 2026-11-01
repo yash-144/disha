@@ -29,7 +29,7 @@ export function SolutionsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.25fr_1fr] gap-6 sm:gap-8 items-center">
 
           {/* Card 1: Student Cockpit */}
-          <div className="rounded-3xl bg-[#eef2f6] border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
+          <div className="rounded-3xl bg-paper border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
               Student Academic Radar
             </h3>
@@ -85,10 +85,10 @@ export function SolutionsSection() {
 
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-4xl sm:text-5xl font-bold tracking-tight text-white">{activeDial}%</span>
-                <span className="text-[10px] uppercase font-semibold text-blue-200 mt-1 tracking-wider">
+                <span className="text-xs uppercase font-semibold text-blue-200 mt-1 tracking-wider">
                   Retention Rate
                 </span>
-                <span className="text-[10px] text-emerald-300 font-medium mt-1">
+                <span className="text-xs text-emerald-300 font-medium mt-1">
                   +14% vs National Avg
                 </span>
               </div>
@@ -103,7 +103,7 @@ export function SolutionsSection() {
           </div>
 
           {/* Card 3: Faculty & Counsellor Portal */}
-          <div className="rounded-3xl bg-[#eef2f6] border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
+          <div className="rounded-3xl bg-paper border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
               Faculty &amp; Counsellor Suite
             </h3>

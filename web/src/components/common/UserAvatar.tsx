@@ -7,11 +7,11 @@ export function initialsOf(name: string | null | undefined): string {
 }
 
 /** Initials avatar (the API has no profile photo). */
-export function UserAvatar({ name, className = 'w-8 h-8 text-[11px]' }: { name?: string | null; className?: string }) {
+export function UserAvatar({ name, className = 'w-8 h-8 text-xs' }: { name?: string | null; className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#1E2433] font-bold text-white ring-2 ring-white shadow-2xs ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-accent font-semibold text-white ${className}`}
     >
       {initialsOf(name)}
     </span>

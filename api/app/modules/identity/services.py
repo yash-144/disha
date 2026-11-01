@@ -134,49 +134,41 @@ class IdentityService:
         db: AsyncSession,
         email: str,
         full_name: Optional[str] = None,
-        role: Optional[str] = None,
-        campus_id: Optional[str] = None,
     ) -> Dict[str, Any]:
+        """Sign in an identity whose email was already verified (see supabase_auth.verify_supabase_token).
+
+        Roles are never taken from the client. A person gets staff access only through an invitation or a
+        provisioned account; anyone else who signs in lands as a student of the default campus.
+        """
         email_clean = email.lower().strip()
         user = await IdentityService.get_user_by_email(db, email_clean)
         if not user:
             name = full_name or email_clean.split("@")[0].replace(".", " ").title()
             user = await IdentityService.create_user(
-                db=db,
-                email=email_clean,
-                password=str(uuid.uuid4()),
-                full_name=name,
-            )
-            c_id = campus_id or "campus-1"
-            r_val = role or "counsellor"
-            await IdentityService.add_membership(
-                db=db,
-                user_id=user.id,
-                campus_id=c_id,
-                role=r_val,
-                department="General",
+                db=db, email=email_clean, password=str(uuid.uuid4()), full_name=name,
             )
             await db.commit()
 
-        # Claim any pending invitations for verified Google email
+        _u = user
+        user_id, user_email, user_name = _u.id, _u.email, _u.full_name  # a rollback below expires `user`
+
+        # Claim any pending invitations for the verified email
         try:
             from app.modules.campus.services import MembershipInviteService
-            claimed = await MembershipInviteService.claim_for_email(db, user.id, email_clean)
+            claimed = await MembershipInviteService.claim_for_email(db, user_id, email_clean)
             if claimed:
                 await db.commit()
         except Exception:
-            pass
+            await db.rollback()
 
-        memberships = await IdentityService.get_active_memberships(db, user.id)
-        if not memberships and role:
-            c_id = campus_id or "campus-1"
-            m = await IdentityService.add_membership(
-                db=db,
-                user_id=user.id,
-                campus_id=c_id,
-                role=role,
-                department="General",
-            )
+        memberships = await IdentityService.get_active_memberships(db, user_id)
+        c_id = memberships[0].campus_id if memberships else None
+        if not memberships:
+            from app.modules.campus.models import Campus
+            res = await db.execute(select(Campus).where(Campus.is_active == True).order_by(Campus.created_at))  # noqa: E712
+            campus = res.scalars().first()
+            c_id = campus.id if campus else "campus-1"
+            m = await IdentityService.add_membership(db=db, user_id=user_id, campus_id=c_id, role="student", department="General")
             await db.commit()
             memberships = [m]
 
@@ -184,8 +176,8 @@ class IdentityService:
         if any(m.role == "student" for m in memberships):
             try:
                 from app.modules.roster.models import Student
-                c_id = campus_id or (memberships[0].campus_id if memberships else "campus-1")
-                s_stmt = select(Student).where(Student.user_id == user.id, Student.campus_id == c_id)
+                c_id = memberships[0].campus_id if memberships else "campus-1"
+                s_stmt = select(Student).where(Student.user_id == user_id, Student.campus_id == c_id)
                 s_res = await db.execute(s_stmt)
                 student_rec = s_res.scalar_one_or_none()
                 if not student_rec:
@@ -193,14 +185,14 @@ class IdentityService:
                     s_res = await db.execute(s_email_stmt)
                     student_rec = s_res.scalar_one_or_none()
                     if student_rec and not student_rec.user_id:
-                        student_rec.user_id = user.id
+                        student_rec.user_id = user_id
                         await db.commit()
                 if not student_rec:
                     student_rec = Student(
                         campus_id=c_id,
-                        user_id=user.id,
-                        student_uid=f"STU-{user.id[:8].upper()}",
-                        full_name=user.full_name,
+                        user_id=user_id,
+                        student_uid=f"STU-{user_id[:8].upper()}",
+                        full_name=user_name,
                         email=email_clean,
                         department="Computer Science",
                         course="B.Tech",
@@ -228,8 +220,8 @@ class IdentityService:
         ]
 
         token_data = {
-            "sub": user.id,
-            "email": user.email,
+            "sub": user_id,
+            "email": user_email,
             "roles": [m.role for m in memberships],
             "memberships": membership_dicts,
             "is_platform_admin": any(m.role == "platform_admin" for m in memberships),
@@ -239,8 +231,8 @@ class IdentityService:
         return {
             "access_token": token,
             "token_type": "bearer",
-            "user_id": user.id,
-            "email": user.email,
-            "full_name": user.full_name,
+            "user_id": user_id,
+            "email": user_email,
+            "full_name": user_name,
             "memberships": membership_dicts,
         }

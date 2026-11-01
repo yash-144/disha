@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from typing import Optional
+from app.modules.identity.supabase_auth import verify_supabase_token
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -28,15 +30,15 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google_login(payload: GoogleAuthRequest, db: AsyncSession = Depends(get_db)):
-    """Authenticate or register a user via Google OAuth and issue a DISHA JWT."""
-    result = await IdentityService.google_login(
-        db,
-        email=payload.email,
-        full_name=payload.full_name,
-        role=payload.role,
-        campus_id=payload.campus_id,
-    )
+async def google_login(
+    payload: GoogleAuthRequest,
+    authorization: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Exchange a verified Supabase (Google) sign-in for a DISHA JWT. The email comes from the token."""
+    claims = await verify_supabase_token(authorization)
+    full_name = payload.full_name or (claims.get("user_metadata") or {}).get("full_name")
+    result = await IdentityService.google_login(db, email=claims["email"], full_name=full_name)
     return TokenResponse(
         access_token=result["access_token"],
         token_type=result["token_type"],

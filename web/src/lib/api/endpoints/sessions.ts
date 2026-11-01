@@ -45,3 +45,4 @@ export const sessionsApi = {
   noShow: (id: string) =>
     api.post<CounsellingSession>(`/api/v1/counselling/sessions/${id}/no-show`),
 }
+

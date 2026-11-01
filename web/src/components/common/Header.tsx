@@ -46,7 +46,7 @@ export function Header() {
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
           <span className="text-emerald-400 font-semibold">EARLY-WARNING ACTIVE:</span>
-          <span className="hidden sm:inline">Calibrated ML checkpoints monitoring 4,424+ student signals across campus cohorts.</span>
+          <span className="hidden sm:inline">Weekly risk scores with plain-language reasons for every flagged student.</span>
           <button
             onClick={() => navigateTo('login')}
             className="ml-1 text-white underline decoration-emerald-400 decoration-1 underline-offset-4 hover:text-emerald-300 transition"
@@ -120,7 +120,7 @@ export function Header() {
           {/* Right Action Hub */}
           <div className="flex items-center gap-3">
             {/* Segmented Role Switcher */}
-            <div className="hidden lg:flex items-center rounded-full bg-slate-100 p-1 text-[11px] font-medium">
+            <div className="hidden lg:flex items-center rounded-full bg-slate-100 p-1 text-xs font-medium">
               <button
                 onClick={() => switchRole('instructor')}
                 className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${

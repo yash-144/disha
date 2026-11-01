@@ -84,17 +84,17 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
   }
 
   return (
-    <div className="bg-[#EAEFF8] min-h-screen p-2 sm:p-2.5 md:p-3 flex items-center justify-center font-sans antialiased text-[#1E2433]">
+    <div className="bg-paper min-h-screen flex font-sans antialiased text-ink">
       {/* Outer Card with rounded corners matching DISHA design system */}
-      <div className="bg-[#F8F9FD] rounded-[28px] md:rounded-[32px] shadow-sm border border-[#E0E6ED] w-full flex overflow-hidden min-h-[92vh]">
+      <div className="w-full flex min-h-screen">
         {/* Left Navigation Sidebar */}
         <StudentSidebar activeTab={activeTab} onSelectTab={handleSelectTab} />
 
         {/* Vertical divider */}
-        <div className="w-[1px] bg-[#E8EEF5] shrink-0" />
+        
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
+        <main className="flex-1 min-w-0 flex flex-col p-4 sm:p-6 lg:px-8 lg:py-6 overflow-y-auto">
           {/* Header */}
           <StudentHeader
             title={getHeaderTitle()}

@@ -7,7 +7,7 @@ export function BlogSection() {
   const { setActiveBlogPost, navigateTo } = useApp()
 
   return (
-    <section className="border-t-4 border-ink bg-[#f5f5f5]">
+    <section className="border-t-4 border-ink bg-paper">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -40,14 +40,14 @@ export function BlogSection() {
                   className="aspect-[16/10] w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <span
-                  className={`absolute left-3 top-3 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs ${p.tagBg}`}
+                  className={`absolute left-3 top-3 px-2 py-0.5 text-xs font-bold text-white shadow-xs ${p.tagBg}`}
                 >
                   {p.tag}
                 </span>
               </div>
 
               <div className="flex flex-1 flex-col p-5">
-                <p className="flex items-center gap-3 text-[11px] text-muted">
+                <p className="flex items-center gap-3 text-xs text-muted">
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" /> {p.author}
                   </span>

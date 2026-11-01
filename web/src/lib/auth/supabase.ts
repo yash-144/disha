@@ -75,38 +75,58 @@ export async function syncGoogleUserWithBackend(payload: {
   const targetUrl = apiBase ? `${apiBase}/api/v1/identity/google` : `${directApi}/api/v1/identity/google`
 
   try {
+    // The server verifies this token; the role and campus come from the database, never from the client.
+    const { data: sessionData } = (await supabase?.auth.getSession()) ?? { data: { session: null } }
+    const supabaseToken = sessionData.session?.access_token
+    if (!supabaseToken) return null
+
     const res = await fetch(targetUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: payload.email,
-        full_name: payload.fullName || payload.email.split('@')[0],
-        role: payload.role || 'counsellor',
-        campus_id: 'campus-1',
-        avatar_url: payload.avatarUrl,
-      }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${supabaseToken}` },
+      body: JSON.stringify({ full_name: payload.fullName, avatar_url: payload.avatarUrl }),
     })
-
     if (!res.ok) {
       console.warn('Backend sync returned non-OK status:', res.status)
       return null
     }
-
-    const data = await res.json()
-    if (data.access_token) {
-      localStorage.setItem('disha_access_token', data.access_token)
-      if (data.memberships?.[0]?.campus_id) {
-        sessionStore.setCampusId(data.memberships[0].campus_id)
-      }
-      return data.access_token
-    }
+    return storeBackendSession(await res.json())
   } catch (err) {
     console.error('Failed to sync Google user with backend:', err)
   }
 
   return null
+}
+
+export interface BackendTokenResponse {
+  access_token?: string
+  memberships?: { campus_id: string }[]
+}
+
+function storeBackendSession(data: BackendTokenResponse): string | null {
+  if (!data.access_token) return null
+  localStorage.setItem('disha_access_token', data.access_token)
+  if (data.memberships?.[0]?.campus_id) sessionStore.setCampusId(data.memberships[0].campus_id)
+  return data.access_token
+}
+
+/** Email + password sign-in against the DISHA API (seeded demo accounts and provisioned staff). */
+export async function signInWithPassword(email: string, password: string): Promise<{ error: Error | null }> {
+  const apiBase = (import.meta.env.VITE_API_BASE_URL as string) || ''
+  try {
+    const res = await fetch(`${apiBase}/api/v1/identity/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      return { error: new Error(body.detail || 'Sign-in failed') }
+    }
+    storeBackendSession(await res.json())
+    return { error: null }
+  } catch {
+    return { error: new Error('Could not reach the DISHA server') }
+  }
 }
 
 /**
@@ -121,9 +141,15 @@ export const supabaseAuthProvider: AuthProvider = {
     // 2. Check Supabase session
     if (supabase) {
       try {
+        // A Supabase session alone is not accepted by the API: exchange it for a DISHA token.
         const { data } = await supabase.auth.getSession()
-        if (data.session?.access_token) {
-          return data.session.access_token
+        const user = data.session?.user
+        if (user?.email) {
+          return await syncGoogleUserWithBackend({
+            email: user.email,
+            fullName: user.user_metadata?.full_name || user.user_metadata?.name,
+            avatarUrl: user.user_metadata?.avatar_url,
+          })
         }
       } catch (e) {
         console.warn('Error reading Supabase session:', e)

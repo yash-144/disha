@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
 
-from sqlalchemy import select, update, and_, or_
+from sqlalchemy import select, update, and_, or_, false
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import lazyload, selectinload
 
 from app.shared.enums import CaseState, CaseStatus, map_status_to_state, map_state_to_status
 from app.shared.utils import utc_now
@@ -235,6 +235,9 @@ class CaseLifecycleService:
         }
 
 
+CASE_WIDE_VIEW_ROLES = {"platform_admin", "institution_admin", "hod", "leadership"}
+
+
 class CaseService:
     """Production database-backed Case service with ACID transaction boundaries,
     strict campus isolation, and atomic optimistic concurrency."""
@@ -366,12 +369,33 @@ class CaseService:
         offset: int = 0,
     ) -> List[Case]:
         """List cases strictly isolated by campus tenancy and optional filters."""
+        # The list view needs only the student and owner names: stop the eager-load cascade (notes, events, ...).
         stmt = (
             select(Case)
-            .options(selectinload(Case.student), selectinload(Case.assigned_counsellor))
+            .options(
+                lazyload("*"),
+                selectinload(Case.student).options(lazyload("*")),
+                selectinload(Case.assigned_counsellor).options(lazyload("*")),
+            )
         )
         if not is_platform_admin or campus_id:
             stmt = stmt.where(Case.campus_id == campus_id)
+
+        # Visibility by role: a case holds sensitive student information.
+        roles = set(actor_roles or [])
+        if not (is_platform_admin or roles & CASE_WIDE_VIEW_ROLES):
+            if roles & {"counsellor", "mentor"}:
+                stmt = stmt.where(or_(Case.assigned_counsellor_id == actor_id, Case.assigned_counsellor_id.is_(None)))
+            elif "faculty" in roles:
+                from app.modules.faculty.models import CourseEnrollment, CourseSection
+                taught = (
+                    select(CourseEnrollment.student_id)
+                    .join(CourseSection, CourseSection.id == CourseEnrollment.section_id)
+                    .where(CourseSection.faculty_id == actor_id)
+                )
+                stmt = stmt.where(Case.student_id.in_(taught))
+            else:
+                stmt = stmt.where(false())
 
         if state:
             canonical_state = map_status_to_state(state)

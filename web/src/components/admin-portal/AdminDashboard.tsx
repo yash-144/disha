@@ -18,36 +18,36 @@ const TAB_METADATA: Record<
   }
 > = {
   overview: {
-    title: 'Administrator Overview',
-    subtitle: 'Institutional governance, student welfare health and campus-wide benchmarks',
+    title: 'Overview',
+    subtitle: '',
   },
   schedule: {
     title: 'Schedule & Calls',
-    subtitle: 'Institutional review calendars, committee syncs and faculty briefings',
+    subtitle: '',
   },
   'case-management': {
     title: 'Case Management',
-    subtitle: 'Centralized institution-wide student case governance and escalations',
+    subtitle: '',
   },
   'student-directory': {
     title: 'Student Directory',
-    subtitle: 'Master institutional roster across all faculties, batches and departments',
+    subtitle: '',
   },
   interventions: {
     title: 'Interventions & Protocols',
-    subtitle: 'Institutional standard operating procedures, triggers and escalation rules',
+    subtitle: '',
   },
   analytics: {
     title: 'Institution Analytics',
-    subtitle: 'Macro retention modeling, demographic breakdowns and longitudinal KPIs',
+    subtitle: '',
   },
   'data-import': {
     title: 'Data Import',
-    subtitle: 'Upload canonical student data, validate it and review import history',
+    subtitle: '',
   },
   'risk-model': {
     title: 'Risk Model',
-    subtitle: 'Loaded model, scoring runs, active policy and data drift',
+    subtitle: '',
   },
 }
 
@@ -116,17 +116,17 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="bg-[#EAEFF8] min-h-screen p-2 sm:p-2.5 md:p-3 flex items-center justify-center font-sans antialiased text-[#1E2433]">
+    <div className="bg-paper min-h-screen flex font-sans antialiased text-ink">
       {/* Outer Card with rounded corners matching DISHA design system */}
-      <div className="bg-[#F8F9FD] rounded-[28px] md:rounded-[32px] shadow-sm border border-[#E0E6ED] w-full flex overflow-hidden min-h-[92vh]">
+      <div className="w-full flex min-h-screen">
         {/* Left Navigation Sidebar */}
         <AdminSidebar activeTab={activeTab} onSelectTab={handleSelectTab} />
 
         {/* Vertical divider */}
-        <div className="w-[1px] bg-[#E8EEF5] shrink-0" />
+        
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
+        <main className="flex-1 min-w-0 flex flex-col p-4 sm:p-6 lg:px-8 lg:py-6 overflow-y-auto">
           {/* Header */}
           <AdminHeader pageTitle={meta.title} subtitle={meta.subtitle} />
 

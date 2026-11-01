@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class SupportRequestCreate(BaseModel):
-    faculty_id: str
+    faculty_id: Optional[str] = None  # defaults to the faculty of the student's first section
     category: str
     preferred_slot: str
     student_note: str

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Any
 
 from sqlalchemy import select, and_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import lazyload, selectinload
 from fastapi import HTTPException, status
 
 from app.shared.utils import utc_now
@@ -174,7 +174,7 @@ class FacultyService:
         await verify_faculty_section_access(section_id, tenancy, db)
 
         stmt = (
-            select(Student)
+            select(Student).options(lazyload("*"))
             .join(CourseEnrollment, CourseEnrollment.student_id == Student.id)
             .where(
                 CourseEnrollment.section_id == section_id,
@@ -381,7 +381,7 @@ class FacultyService:
 
         async with transaction_scope(db):
             # Check for existing submission
-            sub_stmt = select(AssessmentSubmission).where(
+            sub_stmt = select(AssessmentSubmission).options(lazyload("*")).where(
                 AssessmentSubmission.assessment_id == payload.assessment_id,
                 AssessmentSubmission.student_id == payload.student_id,
             )
@@ -431,7 +431,7 @@ class FacultyService:
 
         # Assessments in section
         ass_stmt = (
-            select(Assessment)
+            select(Assessment).options(lazyload("*"))
             .where(Assessment.section_id == section_id, Assessment.campus_id == tenancy.campus_id)
             .order_by(Assessment.created_at.asc())
         )
@@ -439,7 +439,7 @@ class FacultyService:
 
         # Students in section
         stu_stmt = (
-            select(Student)
+            select(Student).options(lazyload("*"))
             .join(CourseEnrollment, CourseEnrollment.student_id == Student.id)
             .where(CourseEnrollment.section_id == section_id, CourseEnrollment.campus_id == tenancy.campus_id)
         )
@@ -449,7 +449,7 @@ class FacultyService:
         ass_ids = [a.id for a in assessments]
         submissions_map: Dict[str, Dict[str, float]] = {}
         if ass_ids:
-            sub_stmt = select(AssessmentSubmission).where(
+            sub_stmt = select(AssessmentSubmission).options(lazyload("*")).where(
                 AssessmentSubmission.assessment_id.in_(ass_ids),
                 AssessmentSubmission.campus_id == tenancy.campus_id,
             )

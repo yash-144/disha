@@ -1,36 +1,99 @@
 @import 'tailwindcss';
 
+/*
+ * DISHA design tokens: "ink on paper".
+ * A calm, editorial base (warm paper, near-black ink, hairline rules) with one
+ * confident accent (cobalt). Colour is otherwise reserved for risk, mapped the
+ * same way everywhere: High, Medium, Watch, On track.
+ */
 @theme {
-  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  --color-brand: #1d5fd1;
-  --color-brand-dark: #123f94;
-  --color-brand-light: #eff6ff;
-  --color-royal: #3b82f6;
-  --color-ink: #0f172a;
-  --color-ink-dark: #020617;
-  --color-muted: #64748b;
-  --color-accent: #10b981;
-  --color-accent-dark: #059669;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* type scale: caption 13, body 15, section 18, title 28, metric 40 (no text below 13px) */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.45rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* surfaces and ink */
+  --color-paper: #F3F1EA;
+  --color-panel: #FCFBF8;
+  --color-sunken: #ECE9E0;
+  --color-line: #DEDACE;
+  --color-ink: #14181F;
+  --color-ink-2: #3A404C;
+  --color-muted: #6A6F7A;
+  --color-night: #12161D;
+  --color-night-2: #1B212B;
+
+  /* the one accent */
+  --color-accent: #1F54D6;
+  --color-accent-dark: #173F9F;
+  --color-accent-soft: #E6ECFB;
+
+  /* risk tiers (also used for status colour everywhere) */
+  --color-tier-high: #B3261E;
+  --color-tier-medium: #D2691E;
+  --color-tier-watch: #C79A14;
+  --color-tier-ok: #2C7A66;
+
+  /* remap legacy palette families so older screens inherit the system */
+  --color-indigo-50: #EEF2FD; --color-indigo-100: #DCE5FA; --color-indigo-200: #BCCDF5; --color-indigo-300: #8FA9EE;
+  --color-indigo-400: #5C7FE3; --color-indigo-500: #3A63DC; --color-indigo-600: #1F54D6; --color-indigo-700: #173F9F; --color-indigo-800: #14337F; --color-indigo-900: #102763;
+  --color-violet-50: #EEF2FD; --color-violet-100: #DCE5FA; --color-violet-200: #BCCDF5; --color-violet-300: #8FA9EE;
+  --color-violet-400: #5C7FE3; --color-violet-500: #3A63DC; --color-violet-600: #1F54D6; --color-violet-700: #173F9F; --color-violet-800: #14337F; --color-violet-900: #102763;
+  --color-purple-50: #EEF2FD; --color-purple-100: #DCE5FA; --color-purple-200: #BCCDF5; --color-purple-300: #8FA9EE;
+  --color-purple-400: #5C7FE3; --color-purple-500: #3A63DC; --color-purple-600: #1F54D6; --color-purple-700: #173F9F; --color-purple-800: #14337F; --color-purple-900: #102763;
+  --color-fuchsia-500: #3A63DC; --color-fuchsia-600: #1F54D6;
+  --color-rose-50: #FBEEEC; --color-rose-100: #F6D9D5; --color-rose-200: #EDB9B3; --color-rose-300: #E08F87; --color-rose-400: #CC5F55;
+  --color-rose-500: #B3261E; --color-rose-600: #B3261E; --color-rose-700: #8F1D17; --color-rose-800: #701712;
+  --color-red-50: #FBEEEC; --color-red-100: #F6D9D5; --color-red-500: #B3261E; --color-red-600: #B3261E; --color-red-700: #8F1D17;
+  --color-orange-50: #FCF1E8; --color-orange-100: #F8DEC8; --color-orange-200: #F1C29A; --color-orange-400: #D2691E; --color-orange-500: #D2691E; --color-orange-600: #B45512; --color-orange-700: #8F4210;
+  --color-amber-50: #FBF4DF; --color-amber-100: #F5E7B8; --color-amber-200: #EBD27F; --color-amber-300: #C79A14; --color-amber-400: #C79A14; --color-amber-500: #B08510; --color-amber-600: #946F0C; --color-amber-700: #7A5C0B; --color-amber-900: #52400A;
+  --color-emerald-50: #E8F3EF; --color-emerald-100: #CFE6DF; --color-emerald-200: #A6D0C4; --color-emerald-300: #74B5A3; --color-emerald-400: #4E9985;
+  --color-emerald-500: #2C7A66; --color-emerald-600: #2C7A66; --color-emerald-700: #226152; --color-emerald-800: #1A4A3F; --color-emerald-900: #123329;
+
+  /* shape and depth: small radii, almost no shadow, hairlines do the work */
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 10px;
+  --shadow-2xs: none;
+  --shadow-xs: 0 1px 0 rgb(20 24 31 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(20 24 31 / 0.06);
+  --shadow-xl: 0 12px 32px -8px rgb(20 24 31 / 0.22);
 }
 
 @layer base {
+  html { font-feature-settings: 'tnum' 0; }
   body {
     font-family: var(--font-sans);
     color: var(--color-ink);
-    background-color: #ffffff;
+    background-color: var(--color-paper);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  h1, h2 { text-wrap: balance; }
+  table, .tabular { font-variant-numeric: tabular-nums; }
+  ::selection { background: var(--color-accent); color: #fff; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+  input, select, textarea { accent-color: var(--color-accent); }
 }
 
 /* Minimalist & Aesthetic utilities */
 .aesthetic-card {
   background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 1.5rem;
+  border-radius: 0.5rem;
   box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.04), 0 0 1px rgba(15, 23, 42, 0.06);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -56,21 +119,13 @@
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Smooth custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 
-::-webkit-scrollbar-track {
-  background: #f8fafc;
-}
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #BDB8A8; }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* Headings and metrics: one family, heavier weight, tabular figures for numbers */
+.font-display { font-weight: 700 !important; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.tabular-nums, table { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }

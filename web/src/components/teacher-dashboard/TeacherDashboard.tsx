@@ -7,7 +7,6 @@ import { QueryState } from '../common/QueryState'
 import { useFacultyDashboard } from '../../lib/api/endpoints/faculty.hooks'
 import { MyCases } from './MyCases'
 import { UpcomingSessionsCard } from './UpcomingSessionsCard'
-import { TeacherProfilePanel } from './TeacherProfilePanel'
 import { ScheduleCallsPage } from './ScheduleCallsPage'
 import { MyCasesPage } from './MyCasesPage'
 import { StudentDirectoryPage } from './StudentDirectoryPage'
@@ -44,7 +43,7 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
       if (path.includes('cases')) return 'cases'
       if (path.includes('directory')) return 'directory'
       if (path.includes('interventions')) return 'interventions'
-      if (path.includes('integrity')) return 'integrity'
+      if (path.includes('assessment')) return 'assessment'
     }
     return dashboardTab === 'schedule' ? 'schedule' : 'overview'
   })
@@ -63,8 +62,7 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
       tab === 'schedule' ||
       tab === 'cases' ||
       tab === 'directory' ||
-      tab === 'interventions' ||
-      tab === 'integrity'
+      tab === 'interventions'
     ) {
       setDashboardTab(tab as any)
     }
@@ -84,7 +82,7 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
       else if (path.includes('cases')) setActiveTab('cases')
       else if (path.includes('directory')) setActiveTab('directory')
       else if (path.includes('interventions')) setActiveTab('interventions')
-      else if (path.includes('integrity')) setActiveTab('integrity')
+      else if (path.includes('assessment')) setActiveTab('assessment')
       else if (path.includes('overview') || path === '/faculty' || path === '/instructor') {
         setActiveTab('overview')
       }
@@ -110,7 +108,7 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
         return (
           <>
             {/* Center: Main Overview Content */}
-            <main className="flex-1 flex flex-col gap-3.5 lg:gap-4 min-w-0 pt-0.5 font-sans">
+            <main className="flex-1 flex flex-col gap-4 min-w-0 p-4 sm:p-6 lg:px-8 lg:py-6 font-sans">
               {/* Header */}
               <TeacherHeader />
 
@@ -129,17 +127,15 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
 
             </main>
 
-            {/* Right: Teacher Profile & Agenda Panel */}
-            <TeacherProfilePanel />
           </>
         )
     }
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#EAEFF8] p-2 sm:p-2.5 md:p-3 flex font-sans antialiased text-[#1E2433]">
+    <div className="min-h-screen w-full bg-paper flex font-sans antialiased text-ink">
       {/* Main Dashboard Canvas */}
-      <div className="w-full flex-1 bg-[#F8F9FD] rounded-[24px] sm:rounded-[28px] md:rounded-[32px] shadow-[0_6px_30px_rgba(20,28,45,0.06)] border border-white/80 p-3 sm:p-4 lg:p-5 flex flex-col lg:flex-row gap-3.5 lg:gap-4.5 overflow-hidden min-h-[calc(100vh-1.5rem)]">
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-screen">
         
         {/* Left: Navigation Sidebar */}
         <TeacherSidebar

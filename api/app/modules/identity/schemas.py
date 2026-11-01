@@ -9,10 +9,8 @@ class LoginRequest(BaseModel):
 
 
 class GoogleAuthRequest(BaseModel):
-    email: str
+    """Only a display-name hint. Identity comes from the verified Supabase token, role from the database."""
     full_name: Optional[str] = None
-    role: Optional[str] = "counsellor"
-    campus_id: Optional[str] = "campus-1"
     avatar_url: Optional[str] = None
 
 

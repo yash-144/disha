@@ -134,7 +134,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end">
       <div className="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col font-sans animate-in slide-in-from-right duration-200">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-start justify-between bg-slate-900 text-white">
+        <div className="p-5 border-b border-line flex items-start justify-between bg-slate-900 text-white">
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-white/10 uppercase tracking-wider">
@@ -172,7 +172,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
         )}
 
         {/* Nav Tabs */}
-        <div className="flex border-b border-gray-100 px-5 bg-gray-50/50 text-xs font-semibold text-gray-500">
+        <div className="flex border-b border-line px-5 bg-gray-50/50 text-xs font-semibold text-gray-500">
           {(['overview', 'interventions', 'followups', 'notes', 'audit'] as const).map((tab) => (
             <button
               key={tab}
@@ -191,17 +191,17 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-5 text-sm space-y-5">
           {isLoading ? (
-            <div className="py-20 text-center text-gray-400 text-xs">Loading case details...</div>
+            <div className="py-20 text-center text-muted text-xs">Loading case details...</div>
           ) : activeTab === 'overview' ? (
             <div className="space-y-5">
               {/* Case Summary */}
-              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 text-xs leading-relaxed text-gray-700">
+              <div className="bg-gray-50 rounded-2xl p-4 border border-line text-xs leading-relaxed text-gray-700">
                 <p className="font-bold text-gray-900 mb-1">Observation & Triage Context</p>
                 {caseItem?.summary || 'No description provided.'}
               </div>
 
               {/* State Machine Action Bar */}
-              <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-xs">
+              <div className="bg-white rounded-2xl p-4 border border-line shadow-xs">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
                   Workflow Lifecycle Transitions
                 </h3>
@@ -216,7 +216,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                       </button>
                       <button
                         onClick={() => handleTransition('dismissed')}
-                        className="px-3.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl border border-line text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer"
                       >
                         Dismiss
                       </button>
@@ -282,7 +282,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
               </div>
 
               {/* Record Outcome (Closes the accountable loop) */}
-              <div className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-xs">
+              <div className="bg-white rounded-2xl p-4 border border-line shadow-xs">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
                   Accountable Outcome Record
                 </h3>
@@ -337,7 +337,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                     <p className="font-medium">{aiBriefMutation.data.summary}</p>
                     {aiBriefMutation.data.recommended_actions?.length > 0 && (
                       <div className="mt-2">
-                        <span className="font-bold text-[11px] uppercase tracking-wider text-indigo-800 block mb-1">
+                        <span className="font-bold text-xs uppercase tracking-wider text-indigo-800 block mb-1">
                           Recommended Protocols
                         </span>
                         <ul className="list-disc list-inside space-y-0.5 text-indigo-900">
@@ -357,7 +357,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
             </div>
           ) : activeTab === 'interventions' ? (
             <div className="space-y-4">
-              <form onSubmit={handleAddIntervention} className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3">
+              <form onSubmit={handleAddIntervention} className="bg-gray-50 p-4 rounded-2xl border border-line space-y-3">
                 <p className="text-xs font-bold text-gray-900">Attach Intervention Protocol</p>
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -365,13 +365,13 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                     value={interventionTitle}
                     onChange={(e) => setInterventionTitle(e.target.value)}
                     placeholder="Intervention title (e.g. Peer Tutoring CS201)"
-                    className="text-xs p-2 rounded-xl border border-gray-200 bg-white"
+                    className="text-xs p-2 rounded-xl border border-line bg-white"
                     required
                   />
                   <select
                     value={selectedInterventionCat}
                     onChange={(e) => setSelectedInterventionCat(e.target.value)}
-                    className="text-xs p-2 rounded-xl border border-gray-200 bg-white"
+                    className="text-xs p-2 rounded-xl border border-line bg-white"
                   >
                     <option value="academic_advising">Academic Advising</option>
                     <option value="tutoring">Peer Tutoring</option>
@@ -391,15 +391,15 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
               <div className="space-y-2">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Interventions</p>
                 {interventions.length === 0 ? (
-                  <p className="text-xs text-gray-400 italic">No interventions linked yet.</p>
+                  <p className="text-xs text-muted italic">No interventions linked yet.</p>
                 ) : (
                   interventions.map((inv) => (
-                    <div key={inv.id} className="p-3 bg-white border border-gray-100 rounded-xl flex justify-between items-center text-xs">
+                    <div key={inv.id} className="p-3 bg-white border border-line rounded-xl flex justify-between items-center text-xs">
                       <div>
                         <p className="font-bold text-gray-900">{inv.title}</p>
-                        <p className="text-[#717E95] capitalize">{inv.category.replace('_', ' ')} • {inv.status}</p>
+                        <p className="text-muted capitalize">{inv.category.replace('_', ' ')} • {inv.status}</p>
                       </div>
-                      <span className="text-[11px] font-mono text-gray-400">
+                      <span className="text-xs font-mono text-muted">
                         {inv.target_date ? new Date(inv.target_date).toLocaleDateString() : 'Ongoing'}
                       </span>
                     </div>
@@ -419,7 +419,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
                   placeholder="Record intervention notes, student responses, or next steps..."
-                  className="w-full text-xs p-3 rounded-2xl border border-gray-200 focus:outline-indigo-600 bg-white"
+                  className="w-full text-xs p-3 rounded-2xl border border-line focus:outline-indigo-600 bg-white"
                   required
                 />
                 <button
@@ -436,8 +436,8 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Note History</p>
                 {caseItem?.notes?.length ? (
                   caseItem.notes.map((n) => (
-                    <div key={n.id} className="p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs space-y-1">
-                      <div className="flex justify-between text-gray-400 text-[10px]">
+                    <div key={n.id} className="p-3 bg-gray-50 border border-line rounded-xl text-xs space-y-1">
+                      <div className="flex justify-between text-muted text-xs">
                         <span>{n.author_name || 'Staff Note'}</span>
                         <span>{new Date(n.created_at).toLocaleString()}</span>
                       </div>
@@ -445,7 +445,7 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400 italic">No notes recorded yet.</p>
+                  <p className="text-xs text-muted italic">No notes recorded yet.</p>
                 )}
               </div>
             </div>
@@ -454,15 +454,15 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
               <div className="space-y-2">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Scheduled Follow-ups</p>
                 {followups.length === 0 ? (
-                  <p className="text-xs text-gray-400 italic">No follow-ups scheduled for this case.</p>
+                  <p className="text-xs text-muted italic">No follow-ups scheduled for this case.</p>
                 ) : (
                   followups.map((f) => (
-                    <div key={f.id} className="p-3 bg-white border border-gray-100 rounded-xl flex justify-between items-center text-xs">
+                    <div key={f.id} className="p-3 bg-white border border-line rounded-xl flex justify-between items-center text-xs">
                       <div>
                         <p className="font-bold text-gray-900">{f.title}</p>
-                        <p className="text-[#717E95]">{f.status}</p>
+                        <p className="text-muted">{f.status}</p>
                       </div>
-                      <span className="text-[11px] text-gray-500">
+                      <span className="text-xs text-gray-500">
                         {new Date(f.scheduled_at).toLocaleString()}
                       </span>
                     </div>
@@ -474,17 +474,17 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
             <div className="space-y-3">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Immutable Audit Trail</p>
               {events.length === 0 ? (
-                <p className="text-xs text-gray-400 italic">No audit events recorded yet.</p>
+                <p className="text-xs text-muted italic">No audit events recorded yet.</p>
               ) : (
                 <div className="relative border-l-2 border-indigo-200 ml-3 space-y-4 py-2">
                   {events.map((ev) => (
                     <div key={ev.id} className="ml-4 relative">
-                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white" />
+                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-panel" />
                       <p className="text-xs font-bold text-gray-900">
                         Transitioned to <span className="text-indigo-600 uppercase font-mono">{ev.to_state}</span>
                       </p>
-                      <p className="text-[11px] text-gray-500">{ev.reason || 'Workflow state transition'}</p>
-                      <span className="text-[10px] text-gray-400 font-mono">
+                      <p className="text-xs text-gray-500">{ev.reason || 'Workflow state transition'}</p>
+                      <span className="text-xs text-muted font-mono">
                         {new Date(ev.created_at).toLocaleString()}
                       </span>
                     </div>
@@ -498,3 +498,4 @@ export function CaseDetailDrawer({ caseId, onClose, userRole }: CaseDetailDrawer
     </div>
   )
 }
+

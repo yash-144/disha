@@ -82,7 +82,7 @@ export function LiveStudioModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm animate-in fade-in">
       <div className="relative flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border-4 border-ink bg-white shadow-[12px_12px_0_#0d1b3e]">
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b-2 border-ink bg-[#0d1b3e] px-5 py-3 text-white">
+        <div className="flex items-center justify-between border-b-2 border-ink bg-ink px-5 py-3 text-white">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 rounded bg-red-600 px-2 py-0.5 text-xs font-bold text-white animate-pulse">
               <Radio className="h-3 w-3" /> LIVE
@@ -143,7 +143,7 @@ export function LiveStudioModal() {
               </div>
 
               {/* Live Overlay Badges */}
-              <div className="absolute left-4 top-4 rounded bg-black/60 px-3 py-1 text-[11px] font-mono text-emerald-400 backdrop-blur-xs">
+              <div className="absolute left-4 top-4 rounded bg-black/60 px-3 py-1 text-xs font-mono text-emerald-400 backdrop-blur-xs">
                 1080p 60fps · Low Latency
               </div>
 
@@ -152,14 +152,14 @@ export function LiveStudioModal() {
                 <p className="flex items-center gap-1.5 font-bold text-amber-400">
                   <HelpCircle className="h-3.5 w-3.5" /> Quick Check-in Poll:
                 </p>
-                <p className="mt-1 text-[11px] text-gray-300">Are you ready to build the whiteboard canvas?</p>
+                <p className="mt-1 text-xs text-gray-300">Are you ready to build the whiteboard canvas?</p>
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => {
                       setPollVoted(0)
                       addToast('Vote Recorded', 'You voted: Absolutely!', 'success')
                     }}
-                    className={`flex-1 rounded border px-2 py-1 text-[10px] font-bold transition ${
+                    className={`flex-1 rounded border px-2 py-1 text-xs font-bold transition ${
                       pollVoted === 0
                         ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
                         : 'border-white/20 hover:bg-white/10'
@@ -172,7 +172,7 @@ export function LiveStudioModal() {
                       setPollVoted(1)
                       addToast('Vote Recorded', 'You voted: Need 5 mins', 'info')
                     }}
-                    className={`flex-1 rounded border px-2 py-1 text-[10px] font-bold transition ${
+                    className={`flex-1 rounded border px-2 py-1 text-xs font-bold transition ${
                       pollVoted === 1
                         ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
                         : 'border-white/20 hover:bg-white/10'
@@ -194,7 +194,7 @@ export function LiveStudioModal() {
                 >
                   {isMuted ? <VolumeX className="h-4 w-4 text-red-400" /> : <Volume2 className="h-4 w-4" />}
                 </button>
-                <span className="text-[11px] text-gray-400">Elapsed: 42:15 / 90:00</span>
+                <span className="text-xs text-gray-400">Elapsed: 42:15 / 90:00</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export function LiveStudioModal() {
           </div>
 
           {/* Real-Time Live Chat */}
-          <div className="flex flex-col border-t-2 border-ink bg-[#f8fafc] lg:border-l-2 lg:border-t-0">
+          <div className="flex flex-col border-t-2 border-ink bg-paper lg:border-l-2 lg:border-t-0">
             <div className="border-b border-gray-200 bg-white px-4 py-3 text-xs font-bold text-ink">
               Cohort Live Chat &amp; Q&amp;A
             </div>
@@ -242,18 +242,18 @@ export function LiveStudioModal() {
                         m.isInstructor ? 'text-brand flex items-center gap-1' : 'text-gray-800'
                       }`}
                     >
-                      {m.sender} {m.isInstructor && <span className="rounded bg-brand px-1 text-[9px] text-white">Host</span>}
+                      {m.sender} {m.isInstructor && <span className="rounded bg-brand px-1 text-xs text-white">Host</span>}
                     </span>
-                    <span className="text-[10px] text-gray-400">{m.time}</span>
+                    <span className="text-xs text-gray-400">{m.time}</span>
                   </div>
-                  <p className="mt-1 text-[11px] leading-relaxed text-gray-700">{m.text}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-gray-700">{m.text}</p>
                 </div>
               ))}
             </div>
 
             {/* Input bar */}
             <form onSubmit={handleSendMessage} className="border-t border-gray-200 bg-white p-2.5">
-              <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-[#f5f7fc] px-3 py-1.5">
+              <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-paper px-3 py-1.5">
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}

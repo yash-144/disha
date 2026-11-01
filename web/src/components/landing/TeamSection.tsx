@@ -9,7 +9,7 @@ export function TeamSection() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-20">
       <div className="text-center">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#0f9d58]">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
           World-Class Faculty
         </span>
         <h2 className="mt-1 text-2xl font-bold text-brand sm:text-3xl">
@@ -33,7 +33,7 @@ export function TeamSection() {
                 alt={m.name}
                 className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-              <span className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
+              <span className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-xs">
                 {m.coursesCount} Courses
               </span>
             </div>
@@ -41,9 +41,9 @@ export function TeamSection() {
             <div className="mt-4 flex flex-1 flex-col">
               <h3 className="text-sm font-bold text-ink">{m.name}</h3>
               <p className="text-xs font-medium text-brand">{m.role}</p>
-              <p className="mt-0.5 text-[10px] text-muted">{m.company}</p>
+              <p className="mt-0.5 text-xs text-muted">{m.company}</p>
 
-              <div className="mt-3 rounded border border-gray-100 bg-[#f8fafc] p-2 text-[10px] font-medium text-gray-700">
+              <div className="mt-3 rounded border border-gray-100 bg-paper p-2 text-xs font-medium text-gray-700">
                 <span className="font-bold text-gray-900">Focus: </span>
                 {m.specialty}
               </div>

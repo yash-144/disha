@@ -34,7 +34,7 @@ export function ContactSection() {
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[0.9fr_1.1fr]">
         {/* Support photo with neo-brutalist shadow */}
         <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="absolute inset-0 translate-x-3 translate-y-3 bg-[#0f9d58]" />
+          <div className="absolute inset-0 translate-x-3 translate-y-3 bg-accent" />
           <img
             src={CONTACT_IMG}
             alt="SkillsUp support team"
@@ -44,7 +44,7 @@ export function ContactSection() {
 
         {/* Form Container */}
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0f9d58]">
+          <span className="text-xs font-bold uppercase tracking-wider text-accent">
             Get In Touch
           </span>
           <h2 className="mt-1 text-2xl font-bold leading-snug text-brand sm:text-[32px]">
@@ -71,7 +71,7 @@ export function ContactSection() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Riya Sharma"
-                className="mt-1.5 w-full border-2 border-ink bg-[#f5f5f5] px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
+                className="mt-1.5 w-full border-2 border-ink bg-paper px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
               />
             </div>
 
@@ -83,7 +83,7 @@ export function ContactSection() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="riya@example.com"
-                className="mt-1.5 w-full border-2 border-ink bg-[#f5f5f5] px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
+                className="mt-1.5 w-full border-2 border-ink bg-paper px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
               />
             </div>
 
@@ -93,7 +93,7 @@ export function ContactSection() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Question regarding Web Dev Bootcamp & Live Schedule"
-                className="mt-1.5 w-full border-2 border-ink bg-[#f5f5f5] px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
+                className="mt-1.5 w-full border-2 border-ink bg-paper px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
               />
             </div>
 
@@ -105,7 +105,7 @@ export function ContactSection() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us about your learning goals or questions..."
-                className="mt-1.5 w-full resize-none border-2 border-ink bg-[#f5f5f5] px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
+                className="mt-1.5 w-full resize-none border-2 border-ink bg-paper px-3 py-2.5 text-xs font-medium outline-none placeholder:text-gray-400 focus:bg-white focus:ring-1 focus:ring-brand"
               />
             </div>
 

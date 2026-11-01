@@ -28,7 +28,7 @@ export function SettingsTab() {
     <div className="mx-auto max-w-2xl space-y-6 font-mono">
       <div className="border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+          <span className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
             SYSTEM CONFIG
           </span>
           <span className="text-xs text-muted">Preferences &amp; Identity</span>
@@ -51,7 +51,7 @@ export function SettingsTab() {
             />
             <div>
               <p className="text-sm font-bold text-ink">{currentUser.name}</p>
-              <p className="text-xs text-[#0f9d58] font-bold capitalize">{userRole} Account Active</p>
+              <p className="text-xs text-accent font-bold capitalize">{userRole} Account Active</p>
               <button
                 type="button"
                 onClick={() => addToast('Avatar Update', 'Image upload dialog simulated.', 'info')}
@@ -68,7 +68,7 @@ export function SettingsTab() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
               />
             </div>
 
@@ -78,7 +78,7 @@ export function SettingsTab() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
               />
             </div>
           </div>
@@ -88,7 +88,7 @@ export function SettingsTab() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+              className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
             />
           </div>
 
@@ -98,7 +98,7 @@ export function SettingsTab() {
               rows={3}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+              className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
             />
           </div>
         </div>
@@ -146,7 +146,7 @@ export function SettingsTab() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-6 py-2.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+            className="flex items-center gap-2 border-2 border-ink bg-accent px-6 py-2.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
           >
             <Save className="h-4 w-4" /> Save Profile Preferences
           </button>
