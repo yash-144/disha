@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { CounsellorSidebar, CounsellorNavId, COUNSELLOR_NAV_ITEMS } from './CounsellorSidebar'
 import { CounsellorHeader } from './CounsellorHeader'
 import { CounsellorOverview } from './CounsellorOverview'
-import { PortalPlaceholder } from '../common/PortalPlaceholder'
 import { CounsellorStudentsInNeed } from './CounsellorStudentsInNeed'
 import { CounsellorSupportCases } from './CounsellorSupportCases'
 import { ScheduleSessionsView } from '../common/ScheduleSessionsView'
+import { AdminAnalyticsPage } from '../admin-portal/AdminAnalyticsPage'
 import { ArrowLeft } from 'lucide-react'
 
 const TAB_METADATA: Record<
@@ -167,14 +167,7 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
               ) : activeTab === 'schedule' ? (
                 <ScheduleSessionsView title="Counsellor Schedule & Consultations" />
               ) : (
-                <PortalPlaceholder
-                  portalName="Counsellor Portal"
-                  pageTitle={currentItem.label}
-                  routePath={currentItem.route}
-                  icon={currentItem.icon}
-                  description={meta.description}
-                  capabilities={meta.capabilities}
-                />
+                <AdminAnalyticsPage />
               )}
             </div>
           )}

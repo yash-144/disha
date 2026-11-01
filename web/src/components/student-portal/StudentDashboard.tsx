@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { StudentSidebar, StudentNavId } from './StudentSidebar'
 import { StudentHeader } from './StudentHeader'
-import { NotAvailable } from '../common/NotAvailable'
 import { StudentOverview } from './StudentOverview'
 import { StudentMyCasesPage } from './StudentMyCasesPage'
 import { StudentAssessmentPage } from './StudentAssessmentPage'
 import { StudentRequestSupportPage } from './StudentRequestSupportPage'
+import { StudentMessagesPage } from './StudentMessagesPage'
 
 interface StudentDashboardProps {
   initialTab?: StudentNavId
@@ -108,7 +108,7 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
           ) : activeTab === 'assessment' ? (
             <StudentAssessmentPage />
           ) : activeTab === 'messages' ? (
-            <NotAvailable title="Messages" />
+            <StudentMessagesPage />
           ) : (
             <StudentOverview onCheckIn={() => handleSelectTab('assessment')} />
           )}
