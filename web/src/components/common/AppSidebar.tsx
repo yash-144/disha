@@ -40,6 +40,7 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'cases', label: 'My Cases', icon: FileText },
     { id: 'directory', label: 'Student Directory', icon: GraduationCap },
     { id: 'interventions', label: 'Interventions & Protocols', icon: MessageSquare },
+    { id: 'assessment', label: 'Assessments', icon: Sparkles },
     { id: 'integrity', label: 'Document Integrity', icon: ShieldCheck },
   ],
   student: [

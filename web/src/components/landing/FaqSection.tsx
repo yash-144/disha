@@ -1,26 +1,30 @@
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, HelpCircle, CheckCircle2 } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 const FAQS = [
   {
-    q: 'How does the LMS Interactive Whiteboard work during cohort classes?',
-    a: 'Every enrolled student and instructor has access to a synchronous HTML5 vector whiteboard. Instructors can draw system architecture diagrams, highlight code snippets, and save snapshot diagrams that learners can download immediately after class.',
+    q: 'What is DISHA’s core operating principle?',
+    a: 'DISHA operates on "No Alert Without Action." Unlike passive analytics dashboards, every warning signal generates an immutable SHA-256 evidence packet, assigns a single accountable owner, sets a binding SLA deadline, and records an auditable human outcome.',
   },
   {
-    q: 'Can I test both Instructor and Student workflows in SkillsUp?',
-    a: 'Yes! SkillsUp features a dynamic Role Switcher in both the public header and the LMS cockpit. You can toggle between 👨‍🏫 Live Instructor mode (to draw on canvas, publish courses, and manage gradebooks) and 🎓 Enrolled Student mode with one click.',
+    q: 'How does the Calibrated Early-Warning ML model work?',
+    a: 'Models evaluate student indicators strictly at chronological checkpoints (cp0 at admission, cp1 after Sem 1, cp2 after Sem 2) using only academic and engagement data. Protected demographic features are never used in scoring. Cutoffs guarantee ≥85% precision with a 15% cohort capacity cap to avoid advisor alert fatigue.',
   },
   {
-    q: 'Are the certifications verifiable by top tech companies?',
-    a: 'Yes, upon passing module assessments with 80%+ and shipping capstone repositories, students receive an immutable certificate ID that can be linked on LinkedIn, GitHub, and resumes.',
+    q: 'How does Meko by YugabyteDB handle universal context memory?',
+    a: 'Meko provides an agent-native universal context engine over standard Model Context Protocol (MCP). It synchronizes longitudinal student case notes, intervention histories, and peer notes across multiple campuses in real-time on a distributed YugabyteDB PostgreSQL-compatible backbone.',
   },
   {
-    q: 'What happens if I miss a scheduled live cohort session?',
-    a: 'All live streams are automatically recorded in high-definition and archived inside your LMS Dashboard under "Courses & Syllabi" within 2 hours of stream completion.',
+    q: 'Is DISHA compliant with data privacy regulations like DPDP Act 2023?',
+    a: 'Yes. DISHA is built from the ground up to comply with India’s Digital Personal Data Protection (DPDP) Act 2023 and FERPA guidelines. It enforces tenant row-level security (RLS), field-level consent controls, automated data retention purges, and cryptographic document verification on Base Sepolia.',
   },
   {
-    q: 'How does the dashboard screen-wrap responsive frame work?',
-    a: 'The LMS dashboard features a responsive, dynamic blue border cockpit that dynamically fits full-screen viewports, supports collapsible sidebar navigation, and allows quick toggling between viewport-fit and expanded modes.',
+    q: 'How does DISHA solve the problem of advisor alert fatigue?',
+    a: 'Traditional dashboards inundate faculty with thousands of unprioritized, passive alerts. DISHA solves this by capping cohort signals to an advisor capacity limit (default 15%), requiring high-precision cutoffs (≥85%), and enforcing strict ownership and binding SLA deadlines for every accepted signal.',
+  },
+  {
+    q: 'What makes DISHA different from traditional campus ERP or LMS analytics?',
+    a: 'Traditional campus systems are retrospective, highlighting failure only after exams or dropouts occur. DISHA operates proactively across three chronological checkpoints (cp0 at admission, cp1 mid-year, cp2 end-of-year) using pure academic indicators, backed by Meko universal context memory and auditable intervention tracking.',
   },
 ]
 
@@ -32,47 +36,46 @@ export function FaqSection() {
   }
 
   return (
-    <section className="border-t-4 border-ink bg-white py-20 font-mono text-ink">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <div className="text-center">
-          <span className="inline-block border-2 border-ink bg-[#0f9d58] px-3 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e]">
-            LEARNER FAQ
-          </span>
-          <h2 className="mt-3 text-2xl font-bold text-brand sm:text-3xl">
-            Frequently Asked Questions
+    <section id="faqs" className="py-24 px-4 sm:px-8 bg-white font-sans border-t border-slate-100">
+      <div className="mx-auto max-w-4xl">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            / FAQS &amp; ARCHITECTURE
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-slate-900 leading-[1.25]">
+            <span className="font-semibold text-slate-950">Frequently asked</span> questions
           </h2>
-          <p className="mt-2 text-xs text-muted sm:text-sm">
-            Everything you need to know about SkillsUp courses, live canvas, and certifications.
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 font-normal">
+            Everything you need to know about DISHA early-warning signals, SLA tracking, and universal context memory.
           </p>
         </div>
 
-        <div className="mt-10 space-y-3">
+        <div className="space-y-3.5">
           {FAQS.map((faq, idx) => {
             const isOpen = openIdx === idx
             return (
               <div
                 key={idx}
-                className="border-2 border-ink bg-white shadow-[3px_3px_0_#0d1b3e] transition-all"
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? 'border-slate-200 bg-white shadow-sm'
+                    : 'border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-slate-50'
+                }`}
               >
                 <button
                   onClick={() => toggle(idx)}
-                  className="flex w-full items-center justify-between p-4 text-left text-xs sm:text-sm font-bold text-ink hover:bg-gray-50"
+                  className="flex w-full items-center justify-between p-5 text-left text-xs sm:text-sm font-semibold text-slate-900"
                 >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-ink bg-brand text-white text-[10px]">
-                      ?
-                    </span>
-                    <span>{faq.q}</span>
-                  </span>
-                  {isOpen ? (
-                    <ChevronUp className="h-4 w-4 shrink-0 text-brand" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />
-                  )}
+                  <span className="pr-4">{faq.q}</span>
+                  <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-transform ${
+                    isOpen ? 'bg-slate-900 text-white rotate-180' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t-2 border-ink/10 bg-[#f8fafd] p-4 text-xs leading-relaxed text-gray-700 animate-in fade-in">
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm leading-relaxed text-slate-600 font-normal animate-in fade-in duration-200 border-t border-slate-50">
                     <p>{faq.a}</p>
                   </div>
                 )}

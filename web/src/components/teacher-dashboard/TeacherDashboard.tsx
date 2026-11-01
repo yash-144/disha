@@ -13,6 +13,7 @@ import { MyCasesPage } from './MyCasesPage'
 import { StudentDirectoryPage } from './StudentDirectoryPage'
 import { InterventionsProtocolsPage } from './InterventionsProtocolsPage'
 import { DocumentIntegrityPage } from './DocumentIntegrityPage'
+import { TeacherAssessmentsPage } from './TeacherAssessmentsPage'
 import { useApp } from '../../context/AppContext'
 
 interface TeacherDashboardProps {
@@ -36,9 +37,18 @@ function Stats() {
 
 export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
   const { dashboardTab, setDashboardTab } = useApp()
-  const [activeTab, setActiveTab] = useState<string>(
-    initialTab || (dashboardTab === 'schedule' ? 'schedule' : 'overview')
-  )
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (initialTab) return initialTab
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase()
+      if (path.includes('schedule')) return 'schedule'
+      if (path.includes('cases')) return 'cases'
+      if (path.includes('directory')) return 'directory'
+      if (path.includes('interventions')) return 'interventions'
+      if (path.includes('integrity')) return 'integrity'
+    }
+    return dashboardTab === 'schedule' ? 'schedule' : 'overview'
+  })
 
   useEffect(() => {
     if (initialTab) {
@@ -46,12 +56,43 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
     }
   }, [initialTab])
 
+  // Synchronize browser URL route
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    if (tab === 'overview' || tab === 'schedule') {
+    if (
+      tab === 'overview' ||
+      tab === 'schedule' ||
+      tab === 'cases' ||
+      tab === 'directory' ||
+      tab === 'interventions' ||
+      tab === 'integrity'
+    ) {
       setDashboardTab(tab as any)
     }
+    if (typeof window !== 'undefined') {
+      const newPath = `/faculty/${tab}`
+      if (window.location.pathname !== newPath) {
+        window.history.pushState({ role: 'instructor', tab }, '', newPath)
+      }
+    }
   }
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase()
+      if (path.includes('schedule')) setActiveTab('schedule')
+      else if (path.includes('cases')) setActiveTab('cases')
+      else if (path.includes('directory')) setActiveTab('directory')
+      else if (path.includes('interventions')) setActiveTab('interventions')
+      else if (path.includes('integrity')) setActiveTab('integrity')
+      else if (path.includes('overview') || path === '/faculty' || path === '/instructor') {
+        setActiveTab('overview')
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -63,6 +104,8 @@ export function TeacherDashboard({ initialTab }: TeacherDashboardProps) {
         return <StudentDirectoryPage />
       case 'interventions':
         return <InterventionsProtocolsPage />
+      case 'assessment':
+        return <TeacherAssessmentsPage />
       case 'integrity':
         return <DocumentIntegrityPage />
       case 'overview':

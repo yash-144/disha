@@ -4,7 +4,9 @@ export type ViewMode =
   | 'live-classes' 
   | 'blogs' 
   | 'about' 
-  | 'contact' 
+  | 'contact'
+  | 'login'
+  | 'onboarding'
   | 'dashboard';
 
 export type DashboardTab = 
@@ -22,6 +24,20 @@ export type DashboardTab =
   | 'gradebook' 
   | 'resources' 
   | 'settings';
+
+export type UserRole = 'instructor' | 'student' | 'counsellor' | 'admin';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  role: UserRole;
+  title: string;
+  email: string;
+  avatar: string;
+  activeStudents?: number;
+  enrolledCoursesCount?: number;
+  bio: string;
+}
 
 export interface Course {
   id: string;

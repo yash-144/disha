@@ -1,8 +1,9 @@
-import uuid
 import time
+import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
@@ -13,3 +14,10 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time"] = f"{(time.time() - start_time) * 1000:.2f}ms"
         return response
+
+
+class TenancyMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        campus_id = request.headers.get("X-Campus-ID", "campus-1")
+        request.state.campus_id = campus_id
+        return await call_next(request)
