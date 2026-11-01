@@ -17,17 +17,28 @@ import {
   Play,
   Check,
   AlertCircle,
+  Users,
+  UserCheck,
+  PhoneCall,
+  Calendar,
+  X,
+  FileText,
 } from 'lucide-react'
 import { DemoMode } from './studentDemoData'
 import { useApp } from '../../context/AppContext'
 import {
   PULSE_QUESTION_BANK,
   INITIAL_PULSE_ASSIGNMENTS,
+  DEMO_PEER_MENTOR_POOL,
+  evaluateInterventionMatrix,
+  PULSE_DEMO_SCENARIOS,
+  PulseDemoScenario,
 } from './studentPulseData'
 import {
   PulseQuestion,
   ObjectiveResult,
   StudentPulseSubmission,
+  InterventionAction,
 } from '../../types/studentPulse'
 
 interface StudentAssessmentPageProps {
@@ -63,6 +74,25 @@ export function StudentAssessmentPage({
   const [feedbackAnswers, setFeedbackAnswers] = useState<Record<string, string | number>>({})
   const [wellbeingAnswers, setWellbeingAnswers] = useState<Record<string, number | string>>({})
 
+  // Category Scores & Evaluation State
+  const [feedbackPctScore, setFeedbackPctScore] = useState<number>(75)
+  const [wellbeingPctScore, setWellbeingPctScore] = useState<number>(70)
+  const [evaluationResult, setEvaluationResult] = useState<{
+    academicStatus: 'GOOD' | 'LOW'
+    feedbackStatus: 'GOOD' | 'LOW'
+    wellbeingStatus: 'GOOD' | 'LOW'
+    recommendedActions: InterventionAction[]
+  }>({
+    academicStatus: 'GOOD',
+    feedbackStatus: 'GOOD',
+    wellbeingStatus: 'GOOD',
+    recommendedActions: [],
+  })
+
+  // Support offer states (student response lifecycle)
+  const [mentorOfferStatus, setMentorOfferStatus] = useState<'OFFERED' | 'ACCEPTED' | 'DECLINED'>('OFFERED')
+  const [counsellorOfferStatus, setCounsellorOfferStatus] = useState<'OFFERED' | 'ACCEPTED' | 'DECLINED'>('OFFERED')
+
   // Submission results
   const [submissionResult, setSubmissionResult] = useState<StudentPulseSubmission | null>(null)
 
@@ -78,7 +108,53 @@ export function StudentAssessmentPage({
     setWellbeingAnswers({})
     setCurrentQuestionIndex(0)
     setStage('question')
+    setMentorOfferStatus('OFFERED')
+    setCounsellorOfferStatus('OFFERED')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Handler: Load one of the 5 verified demo scenarios
+  const handleLoadDemoScenario = (scenarioKey: string) => {
+    const sc = PULSE_DEMO_SCENARIOS[scenarioKey]
+    if (!sc) return
+
+    const academicQuestions = activeQuestions.filter((q) => q.category === 'ACADEMIC')
+    const totalMax = academicQuestions.reduce((sum, q) => sum + (q.marks || 2), 0)
+    const earned = Math.round((sc.academicScore / 100) * totalMax * 10) / 10
+
+    const evalRes = evaluateInterventionMatrix(sc.academicScore, sc.feedbackScore, sc.wellbeingScore, 60.0)
+
+    setFeedbackPctScore(sc.feedbackScore)
+    setWellbeingPctScore(sc.wellbeingScore)
+    setEvaluationResult(evalRes)
+    setMentorOfferStatus('OFFERED')
+    setCounsellorOfferStatus('OFFERED')
+
+    const mockSub: StudentPulseSubmission = {
+      submissionId: `sub-demo-${scenarioKey}-${Date.now().toString().slice(-4)}`,
+      pulseId: currentPulse.id,
+      studentId: 'student-asha',
+      studentName: 'Asha Verma',
+      academicScore: earned,
+      academicMaxMarks: totalMax,
+      percentage: sc.academicScore,
+      submittedAt: new Date().toISOString(),
+      isAnonymous: true,
+      objectiveResults: academicQuestions.map((q, idx) => ({
+        questionId: q.id,
+        prompt: q.prompt,
+        selectedOption: sc.academicScore >= 60 ? q.correctOption ?? 0 : (q.correctOption === 0 ? 1 : 0),
+        correctOption: q.correctOption,
+        isCorrect: sc.academicScore >= 60 ? true : idx % 2 === 0,
+        marksAwarded: sc.academicScore >= 60 ? q.marks : (idx % 2 === 0 ? q.marks : 0),
+        maxMarks: q.marks,
+        explanation: q.explanation,
+      })),
+    }
+
+    setSubmissionResult(mockSub)
+    setStage('results')
+    addToast(sc.title, `Loaded demo scenario: ${sc.description}`, 'info')
   }
 
   // Handler: Next question
@@ -97,7 +173,7 @@ export function StudentAssessmentPage({
     }
   }
 
-  // Handler: Final Submit & Auto-Grading
+  // Handler: Final Submit & Auto-Grading with 3 category scoring and 8-row intervention matrix
   const handleSubmitAssessment = () => {
     const academicQuestions = activeQuestions.filter((q) => q.category === 'ACADEMIC')
     let earnedMarks = 0
@@ -123,7 +199,6 @@ export function StudentAssessmentPage({
           explanation: q.explanation,
         })
       } else {
-        // Descriptive provisional scoring
         const userText = (academicAnswers[q.id] as string) || ''
         const awarded = userText.trim().length > 10 ? q.marks * 0.8 : 0
         earnedMarks += awarded
@@ -141,7 +216,65 @@ export function StudentAssessmentPage({
       }
     })
 
-    const pct = totalMaxMarks > 0 ? Math.round((earnedMarks / totalMaxMarks) * 100) : 0
+    const acadPct = totalMaxMarks > 0 ? Math.round((earnedMarks / totalMaxMarks) * 100) : 0
+
+    // Calculate feedback score (0-100, excluding descriptive)
+    const feedQuestions = activeQuestions.filter((q) => q.category === 'CLASSROOM_FEEDBACK' && q.questionType !== 'descriptive')
+    let feedTotal = 0
+    let feedCount = 0
+    feedQuestions.forEach((q) => {
+      const val = feedbackAnswers[q.id]
+      if (val !== undefined) {
+        feedCount++
+        if (typeof val === 'number') {
+          feedTotal += Math.min(100, Math.max(0, val * 25))
+        } else if (String(val).toLowerCase().includes('just right')) {
+          feedTotal += 100
+        } else if (String(val).toLowerCase().includes('too fast') || String(val).toLowerCase().includes('too slow')) {
+          feedTotal += 40
+        } else {
+          feedTotal += 60
+        }
+      }
+    })
+    const computedFeedbackPct = feedCount > 0 ? Math.round(feedTotal / feedCount) : 75
+
+    // Calculate wellbeing score (0-100, reverse-scoring negative items)
+    const wellQuestions = activeQuestions.filter((q) => q.category === 'WELLBEING')
+    let wellTotal = 0
+    let wellCount = 0
+    wellQuestions.forEach((q) => {
+      const val = wellbeingAnswers[q.id]
+      if (val !== undefined) {
+        wellCount++
+        const isNegative = q.parameterTag === 'academic_pressure' || q.parameterTag === 'loneliness_frequency'
+        let num = 70
+        if (typeof val === 'number') {
+          num = val * 25
+        } else if (String(val).toLowerCase().includes('almost constantly')) {
+          num = 15
+        } else if (String(val).toLowerCase().includes('rarely') || String(val).toLowerCase().includes('never')) {
+          num = 95
+        } else {
+          num = 60
+        }
+        if (isNegative && typeof val === 'number') {
+          num = 100 - num
+        }
+        wellTotal += num
+      }
+    })
+    const computedWellbeingPct = wellCount > 0 ? Math.round(wellTotal / wellCount) : 70
+
+    // Evaluate 8-row intervention matrix against 60% operational threshold
+    const evalRes = evaluateInterventionMatrix(acadPct, computedFeedbackPct, computedWellbeingPct, 60.0)
+
+    setFeedbackPctScore(computedFeedbackPct)
+    setWellbeingPctScore(computedWellbeingPct)
+    setEvaluationResult(evalRes)
+    setMentorOfferStatus('OFFERED')
+    setCounsellorOfferStatus('OFFERED')
+
     const result: StudentPulseSubmission = {
       submissionId: `sub-${currentPulse.id}-${Date.now().toString().slice(-4)}`,
       pulseId: currentPulse.id,
@@ -149,7 +282,7 @@ export function StudentAssessmentPage({
       studentName: 'Asha Verma',
       academicScore: Math.round(earnedMarks * 10) / 10,
       academicMaxMarks: totalMaxMarks,
-      percentage: pct,
+      percentage: acadPct,
       submittedAt: new Date().toISOString(),
       isAnonymous: true,
       objectiveResults,
@@ -161,7 +294,7 @@ export function StudentAssessmentPage({
 
     addToast(
       'Assessment Submitted! 🎉',
-      `You scored ${result.academicScore} / ${result.academicMaxMarks} Marks (${pct}%). Feedback submitted anonymously.`,
+      `Academic Score: ${acadPct}%. Category feedback and wellbeing evaluated against operational thresholds.`,
       'success'
     )
   }
@@ -207,6 +340,27 @@ export function StudentAssessmentPage({
 
   return (
     <div className="flex-1 flex flex-col gap-5 font-sans select-none pb-12">
+      {/* Demo Scenario Test Toolbar */}
+      <div className="p-3.5 rounded-2xl bg-white border border-purple-100 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-purple-600" />
+          <span className="text-xs font-bold text-gray-800">Intervention Matrix Demos (5 Scenarios):</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {Object.entries(PULSE_DEMO_SCENARIOS).map(([key, sc]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleLoadDemoScenario(key)}
+              title={sc.description}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all border border-purple-200 cursor-pointer"
+            >
+              {sc.title.split(':')[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* =========================================================================
           STAGE 1: INTRO SCREEN (Questions do not appear until student clicks Start)
          ========================================================================= */}
@@ -220,89 +374,71 @@ export function StudentAssessmentPage({
                 <span>Student Pulse Assessment</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E2433]">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1E2433] tracking-tight leading-tight">
                 {currentPulse.title}
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#475569] font-medium mt-2 leading-relaxed">
-                Course: <strong>{currentPulse.courseName} ({currentPulse.courseId})</strong> • {currentPulse.sectionId}
+              <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
+                Student Pulse brings together your academic mastery check, classroom learning experience, and daily wellbeing into one supportive session.
               </p>
 
-              <p className="text-xs sm:text-sm text-[#64748B] mt-1 leading-relaxed">
-                This assessment consists of three unified categories: evaluate your academic knowledge, share anonymous classroom feedback, and check in on your academic workload.
-              </p>
-
-              {/* Assessment Chips */}
-              <div className="flex flex-wrap items-center gap-3 mt-5">
-                <div className="flex items-center gap-1.5 text-xs text-gray-700 font-semibold bg-white/80 px-3.5 py-1.5 rounded-full border border-purple-100 shadow-2xs">
-                  <Clock className="w-4 h-4 text-purple-600" />
-                  <span>10–12 minutes</span>
+              <div className="flex flex-wrap items-center gap-4 mt-5 text-xs text-gray-600 font-medium">
+                <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-gray-200">
+                  <Clock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Due: {new Date(currentPulse.dueAt).toLocaleDateString()}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-700 font-semibold bg-white/80 px-3.5 py-1.5 rounded-full border border-purple-100 shadow-2xs">
-                  <HelpCircle className="w-4 h-4 text-purple-600" />
-                  <span>{totalQuestions} Randomized Questions</span>
+                <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-gray-200">
+                  <Award className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{currentPulse.totalMarks} Academic Marks</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-semibold bg-white/80 px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-2xs">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Feedback & Wellbeing 100% Anonymous</span>
+                <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-gray-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Feedback & Wellbeing Anonymized</span>
                 </div>
               </div>
 
-              {/* START ASSESSMENT BUTTON */}
-              <div className="mt-7 flex items-center gap-3">
+              <div className="mt-6">
                 <button
                   type="button"
                   onClick={handleStartAssessment}
-                  className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-extrabold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  className="px-6 py-3 rounded-2xl bg-[#1E2433] hover:bg-[#2D3748] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer hover:shadow-lg"
                 >
-                  <Play className="w-4 h-4 fill-current" />
-                  <span>Start Assessment</span>
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>Start Student Pulse</span>
                 </button>
-
-                {/* Course Switcher */}
-                <div className="flex items-center gap-1.5 bg-white/70 px-3 py-2 rounded-full border border-purple-200">
-                  <span className="text-[11px] font-bold text-gray-500">Course:</span>
-                  <select
-                    value={selectedPulseId}
-                    onChange={(e) => setSelectedPulseId(e.target.value)}
-                    className="bg-transparent text-xs font-bold text-purple-950 focus:outline-none cursor-pointer"
-                  >
-                    {INITIAL_PULSE_ASSIGNMENTS.filter((p) => p.status === 'published').map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.courseId}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </div>
             </div>
 
-            {/* Visual Graphic Card */}
-            <div className="w-48 h-48 sm:w-56 sm:h-56 shrink-0 relative flex items-center justify-center">
-              <div className="w-full h-full rounded-3xl bg-white/60 border border-purple-200 p-5 shadow-2xs flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
-                    3 Categories
-                  </span>
-                  <Award className="w-4 h-4 text-purple-600" />
+            {/* Category Structure Preview */}
+            <div className="w-full md:w-80 shrink-0 flex flex-col gap-3 z-10">
+              <div className="p-3.5 rounded-2xl bg-white/90 border border-purple-100 shadow-2xs flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs shrink-0">
+                  5Q
                 </div>
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center gap-2 text-purple-900 font-semibold">
-                    <BookOpen className="w-3.5 h-3.5 text-purple-600" />
-                    <span>5 Academic Questions</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sky-900 font-semibold">
-                    <MessageSquare className="w-3.5 h-3.5 text-sky-600" />
-                    <span>4 Classroom Feedback</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-rose-900 font-semibold">
-                    <Heart className="w-3.5 h-3.5 text-rose-600" />
-                    <span>3 Student Wellbeing</span>
-                  </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">Category A: Academic</p>
+                  <p className="text-[11px] text-gray-500">3 MCQs, 1 Conceptual, 1 Application</p>
                 </div>
-                <span className="text-[10px] text-gray-500 italic">
-                  Answers unselected until started.
-                </span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/90 border border-blue-100 shadow-2xs flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
+                  4Q
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">Category B: Classroom Feedback</p>
+                  <p className="text-[11px] text-gray-500">2 Likert, 1 MCQ, 1 Optional Suggestion</p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/90 border border-emerald-100 shadow-2xs flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                  3Q
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">Category C: Student Wellbeing</p>
+                  <p className="text-[11px] text-gray-500">2 Likert, 1 MCQ (Support & Motivation)</p>
+                </div>
               </div>
             </div>
           </div>
@@ -310,42 +446,34 @@ export function StudentAssessmentPage({
       )}
 
       {/* =========================================================================
-          STAGE 2: STEPPER (One Question At A Time with Next & Previous)
+          STAGE 2: QUESTION STEPPER
          ========================================================================= */}
       {stage === 'question' && currentQuestion && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-purple-100 shadow-2xs flex flex-col gap-6 animate-in fade-in duration-150">
-          {/* Header & Question Navigation Progress */}
-          <div>
-            <div className="flex items-center justify-between gap-3 mb-2">
-              {/* Category Badging */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs flex flex-col gap-5 animate-in fade-in duration-150">
+          {/* Question Header & Stepper Status */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                {currentQuestion.category === 'ACADEMIC' && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200">
-                    <BookOpen className="w-3.5 h-3.5" />
-                    Category A: Academic Assessment
-                  </span>
-                )}
-                {currentQuestion.category === 'CLASSROOM_FEEDBACK' && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-bold border border-sky-200">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    Category B: Classroom Feedback (Anonymous)
-                  </span>
-                )}
-                {currentQuestion.category === 'WELLBEING' && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200">
-                    <Heart className="w-3.5 h-3.5" />
-                    Category C: Student Wellbeing
-                  </span>
-                )}
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    currentQuestion.category === 'ACADEMIC'
+                      ? 'bg-purple-100 text-purple-800'
+                      : currentQuestion.category === 'CLASSROOM_FEEDBACK'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {currentQuestion.categoryLabel || currentQuestion.category}
+                </span>
 
                 {currentQuestion.difficulty && (
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
                       currentQuestion.difficulty === 'Easy'
-                        ? 'bg-emerald-100 text-emerald-800'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         : currentQuestion.difficulty === 'Medium'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-rose-100 text-rose-800'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-rose-50 text-rose-700 border border-rose-200'
                     }`}
                   >
                     {currentQuestion.difficulty}
@@ -452,58 +580,51 @@ export function StudentAssessmentPage({
               }`}
             >
               <ArrowLeft className="w-4 h-4" />
-              Previous
+              <span>Previous</span>
             </button>
 
-            <div className="flex items-center gap-2">
-              {currentQuestionIndex < totalQuestions - 1 ? (
-                <button
-                  type="button"
-                  onClick={handleNextQuestion}
-                  className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <span>Next Question</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmitAssessment}
-                  className="px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Submit & View Marks</span>
-                </button>
-              )}
-            </div>
+            {currentQuestionIndex < totalQuestions - 1 ? (
+              <button
+                type="button"
+                onClick={handleNextQuestion}
+                className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Next Question</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmitAssessment}
+                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+                <span>Submit Student Pulse</span>
+              </button>
+            )}
           </div>
         </div>
       )}
 
       {/* =========================================================================
-          STAGE 3: FINAL RESULTS (Student gets their marks and answers breakdown)
+          STAGE 3: RESULTS SCREEN & INTERVENTION ACTIONS
          ========================================================================= */}
       {stage === 'results' && submissionResult && (
         <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-          {/* Marks Hero Card */}
-          <div className="bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
-                  Assessment Completed
-                </span>
-                <span className="text-xs text-purple-200">•</span>
-                <span className="text-xs text-purple-200 font-medium">
-                  Submitted {new Date(submissionResult.submittedAt).toLocaleDateString()}
-                </span>
+          {/* Main Hero Results Card */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E2433] to-[#2D3748] p-6 sm:p-9 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Student Pulse Completed</span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Your Academic Marks: {submissionResult.academicScore} / {submissionResult.academicMaxMarks}
+                Academic Score: {submissionResult.percentage}%
               </h2>
 
               <p className="text-xs sm:text-sm text-purple-200 mt-1.5 leading-relaxed">
-                Objective questions have been evaluated below with concept explanations. Your classroom feedback and wellbeing answers have been securely anonymized.
+                Objective questions have been evaluated. Your classroom feedback and wellbeing answers have been securely anonymized under k-anonymity (≥5).
               </p>
 
               <div className="mt-5 flex items-center gap-3">
@@ -513,7 +634,7 @@ export function StudentAssessmentPage({
                   className="px-5 py-2.5 rounded-full bg-white text-purple-900 hover:bg-purple-50 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Retake Assessment</span>
+                  <span>Retake Pulse</span>
                 </button>
 
                 {onNavigateToOverview && (
@@ -529,23 +650,173 @@ export function StudentAssessmentPage({
               </div>
             </div>
 
-            {/* Score Percentage Badge */}
-            <div className="bg-white/10 backdrop-blur-xs p-6 rounded-2xl border border-white/20 text-center shrink-0 min-w-[150px]">
-              <span className="text-xs text-purple-200 block font-medium">Accuracy</span>
-              <div className="text-4xl font-extrabold text-white mt-1">
-                {submissionResult.percentage}%
+            {/* 3 Normalized Scores Display */}
+            <div className="grid grid-cols-3 gap-2 w-full md:w-auto shrink-0">
+              <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
+                <span className="text-[11px] text-purple-200 block font-medium">Academic</span>
+                <div className="text-2xl font-extrabold text-white mt-0.5">
+                  {submissionResult.percentage}%
+                </div>
+                <span className={`text-[10px] font-bold mt-1 block ${submissionResult.percentage >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {submissionResult.percentage >= 60 ? 'Benchmark Met' : 'Needs Support'}
+                </span>
               </div>
-              <span className="text-xs font-bold text-emerald-400 mt-1 block">
-                {submissionResult.percentage >= 60 ? 'Above Benchmark' : 'Needs Practice'}
-              </span>
+
+              <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
+                <span className="text-[11px] text-purple-200 block font-medium">Feedback</span>
+                <div className="text-2xl font-extrabold text-white mt-0.5">
+                  {feedbackPctScore}%
+                </div>
+                <span className={`text-[10px] font-bold mt-1 block ${feedbackPctScore >= 60 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {feedbackPctScore >= 60 ? 'Healthy Pace' : 'Review Alert'}
+                </span>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
+                <span className="text-[11px] text-purple-200 block font-medium">Wellbeing</span>
+                <div className="text-2xl font-extrabold text-white mt-0.5">
+                  {wellbeingPctScore}%
+                </div>
+                <span className={`text-[10px] font-bold mt-1 block ${wellbeingPctScore >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {wellbeingPctScore >= 60 ? 'Balanced' : 'Support Offered'}
+                </span>
+              </div>
             </div>
           </div>
+
+          {/* =========================================================================
+              INTERVENTION OFFERS & ACTIONS (From the 8-Row Matrix)
+             ========================================================================= */}
+
+          {/* Action 1: Peer Mentor Invitation (Triggered when Academic < 60%) */}
+          {evaluationResult.recommendedActions.includes('PEER_MENTOR_INVITATION') && (
+            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="max-w-xl">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[11px] font-bold uppercase tracking-wide">
+                    Academic Support Available
+                  </span>
+                  <span className="text-xs text-amber-700 font-semibold">• Voluntary Peer Mentoring</span>
+                </div>
+                <h3 className="text-base font-bold text-gray-900">
+                  Connect with a Volunteer Peer Mentor for {currentPulse.courseId}
+                </h3>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                  We noticed some challenging concepts in this assessment. Arjun Singh (B.Tech 3rd Yr, GPA 9.2) has volunteered to hold peer study sessions. Peer mentors provide academic coaching only and never see your feedback or wellbeing records.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                {mentorOfferStatus === 'OFFERED' ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMentorOfferStatus('ACCEPTED')
+                        addToast('Peer Mentorship Accepted! 🤝', 'Connected with Arjun Singh. You can message in the Messages tab.', 'success')
+                      }}
+                      className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      <span>Accept Mentorship</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMentorOfferStatus('DECLINED')
+                        addToast('Mentorship Declined', 'You can request support anytime from the Request Support page.', 'info')
+                      }}
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold border border-gray-200 transition-all cursor-pointer"
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : mentorOfferStatus === 'ACCEPTED' ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-white px-4 py-2 rounded-xl border border-emerald-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Mentorship Connected with Arjun Singh</span>
+                  </div>
+                ) : (
+                  <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                    Offer Declined
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action 2: Confidential Counsellor Offer (Triggered when Wellbeing < 60%) */}
+          {evaluationResult.recommendedActions.includes('COUNSELLOR_OFFER') && (
+            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="max-w-xl">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[11px] font-bold uppercase tracking-wide">
+                    Confidential Wellbeing Check-in
+                  </span>
+                  <span className="text-xs text-purple-700 font-semibold">• 100% Private</span>
+                </div>
+                <h3 className="text-base font-bold text-gray-900">
+                  A Supportive Conversation is Always Available
+                </h3>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                  Your wellbeing matters most. Dr. Meera Nambiar (Lead Student Counsellor) is available for confidential one-on-one sessions. Faculty, peers, and mentors cannot view your individual responses.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                {counsellorOfferStatus === 'OFFERED' ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCounsellorOfferStatus('ACCEPTED')
+                        addToast('Confidential Session Accepted 💜', 'Dr. Meera Nambiar has been notified. Meeting schedule opened.', 'success')
+                      }}
+                      className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-white" />
+                      <span>Accept Support</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCounsellorOfferStatus('DECLINED')
+                        addToast('Counselling Offer Closed', 'Remember, support is always available whenever you need it.', 'info')
+                      }}
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold border border-gray-200 transition-all cursor-pointer"
+                    >
+                      <span>Decline</span>
+                    </button>
+                  </>
+                ) : counsellorOfferStatus === 'ACCEPTED' ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-purple-800 bg-white px-4 py-2 rounded-xl border border-purple-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                    <span>Session Scheduled with Dr. Meera Nambiar</span>
+                  </div>
+                ) : (
+                  <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                    Offer Respectfully Closed
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action 3: Faculty Review Alert Confirmation */}
+          {evaluationResult.recommendedActions.includes('FACULTY_REVIEW') && (
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-center gap-2.5">
+              <FileText className="w-5 h-5 text-blue-600 shrink-0" />
+              <span>
+                <strong>Instructional Review Alert Triggered:</strong> Aggregated, anonymous classroom feedback has alerted the instructor to review recent lecture pacing and code walkthroughs. Your identity remains strictly anonymous.
+              </span>
+            </div>
+          )}
 
           {/* Privacy Receipt */}
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2.5">
             <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
             <span>
-              <strong>Anonymity Guarantee:</strong> Your responses to Category B (Classroom Feedback) and Category C (Student Wellbeing) have been detached from your student profile and recorded anonymously into aggregate batch statistics.
+              <strong>Anonymity Guarantee:</strong> Your responses to Category B (Classroom Feedback) and Category C (Student Wellbeing) have been detached from your student profile and recorded anonymously into aggregate batch statistics under k-anonymity (≥5).
             </span>
           </div>
 

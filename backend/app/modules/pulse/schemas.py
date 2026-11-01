@@ -86,10 +86,27 @@ class PulseSubmissionResult(BaseModel):
     academic_score: float
     academic_max_marks: float
     percentage: float
+    feedback_score: Optional[float] = None
+    wellbeing_score: Optional[float] = None
+    academic_status: Optional[str] = None
+    feedback_status: Optional[str] = None
+    wellbeing_status: Optional[str] = None
+    recommended_actions: List[str] = []
+    counsellor_offer: Optional[Dict[str, Any]] = None
+    peer_mentor_invitation: Optional[Dict[str, Any]] = None
     objective_results: List[ObjectiveQuestionResult]
     feedback_anonymized_ack: bool
     wellbeing_anonymized_ack: bool
     privacy_notice: str
+
+
+class MentorResponseRequest(BaseModel):
+    accepted: bool
+
+
+class CounsellorOfferResponseRequest(BaseModel):
+    accepted: bool
+
 
 
 class PulseSummaryFacultyView(BaseModel):

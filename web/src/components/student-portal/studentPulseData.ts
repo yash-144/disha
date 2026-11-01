@@ -3,28 +3,33 @@ import {
   PulseAssignment,
   Pulse3PartAnalytics,
   StudentPulseSubmission,
+  PeerMentor,
+  PeerMentorRequest,
+  CounsellorSupportOffer,
+  PulseInterventionRecord,
+  InterventionAction,
 } from '../../types/studentPulse'
 
+// =========================================================================
+// COMPREHENSIVE QUESTION BANK (>= 20 Questions per Category, 64 Total)
+// =========================================================================
+
 export const PULSE_QUESTION_BANK: PulseQuestion[] = [
-  // =========================================================================
-  // CS201 - Data Structures & Algorithms
-  // =========================================================================
-  
-  // Category A: Academic Assessment
+  // --- Category A: Academic Assessment (22 Questions) ---
   {
     id: 'cs201-acad-01',
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which data structure follows the Last-In-First-Out (LIFO) principle and is used for recursive call stack management?',
+    prompt: 'Which data structure follows the Last-In-First-Out (LIFO) principle and is commonly used for function call stacks?',
     questionType: 'mcq',
     difficulty: 'Easy',
     marks: 2.0,
     options: ['Queue', 'Stack', 'Binary Search Tree', 'Doubly Linked List'],
     correctOption: 1,
     correctAnswer: 'Stack',
-    explanation: 'A Stack strictly follows Last-In-First-Out (LIFO), making it the primary structure for activation records and recursive call stacks.',
+    explanation: 'A Stack follows Last-In-First-Out (LIFO), making it the canonical structure for recursion and call stack management.',
     parameterTag: 'stack-basics',
   },
   {
@@ -40,7 +45,7 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     options: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'],
     correctOption: 2,
     correctAnswer: 'O(n)',
-    explanation: 'When a BST is completely unbalanced (skewed tree resembling a singly linked list), traversal requires O(n) steps.',
+    explanation: 'When a BST becomes completely skewed (resembling a linked list), searching deteriorates to linear time O(n).',
     parameterTag: 'bst-complexity',
   },
   {
@@ -49,20 +54,20 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'In recursive algorithms, what consequence occurs if the base case termination condition is omitted?',
+    prompt: 'In recursion, what happens if the base case is omitted or unreachable?',
     questionType: 'mcq',
     difficulty: 'Easy',
     marks: 2.0,
     options: [
-      'Compilation fails during syntax parsing',
-      'Stack overflow exception due to unbounded call stack frames',
-      'Heap fragmentation with memory leak',
-      'Algorithm terminates immediately in O(1) time',
+      'Compilation error during build',
+      'Stack overflow due to infinite recursive calls',
+      'Memory leak in heap space',
+      'Program executes in O(1) constant time',
     ],
     correctOption: 1,
-    correctAnswer: 'Stack overflow exception due to unbounded call stack frames',
-    explanation: 'Without a base case, recursive calls cascade infinitely until the memory limit allocated for the call stack is exhausted.',
-    parameterTag: 'recursion-fundamentals',
+    correctAnswer: 'Stack overflow due to infinite recursive calls',
+    explanation: 'Without a base termination condition, recursive calls push activation frames continuously until call stack memory is exhausted.',
+    parameterTag: 'recursion-termination',
   },
   {
     id: 'cs201-acad-04',
@@ -70,14 +75,14 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which tree traversal order visits the Left Subtree, Root Node, and then Right Subtree?',
+    prompt: 'Which traversal of a Binary Search Tree (BST) produces node values in strictly ascending sorted order?',
     questionType: 'mcq',
     difficulty: 'Easy',
     marks: 2.0,
-    options: ['Pre-order Traversal', 'In-order Traversal', 'Post-order Traversal', 'Level-order Traversal'],
+    options: ['Pre-order (Root, Left, Right)', 'In-order (Left, Root, Right)', 'Post-order (Left, Right, Root)', 'Level-order (Breadth-First)'],
     correctOption: 1,
-    correctAnswer: 'In-order Traversal',
-    explanation: 'In-order traversal visits nodes in (Left, Root, Right) order, yielding naturally sorted keys when applied to a BST.',
+    correctAnswer: 'In-order (Left, Root, Right)',
+    explanation: 'In-order traversal visits the left subtree (smaller values), current root, and right subtree (larger values), yielding sorted order.',
     parameterTag: 'tree-traversal',
   },
   {
@@ -86,14 +91,15 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Explain the fundamental difference between Depth-First Search (DFS) and Breadth-First Search (BFS) in terms of auxiliary data structures and traversal behavior.',
+    prompt: 'Explain the fundamental difference between Depth-First Search (DFS) and Breadth-First Search (BFS) in graph traversal.',
     questionType: 'descriptive',
     difficulty: 'Medium',
     marks: 5.0,
     options: [],
-    correctAnswer: 'DFS relies on a Stack (or recursion) to probe along each branch deeply before backtracking. BFS relies on a Queue (FIFO) to explore frontier nodes level by level.',
-    explanation: 'Rubric points: Stack vs Queue, depth exploration vs level-by-level exploration, visited tracking.',
-    parameterTag: 'graph-traversal',
+    correctOption: undefined,
+    correctAnswer: 'DFS uses a Stack (or recursion) to explore deeply along each branch before backtracking; BFS uses a Queue to explore neighbor nodes level by level.',
+    explanation: 'Core evaluation points: Stack vs Queue, depth exploration vs level-order expansion, and space complexity differences.',
+    parameterTag: 'graph-traversal-concepts',
   },
   {
     id: 'cs201-acad-06',
@@ -101,15 +107,15 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which in-place sorting algorithm guarantees an average and worst-case time complexity of O(n log n) with O(1) auxiliary space?',
+    prompt: 'What is the amortized time complexity of inserting an element into a dynamic array (like Python list or C++ std::vector)?',
     questionType: 'mcq',
-    difficulty: 'Hard',
-    marks: 3.0,
-    options: ['Merge Sort', 'Heap Sort', 'Quick Sort', 'Counting Sort'],
-    correctOption: 1,
-    correctAnswer: 'Heap Sort',
-    explanation: 'Heap Sort constructs an in-place heap over the existing array and achieves guaranteed O(n log n) worst-case time with O(1) space.',
-    parameterTag: 'sorting-efficiency',
+    difficulty: 'Medium',
+    marks: 2.0,
+    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n^2)'],
+    correctOption: 0,
+    correctAnswer: 'O(1)',
+    explanation: 'Although occasional resizing takes O(n), geometric doubling spreads resizing cost across n insertions, giving O(1) amortized time.',
+    parameterTag: 'amortized-analysis',
   },
   {
     id: 'cs201-acad-07',
@@ -117,186 +123,95 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Data Structures & Algorithms',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'What data structure provides optimal O(1) amortized insertion and O(log n) minimum extraction for Dijkstra’s algorithm?',
+    prompt: 'Which collision resolution technique in hash tables places all collided keys in a linked list at the same bucket index?',
     questionType: 'mcq',
-    difficulty: 'Hard',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Linear Probing', 'Quadratic Probing', 'Separate Chaining', 'Double Hashing'],
+    correctOption: 2,
+    correctAnswer: 'Separate Chaining',
+    explanation: 'Separate chaining maintains a linked list (or balanced tree) at each table bucket index to store colliding entries.',
+    parameterTag: 'hash-collision',
+  },
+  {
+    id: 'cs201-acad-08',
+    courseId: 'CS201',
+    courseName: 'Data Structures & Algorithms',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'You are designing an undo/redo feature for a text editor. Which data structure pair is optimal for this application?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
     marks: 3.0,
-    options: ['Fibonacci / Binary Heap', 'Unsorted Dynamic Array', 'Balanced Red-Black Tree', 'Circular Queue'],
+    options: ['Two Stacks', 'Two Queues', 'Priority Queue & Min-Heap', 'Circular Buffer & Hash Map'],
     correctOption: 0,
-    correctAnswer: 'Fibonacci / Binary Heap',
-    explanation: 'Heaps enable efficient decrease-key and minimum extraction operations needed for shortest-path graph calculations.',
-    parameterTag: 'priority-queues',
-  },
-
-  // Category B: Classroom Feedback
-  {
-    id: 'cs201-feed-01',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'How would you describe the lecture pace during recent algorithmic and data structure sessions?',
-    questionType: 'single_choice',
-    difficulty: 'Easy',
-    marks: 0,
-    options: [
-      'Too fast – challenging to follow code traces during lecture',
-      'Just right – comfortable pace with balanced problem breakdowns',
-      'Too slow – could move through foundational slides faster',
-    ],
-    explanation: 'Calibrates classroom delivery velocity.',
-    parameterTag: 'lecture_pace',
+    correctAnswer: 'Two Stacks',
+    explanation: 'An Undo stack holds previous states popped upon undo and pushed to Redo stack; re-executing pushes back to Undo stack.',
+    parameterTag: 'application-design',
   },
   {
-    id: 'cs201-feed-02',
+    id: 'cs201-acad-09',
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'Clarity of algorithmic proofs, dry runs, and whiteboard diagrams:',
-    questionType: 'likert',
-    difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - Needs Much More Clarification', '2 - Somewhat Unclear', '3 - Moderately Clear', '4 - Clear & Structured', '5 - Exceptionally Lucid'],
-    explanation: 'Evaluates explanation clarity on whiteboard/slides.',
-    parameterTag: 'clarity_explanation',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'In an AVL Tree, what is the maximum permissible difference between the heights of the left and right subtrees of any node?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 2.0,
+    options: ['0', '1', '2', 'log(n)'],
+    correctOption: 1,
+    correctAnswer: '1',
+    explanation: 'The AVL balance factor must strictly remain in {-1, 0, +1}; difference > 1 triggers rotations.',
+    parameterTag: 'avl-trees',
   },
   {
-    id: 'cs201-feed-03',
+    id: 'cs201-acad-10',
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'How comfortable do you feel asking questions or seeking clarification during class?',
-    questionType: 'single_choice',
-    difficulty: 'Easy',
-    marks: 0,
-    options: [
-      'Very comfortable speaking up right away in class',
-      'Prefer approaching the professor after class or during office hours',
-      'Hesitant to interrupt the class flow in front of peers',
-      'Prefer submitting doubts anonymously through chat or digital channels',
-    ],
-    explanation: 'Measures classroom psychological safety and participation barriers.',
-    parameterTag: 'asking_questions',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: "Demonstrate how you would detect a cycle in a singly linked list using Floyd's Tortoise and Hare algorithm.",
+    questionType: 'descriptive',
+    difficulty: 'Hard',
+    marks: 5.0,
+    options: [],
+    correctOption: undefined,
+    correctAnswer: 'Use two pointers: slow moves 1 step, fast moves 2 steps. If fast reaches null, no cycle exists; if slow == fast, a cycle is detected in O(n) time and O(1) space.',
+    explanation: 'Key points: slow pointer (1 step), fast pointer (2 steps), termination at null vs meeting point indicating cycle.',
+    parameterTag: 'algorithm-application',
   },
   {
-    id: 'cs201-feed-04',
+    id: 'cs201-acad-11',
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'Quality and volume of practical hands-on coding demonstrations during class:',
-    questionType: 'likert',
-    difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - Very Little Code Shown', '2 - Insufficient', '3 - Adequate Balance', '4 - Good Code Walkthroughs', '5 - Excellent Live Coding & Debugging'],
-    explanation: 'Measures theory vs hands-on balance.',
-    parameterTag: 'practical_exposure',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'What is the average time complexity of QuickSort when choosing a randomized pivot?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 2.0,
+    options: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(log n)'],
+    correctOption: 1,
+    correctAnswer: 'O(n log n)',
+    explanation: 'Randomized pivot selection avoids adversarial inputs and yields an expected O(n log n) running time.',
+    parameterTag: 'sorting-algorithms',
   },
-  {
-    id: 'cs201-feed-05',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'Which topic would you most appreciate a focused tutorial or lab problem-solving clinic for?',
-    questionType: 'single_choice',
-    difficulty: 'Easy',
-    marks: 0,
-    options: [
-      'Recursion tree recursion stack visualization',
-      'Binary Search Tree balancing & AVL rotations',
-      'Graph BFS/DFS cycles and topological sorting',
-      'Dynamic Programming subproblem state design',
-    ],
-    explanation: 'Actionable topic-level classroom revision focus.',
-    parameterTag: 'revision_needs',
-  },
-
-  // Category C: Student Wellbeing
-  {
-    id: 'cs201-well-01',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'WELLBEING',
-    categoryLabel: 'Student Wellbeing',
-    prompt: 'How would you rate your motivation and curiosity to learn the algorithms and topics in this course right now?',
-    questionType: 'likert',
-    difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - Feeling Drained / Low Motivation', '2 - Struggling to Stay Motivated', '3 - Moderate / Managing Well', '4 - Positive & Engaged', '5 - Highly Motivated & Curious'],
-    explanation: 'Measures subject enthusiasm and engagement vitality.',
-    parameterTag: 'course_motivation',
-  },
-  {
-    id: 'cs201-well-02',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'WELLBEING',
-    categoryLabel: 'Student Wellbeing',
-    prompt: 'How manageable is your current academic workload and assignment deadlines across your enrolled courses?',
-    questionType: 'likert',
-    difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - Overwhelming pressure / Falling behind', '2 - Heavy strain / Low rest', '3 - Manageable with regular effort', '4 - Well balanced and organized', '5 - Very comfortable workload'],
-    explanation: 'Non-diagnostic academic workload pressure index.',
-    parameterTag: 'academic_pressure',
-  },
-  {
-    id: 'cs201-well-03',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'WELLBEING',
-    categoryLabel: 'Student Wellbeing',
-    prompt: 'How confident do you feel about your conceptual preparation for the upcoming mid-term exam in this course?',
-    questionType: 'likert',
-    difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - High exam anxiety / Unprepared', '2 - Unsure on multiple key concepts', '3 - Moderately prepared', '4 - Confident in core problem-solving', '5 - Thoroughly prepared and confident'],
-    explanation: 'Assesses student exam confidence and performance anxiety.',
-    parameterTag: 'exam_confidence',
-  },
-  {
-    id: 'cs201-well-04',
-    courseId: 'CS201',
-    courseName: 'Data Structures & Algorithms',
-    category: 'WELLBEING',
-    categoryLabel: 'Student Wellbeing',
-    prompt: 'Would an optional peer study cohort or faculty revision circle be helpful for your academic journey?',
-    questionType: 'single_choice',
-    difficulty: 'Easy',
-    marks: 0,
-    options: [
-      'No, I am progressing comfortably on my own',
-      'Yes, a peer study circle with classmates would help',
-      'Yes, an instructor-led doubt clearing session would be very beneficial',
-      'Yes, I would appreciate 1-on-1 mentoring support',
-    ],
-    explanation: 'Identifies proactive support interest.',
-    parameterTag: 'support_readiness',
-  },
-
-  // =========================================================================
-  // CS202 - Database Management Systems
-  // =========================================================================
-
-  // Category A: Academic Assessment
   {
     id: 'cs202-acad-01',
     courseId: 'CS202',
     courseName: 'Database Management Systems',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which normal form guarantees the elimination of partial functional dependencies on composite candidate keys?',
+    prompt: 'Which ACID property guarantees that all operations in a database transaction complete successfully, or none take effect?',
     questionType: 'mcq',
-    difficulty: 'Medium',
-    marks: 3.0,
-    options: ['1NF (First Normal Form)', '2NF (Second Normal Form)', '3NF (Third Normal Form)', 'BCNF (Boyce-Codd Normal Form)'],
-    correctOption: 1,
-    correctAnswer: '2NF (Second Normal Form)',
-    explanation: '2NF requires relations to be in 1NF and ensures every non-prime attribute is fully functionally dependent on the primary key.',
-    parameterTag: 'normalization',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Atomicity', 'Consistency', 'Isolation', 'Durability'],
+    correctOption: 0,
+    correctAnswer: 'Atomicity',
+    explanation: "Atomicity ensures an 'all-or-nothing' execution guarantee for transaction statements.",
+    parameterTag: 'acid-properties',
   },
   {
     id: 'cs202-acad-02',
@@ -304,15 +219,20 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Database Management Systems',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which ACID property ensures that committed transactions survive subsequent system or server power crashes?',
+    prompt: 'A relation is in Boyce-Codd Normal Form (BCNF) if for every functional dependency X -> Y, which condition holds?',
     questionType: 'mcq',
-    difficulty: 'Easy',
-    marks: 2.0,
-    options: ['Atomicity', 'Consistency', 'Isolation', 'Durability'],
-    correctOption: 3,
-    correctAnswer: 'Durability',
-    explanation: 'Durability ensures that once a transaction commits, its modifications are permanently recorded via write-ahead logging (WAL) and non-volatile storage.',
-    parameterTag: 'acid-properties',
+    difficulty: 'Medium',
+    marks: 3.0,
+    options: [
+      'Y is a subset of X or X is a superkey',
+      'X is a foreign key',
+      'Y must be a prime attribute',
+      'The relation contains no foreign keys',
+    ],
+    correctOption: 0,
+    correctAnswer: 'Y is a subset of X or X is a superkey',
+    explanation: 'BCNF requires every non-trivial functional dependency determinant X to be a superkey.',
+    parameterTag: 'database-normalization',
   },
   {
     id: 'cs202-acad-03',
@@ -320,14 +240,14 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Database Management Systems',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Which SQL clause is utilized to filter grouped rows resulting from an aggregation query?',
+    prompt: 'Which SQL clause is used to filter aggregated group records after applying GROUP BY?',
     questionType: 'mcq',
     difficulty: 'Easy',
     marks: 2.0,
-    options: ['WHERE', 'HAVING', 'GROUP FILTER', 'ORDER BY'],
+    options: ['WHERE', 'HAVING', 'ORDER BY', 'DISTINCT'],
     correctOption: 1,
     correctAnswer: 'HAVING',
-    explanation: 'The WHERE clause operates on individual tuples before grouping; HAVING filters rows after grouping aggregates have been calculated.',
+    explanation: 'WHERE filters rows before aggregation; HAVING filters groups after aggregate calculation.',
     parameterTag: 'sql-syntax',
   },
   {
@@ -336,59 +256,829 @@ export const PULSE_QUESTION_BANK: PulseQuestion[] = [
     courseName: 'Database Management Systems',
     category: 'ACADEMIC',
     categoryLabel: 'Academic Assessment',
-    prompt: 'Explain the difference between a Clustered Index and a Non-Clustered Index in relational database engines.',
+    prompt: 'Explain the difference between a Clustered Index and a Non-Clustered Index in relational databases.',
     questionType: 'descriptive',
     difficulty: 'Medium',
     marks: 5.0,
     options: [],
-    correctAnswer: 'A clustered index determines the physical ordering of records on disk (only one clustered index per table). A non-clustered index creates a separate B+ tree storing pointers to the data rows.',
-    explanation: 'Rubric: Physical storage order vs pointer index structure, single clustered index constraint.',
+    correctOption: undefined,
+    correctAnswer: 'A clustered index physically sorts and stores data rows in disk order (only 1 per table); a non-clustered index stores index pointers pointing to table rows.',
+    explanation: 'Key rubric points: Physical row ordering vs pointer structure, single clustered index limitation vs multiple non-clustered indexes.',
     parameterTag: 'indexing',
   },
-
-  // Category B: Classroom Feedback
   {
-    id: 'cs202-feed-01',
+    id: 'cs202-acad-05',
     courseId: 'CS202',
     courseName: 'Database Management Systems',
-    category: 'CLASSROOM_FEEDBACK',
-    categoryLabel: 'Classroom Feedback',
-    prompt: 'How would you rate the lecture pace during SQL query optimization and relational schema design?',
-    questionType: 'single_choice',
-    difficulty: 'Easy',
-    marks: 0,
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'What concurrency anomaly occurs when one transaction reads uncommitted changes written by another transaction that later aborts?',
+    questionType: 'mcq',
+    difficulty: 'Hard',
+    marks: 3.0,
     options: [
-      'Too fast – need more time on multi-table joins and indexing',
-      'Just right – balanced explanations with practical queries',
-      'Too slow – could move directly to query execution plans',
+      'Dirty Read (Uncommitted Dependency)',
+      'Non-Repeatable Read',
+      'Phantom Read',
+      'Lost Update',
     ],
-    explanation: 'Calibrates DBMS lecture pacing.',
-    parameterTag: 'lecture_pace',
+    correctOption: 0,
+    correctAnswer: 'Dirty Read (Uncommitted Dependency)',
+    explanation: 'A Dirty Read happens when transaction T1 reads data modified by transaction T2 before T2 commits; if T2 rolls back, T1 processed invalid state.',
+    parameterTag: 'concurrency-control',
+  },
+  {
+    id: 'cs202-acad-06',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Which isolation level in ANSI SQL prevents Dirty Reads, Non-Repeatable Reads, and Phantom Reads completely?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 2.0,
+    options: ['Read Uncommitted', 'Read Committed', 'Repeatable Read', 'Serializable'],
+    correctOption: 3,
+    correctAnswer: 'Serializable',
+    explanation: 'Serializable isolation guarantees transactions execute as if strictly serialized one after another, eliminating all concurrency anomalies.',
+    parameterTag: 'transaction-isolation',
+  },
+  {
+    id: 'cs202-acad-07',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'In relational algebra, which operator corresponds to selecting a subset of columns from a relation?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Selection (σ)', 'Projection (π)', 'Cartesian Product (×)', 'Natural Join (⋈)'],
+    correctOption: 1,
+    correctAnswer: 'Projection (π)',
+    explanation: 'Projection (π) filters vertical columns/attributes, while Selection (σ) filters horizontal rows.',
+    parameterTag: 'relational-algebra',
+  },
+  {
+    id: 'cs202-acad-08',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'How does Two-Phase Locking (2PL) guarantee serializability in concurrent transaction schedules?',
+    questionType: 'descriptive',
+    difficulty: 'Hard',
+    marks: 5.0,
+    options: [],
+    correctOption: undefined,
+    correctAnswer: 'In 2PL, a transaction operates in two phases: Growing phase (acquires locks, releases none) and Shrinking phase (releases locks, acquires none).',
+    explanation: 'Key points: Growing phase vs Shrinking phase, lock point ordering, prevention of non-serializable conflict schedules.',
+    parameterTag: 'concurrency-2pl',
+  },
+  {
+    id: 'cs202-acad-09',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'What type of JOIN returns all records from both tables, filling in NULL where there is no matching record?',
+    questionType: 'mcq',
+    difficulty: 'Easy',
+    marks: 2.0,
+    options: ['Inner Join', 'Left Outer Join', 'Right Outer Join', 'Full Outer Join'],
+    correctOption: 3,
+    correctAnswer: 'Full Outer Join',
+    explanation: 'Full Outer Join preserves unmatched rows from both the left and right relations by populating unmatched attributes with NULL.',
+    parameterTag: 'sql-joins',
+  },
+  {
+    id: 'cs202-acad-10',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Why are B+ Trees preferred over B Trees for storing database table indexes on disk?',
+    questionType: 'mcq',
+    difficulty: 'Medium',
+    marks: 3.0,
+    options: [
+      'Leaf nodes are linked in a sequential list enabling efficient range scans',
+      'B+ Trees have greater tree depth for small datasets',
+      'B+ Trees store duplicate keys in all internal nodes',
+      'B+ Trees do not require rebalancing after deletion',
+    ],
+    correctOption: 0,
+    correctAnswer: 'Leaf nodes are linked in a sequential list enabling efficient range scans',
+    explanation: 'In B+ Trees, all actual record pointers reside in leaf nodes, which are linked together in a doubly-linked list for fast range and order scans.',
+    parameterTag: 'bplus-trees',
+  },
+  {
+    id: 'cs202-acad-11',
+    courseId: 'CS202',
+    courseName: 'Database Management Systems',
+    category: 'ACADEMIC',
+    categoryLabel: 'Academic Assessment',
+    prompt: 'Describe a real-world scenario where a database deadlock occurs and how a DBMS resolves it.',
+    questionType: 'descriptive',
+    difficulty: 'Hard',
+    marks: 5.0,
+    options: [],
+    correctOption: undefined,
+    correctAnswer: 'T1 locks Account A and waits for Account B; T2 locks Account B and waits for Account A. The DBMS detects this via wait-for graphs and aborts one transaction using rollback.',
+    explanation: 'Key points: Circular wait condition on shared resources, detection via wait-for graph cycle, victim selection, and transaction rollback.',
+    parameterTag: 'deadlock-resolution',
   },
 
-  // Category C: Student Wellbeing
+  // --- Category B: Classroom Feedback (21 Questions) ---
   {
-    id: 'cs202-well-01',
-    courseId: 'CS202',
-    courseName: 'Database Management Systems',
-    category: 'WELLBEING',
-    categoryLabel: 'Student Wellbeing',
-    prompt: 'How confident do you feel writing complex SQL queries and normalization proofs under exam conditions?',
+    id: 'feed-01',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How manageable did you find the teaching pace during recent lectures?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Too slow – concepts could be covered more efficiently',
+      'Just right – manageable pace with clear progression',
+      'Too fast – hard to keep up with code implementations',
+    ],
+    parameterTag: 'teaching_pace',
+  },
+  {
+    id: 'feed-02',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: "The instructor's explanations and worked examples are clear and structured:",
     questionType: 'likert',
     difficulty: 'Easy',
-    marks: 0,
-    options: ['1 - Very anxious / unprepared', '2 - Struggling with query syntax', '3 - Moderately comfortable', '4 - Confident in logic and queries', '5 - Highly confident'],
-    explanation: 'Measures subject confidence and anxiety.',
-    parameterTag: 'exam_confidence',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'clarity_explanation',
+  },
+  {
+    id: 'feed-03',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How comfortable do you feel asking questions or seeking clarification during class?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very comfortable asking immediately during lecture',
+      'Comfortable, but prefer asking after class or in office hours',
+      'Somewhat hesitant to speak up in front of the whole batch',
+      'Very uncomfortable asking questions in front of peers',
+    ],
+    parameterTag: 'questions_comfort',
+  },
+  {
+    id: 'feed-04',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Rate the balance between theoretical concepts and practical hands-on examples:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very poor – overwhelmingly theoretical without examples',
+      'Poor – needs significantly more practical demonstration',
+      'Adequate – reasonable balance',
+      'Good – solid blend of theory and practice',
+      'Excellent – exceptional hands-on problem solving',
+    ],
+    parameterTag: 'hands_on_balance',
+  },
+  {
+    id: 'feed-05',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'What is one specific change or topic breakdown that would make future lectures more helpful? (Optional)',
+    questionType: 'descriptive',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [],
+    parameterTag: 'student_suggestions',
+  },
+  {
+    id: 'feed-06',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The blackboard / digital whiteboard notes and presentation slides are easy to follow:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'materials_quality',
+  },
+  {
+    id: 'feed-07',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How actively engaged do you feel during the lecture discussions and interactive problem-solving?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very engaged throughout the entire session',
+      'Engaged during interactive demos, but lose focus during lectures',
+      'Rarely engaged – difficulty maintaining continuous attention',
+    ],
+    parameterTag: 'classroom_engagement',
+  },
+  {
+    id: 'feed-08',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The instructor is accessible and supportive during designated office hours and doubt sessions:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'instructor_accessibility',
+  },
+  {
+    id: 'feed-09',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Feedback on homework problem sets and quizzes is returned with clear constructive guidance:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'feedback_turnaround',
+  },
+  {
+    id: 'feed-10',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How helpful are the supplementary coding exercises and practice problems provided for self-study?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Extremely helpful – directly aligned with exam rigor',
+      'Moderately helpful – good for basics but need tougher problems',
+      'Not very helpful – too repetitive or disconnected from lectures',
+    ],
+    parameterTag: 'practice_effectiveness',
+  },
+  {
+    id: 'feed-11',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The learning atmosphere in our lecture hall feels welcoming, respectful, and conducive to learning:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'classroom_climate',
+  },
+  {
+    id: 'feed-12',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'What aspect of recent assignments took an unexpected amount of time or effort? (Optional)',
+    questionType: 'descriptive',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [],
+    parameterTag: 'workload_friction',
+  },
+  {
+    id: 'feed-13',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The instructor connects theoretical concepts to real-world software engineering applications:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'relevance_applications',
+  },
+  {
+    id: 'feed-14',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Do you feel encouraged to think critically and explore alternative solutions during tutorials?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Yes, regularly encouraged and praised for novel approaches',
+      'Occasionally, but time constraints often limit open exploration',
+      'No, we strictly stick to standard textbook proofs',
+    ],
+    parameterTag: 'critical_thinking',
+  },
+  {
+    id: 'feed-15',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The lab environment, compilers, and hardware workstations functioned reliably during practical labs:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'lab_infrastructure',
+  },
+  {
+    id: 'feed-16',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How clear are the grading criteria and marking rubrics shared prior to major evaluations?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very clear with detailed point distribution',
+      'Somewhat vague, but understandable',
+      'Unclear until after marks are published',
+    ],
+    parameterTag: 'rubric_transparency',
+  },
+  {
+    id: 'feed-17',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'The sequence of topics covered so far flows logically and builds smoothly upon previous modules:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'curriculum_flow',
+  },
+  {
+    id: 'feed-18',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Which specific concept or module covered recently would you appreciate a recap on? (Optional)',
+    questionType: 'descriptive',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [],
+    parameterTag: 'recap_requests',
+  },
+  {
+    id: 'feed-19',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Group collaboration exercises and pair programming opportunities in this course are productive:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'peer_collaboration',
+  },
+  {
+    id: 'feed-20',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'Overall, how satisfied are you with the instructional quality and learning experience in this course?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Very dissatisfied', 'Dissatisfied', 'Neutral', 'Satisfied', 'Very satisfied'],
+    parameterTag: 'overall_satisfaction',
+  },
+  {
+    id: 'feed-21',
+    courseId: 'COMMON',
+    courseName: 'General Classroom',
+    category: 'CLASSROOM_FEEDBACK',
+    categoryLabel: 'Classroom Feedback',
+    prompt: 'How timely are announcements regarding syllabus updates, deadlines, and lab timings?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Always announced well in advance',
+      'Usually reasonable, with occasional short-notice reminders',
+      'Frequently announced at the last minute',
+    ],
+    parameterTag: 'communication_timeliness',
+  },
+
+  // --- Category C: Student Wellbeing (21 Questions) ---
+  {
+    id: 'well-01',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How motivated and engaged have you felt about your coursework and studies over the past two weeks?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very low motivation – feeling drained',
+      'Low motivation – hard to get started',
+      'Moderate motivation – getting things done',
+      'Good motivation – engaged in most topics',
+      'Very high motivation – excited and energized',
+    ],
+    parameterTag: 'motivation',
+  },
+  {
+    id: 'well-02',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How frequently have you felt overwhelmed by the volume of assignment deadlines and exam preparation?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Almost constantly – finding it very difficult to cope',
+      'Frequently – several days a week',
+      'Occasionally – mainly right before major submission deadlines',
+      'Rarely – workload feels balanced and manageable',
+      'Never – completely on top of all schedules',
+    ],
+    parameterTag: 'academic_pressure',
+  },
+  {
+    id: 'well-03',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How confident do you feel about your ability to succeed in the upcoming course examinations?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very low confidence',
+      '2 - Low confidence',
+      '3 - Moderate confidence',
+      '4 - Good confidence',
+      '5 - Very high confidence',
+    ],
+    parameterTag: 'confidence',
+  },
+  {
+    id: 'well-04',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'Do you feel like you have a supportive network of peers or friends you can study or unwind with on campus?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'No, I feel isolated and have very few connections',
+      'Somewhat, but I often feel on the periphery of peer groups',
+      'Yes, I have a comfortable group of supportive classmates',
+    ],
+    parameterTag: 'social_adjustment',
+  },
+  {
+    id: 'well-05',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'If you needed academic or personal help, how confident are you that faculty or campus resources would support you?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Not confident at all – I feel entirely on my own',
+      'Slightly confident',
+      'Moderately confident',
+      'Confident',
+      'Extremely confident – campus support is readily accessible',
+    ],
+    parameterTag: 'perceived_support',
+  },
+  {
+    id: 'well-06',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How consistent and restful has your sleep schedule been over the past two weeks?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very irregular – averaging fewer than 5 hours or frequent disruptions',
+      'Somewhat erratic due to late-night assignment cramming',
+      'Generally healthy and restful (7-8 hours most nights)',
+    ],
+    parameterTag: 'sleep_routine',
+  },
+  {
+    id: 'well-07',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How well are you able to balance academic workloads with personal hobbies, exercise, or rest?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very poor balance (studies completely consume my time)',
+      '2 - Poor balance',
+      '3 - Moderate balance',
+      '4 - Good balance',
+      '5 - Excellent balance (healthy daily routine)',
+    ],
+    parameterTag: 'work_life_balance',
+  },
+  {
+    id: 'well-08',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How comfortable do you feel in your departmental learning environment and campus culture?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very uncomfortable / feel out of place',
+      '2 - Somewhat detached',
+      '3 - Neutral',
+      '4 - Comfortable and accepted',
+      '5 - Strong sense of belonging and community',
+    ],
+    parameterTag: 'sense_of_belonging',
+  },
+  {
+    id: 'well-09',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'When facing difficult programming bugs or academic setbacks, how resilient do you feel about recovering?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'I get deeply discouraged and want to give up',
+      'I feel temporarily frustrated, but eventually work through it',
+      'I view setbacks as normal learning hurdles and persist calmly',
+    ],
+    parameterTag: 'academic_resilience',
+  },
+  {
+    id: 'well-10',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How often have you felt lonely or isolated on campus over the past month?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Almost every day',
+      'A few times a week',
+      'Occasionally (once or twice a month)',
+      'Rarely or never',
+    ],
+    parameterTag: 'loneliness_frequency',
+  },
+  {
+    id: 'well-11',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How clear do your long-term academic and career goals feel right now?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Completely unclear and confusing',
+      '2 - Low clarity',
+      '3 - Moderate clarity',
+      '4 - Clear direction',
+      '5 - Highly focused and purposeful',
+    ],
+    parameterTag: 'goal_clarity',
+  },
+  {
+    id: 'well-12',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'During high-pressure project weeks, how effectively do you manage stress and emotional wellbeing?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Poorly – stress significantly interferes with eating, focus, and mood',
+      'Fairly – I experience tension, but manage with breaks and peer chats',
+      'Effectively – I have reliable coping strategies and stay grounded',
+    ],
+    parameterTag: 'stress_coping',
+  },
+  {
+    id: 'well-13',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'I feel valued and respected by my peers and instructors when sharing my perspectives in class:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'interpersonal_respect',
+  },
+  {
+    id: 'well-14',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How manageable are non-academic commitments (commute, family obligations, jobs) alongside your studies?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Extremely difficult – they leave minimal time for study or rest',
+      'Challenging, but manageable with strict planning',
+      'Fully manageable – external commitments do not conflict',
+    ],
+    parameterTag: 'external_commitments',
+  },
+  {
+    id: 'well-15',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How hopeful and optimistic do you feel about your upcoming semester and future prospects?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very pessimistic',
+      '2 - Somewhat worried',
+      '3 - Neutral',
+      '4 - Optimistic',
+      '5 - Highly optimistic and confident',
+    ],
+    parameterTag: 'optimism',
+  },
+  {
+    id: 'well-16',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'Do you have access to quiet, comfortable study spaces on campus when you need to concentrate?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'No, I constantly struggle to find an appropriate place to study',
+      'Sometimes, but libraries and study rooms are often overcrowded',
+      'Yes, I have reliable access to great study environments',
+    ],
+    parameterTag: 'study_space',
+  },
+  {
+    id: 'well-17',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How comfortable would you feel reaching out to a student counsellor or peer mentor if you needed advice?',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very uncomfortable / would avoid it',
+      '2 - Hesitant',
+      '3 - Neutral',
+      '4 - Open and comfortable',
+      '5 - Very comfortable and willing',
+    ],
+    parameterTag: 'help_seeking_openness',
+  },
+  {
+    id: 'well-18',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How frequently have you felt drained of energy or physically fatigued before classes begin?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Almost daily – feeling constant physical exhaustion',
+      'A few times a week',
+      'Rarely – usually wake up with good energy',
+    ],
+    parameterTag: 'energy_levels',
+  },
+  {
+    id: 'well-19',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'I feel proud of the progress and learning milestones I have achieved so far in my degree:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'],
+    parameterTag: 'academic_self_esteem',
+  },
+  {
+    id: 'well-20',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'Overall, rate your emotional wellbeing and mental balance over the past two weeks:',
+    questionType: 'likert',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      '1 - Very poor / high distress',
+      '2 - Below average',
+      '3 - Moderate / steady',
+      '4 - Good',
+      '5 - Excellent / thriving',
+    ],
+    parameterTag: 'overall_wellbeing',
+  },
+  {
+    id: 'well-21',
+    courseId: 'COMMON',
+    courseName: 'General Wellbeing',
+    category: 'WELLBEING',
+    categoryLabel: 'Student Wellbeing',
+    prompt: 'How comfortable are you managing unexpected changes in class schedules, exam dates, or deadlines?',
+    questionType: 'single_choice',
+    difficulty: 'Easy',
+    marks: 0.0,
+    options: [
+      'Very stressful – disrupts my entire routine and focus',
+      'Moderately inconvenient, but I adapt within a day',
+      'Comfortable – flexible and accustomed to schedule changes',
+    ],
+    parameterTag: 'adaptability',
   },
 ]
 
 // =========================================================================
-// RANDOMIZATION ENGINE (Non-duplicate sampling)
+// RANDOMIZED GENERATION ENGINE (3 Academic MCQs + 1 Conceptual + 1 App,
+// 2 Feedback Likert + 1 MCQ + 1 Desc, 2 Wellbeing Likert + 1 MCQ)
 // =========================================================================
 
 export function generateRandomizedPulseQuestions(
-  courseId: string,
+  courseId: string = 'CS201',
   academicCount: number = 5,
   feedbackCount: number = 4,
   wellbeingCount: number = 3
@@ -396,40 +1086,255 @@ export function generateRandomizedPulseQuestions(
   academic: PulseQuestion[]
   feedback: PulseQuestion[]
   wellbeing: PulseQuestion[]
+  academicQuestions: PulseQuestion[]
+  feedbackQuestions: PulseQuestion[]
+  wellbeingQuestions: PulseQuestion[]
   allQuestions: PulseQuestion[]
   totalMarks: number
 } {
-  const pool = PULSE_QUESTION_BANK.filter((q) => q.courseId === courseId)
-  const defaultPool = pool.length > 0 ? pool : PULSE_QUESTION_BANK.filter((q) => q.courseId === 'CS201')
-
-  const acadPool = defaultPool.filter((q) => q.category === 'ACADEMIC')
-  const feedPool = defaultPool.filter((q) => q.category === 'CLASSROOM_FEEDBACK')
-  const wellPool = defaultPool.filter((q) => q.category === 'WELLBEING')
-
-  // Fisher-Yates shuffle
-  const shuffle = <T>(arr: T[]): T[] => {
-    const copy = [...arr]
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    }
-    return copy
+  // 1. Academic: course-specific
+  let courseAcad = PULSE_QUESTION_BANK.filter(
+    (q) => q.category === 'ACADEMIC' && q.courseId === courseId
+  )
+  if (courseAcad.length === 0) {
+    courseAcad = PULSE_QUESTION_BANK.filter(
+      (q) => q.category === 'ACADEMIC' && q.courseId === 'CS201'
+    )
   }
 
-  const selectedAcad = shuffle(acadPool).slice(0, Math.min(academicCount, acadPool.length))
-  const selectedFeed = shuffle(feedPool).slice(0, Math.min(feedbackCount, feedPool.length))
-  const selectedWell = shuffle(wellPool).slice(0, Math.min(wellbeingCount, wellPool.length))
+  const acadMcqs = courseAcad.filter((q) => q.questionType === 'mcq' && !q.parameterTag?.includes('application'))
+  const acadConceptual = courseAcad.filter((q) => q.questionType === 'descriptive' || q.parameterTag?.includes('concept'))
+  const acadApp = courseAcad.filter((q) => q.parameterTag?.includes('application') || q.parameterTag?.includes('design') || q.difficulty === 'Hard')
+
+  const shuffledMcqs = [...acadMcqs].sort(() => 0.5 - Math.random())
+  const selectedAcad: PulseQuestion[] = []
+
+  // Sample 3 MCQs
+  selectedAcad.push(...shuffledMcqs.slice(0, Math.min(3, shuffledMcqs.length)))
+
+  // Sample 1 Conceptual
+  const shuffledConceptual = [...acadConceptual].filter((q) => !selectedAcad.some((s) => s.id === q.id)).sort(() => 0.5 - Math.random())
+  if (shuffledConceptual.length > 0) {
+    selectedAcad.push(shuffledConceptual[0])
+  }
+
+  // Sample 1 Application
+  const shuffledApp = [...acadApp].filter((q) => !selectedAcad.some((s) => s.id === q.id)).sort(() => 0.5 - Math.random())
+  if (shuffledApp.length > 0) {
+    selectedAcad.push(shuffledApp[0])
+  }
+
+  // Fill remainder if needed
+  if (selectedAcad.length < academicCount) {
+    const remaining = courseAcad.filter((q) => !selectedAcad.some((s) => s.id === q.id)).sort(() => 0.5 - Math.random())
+    selectedAcad.push(...remaining.slice(0, academicCount - selectedAcad.length))
+  }
+
+  // 2. Feedback: 2 Likert, 1 single choice, 1 optional descriptive
+  const feedPool = PULSE_QUESTION_BANK.filter((q) => q.category === 'CLASSROOM_FEEDBACK')
+  const feedLikert = feedPool.filter((q) => q.questionType === 'likert').sort(() => 0.5 - Math.random())
+  const feedSingle = feedPool.filter((q) => q.questionType === 'single_choice').sort(() => 0.5 - Math.random())
+  const feedDesc = feedPool.filter((q) => q.questionType === 'descriptive').sort(() => 0.5 - Math.random())
+
+  const selectedFeed: PulseQuestion[] = []
+  selectedFeed.push(...feedLikert.slice(0, 2))
+  if (feedSingle.length > 0) selectedFeed.push(feedSingle[0])
+  if (feedDesc.length > 0) selectedFeed.push(feedDesc[0])
+
+  if (selectedFeed.length < feedbackCount) {
+    const remaining = feedPool.filter((q) => !selectedFeed.some((s) => s.id === q.id)).sort(() => 0.5 - Math.random())
+    selectedFeed.push(...remaining.slice(0, feedbackCount - selectedFeed.length))
+  }
+
+  // 3. Wellbeing: 2 Likert, 1 single choice
+  const wellPool = PULSE_QUESTION_BANK.filter((q) => q.category === 'WELLBEING')
+  const wellLikert = wellPool.filter((q) => q.questionType === 'likert').sort(() => 0.5 - Math.random())
+  const wellSingle = wellPool.filter((q) => q.questionType === 'single_choice').sort(() => 0.5 - Math.random())
+
+  const selectedWell: PulseQuestion[] = []
+  selectedWell.push(...wellLikert.slice(0, 2))
+  if (wellSingle.length > 0) selectedWell.push(wellSingle[0])
+
+  if (selectedWell.length < wellbeingCount) {
+    const remaining = wellPool.filter((q) => !selectedWell.some((s) => s.id === q.id)).sort(() => 0.5 - Math.random())
+    selectedWell.push(...remaining.slice(0, wellbeingCount - selectedWell.length))
+  }
 
   const allQuestions = [...selectedAcad, ...selectedFeed, ...selectedWell]
-  const totalMarks = selectedAcad.reduce((sum, q) => sum + q.marks, 0)
+  const totalMarks = selectedAcad.reduce((sum, q) => sum + (q.marks || 0), 0)
 
   return {
     academic: selectedAcad,
     feedback: selectedFeed,
     wellbeing: selectedWell,
+    academicQuestions: selectedAcad,
+    feedbackQuestions: selectedFeed,
+    wellbeingQuestions: selectedWell,
     allQuestions,
     totalMarks,
   }
+}
+
+// =========================================================================
+// PEER MENTORS POOL (Volunteers in Good Academic Standing)
+// =========================================================================
+
+export const DEMO_PEER_MENTOR_POOL: PeerMentor[] = [
+  {
+    id: 'mentor-01',
+    studentId: 'student-mentor-arjun',
+    studentName: 'Arjun Singh',
+    eligibleCourses: ['CS201', 'CS202'],
+    gpa: 9.2,
+    availability: 'AVAILABLE',
+    maxCapacity: 3,
+    activeMenteesCount: 1,
+    volunteerStatus: 'ACTIVE_VOLUNTEER',
+  },
+  {
+    id: 'mentor-02',
+    studentId: 'student-mentor-kavya',
+    studentName: 'Kavya Iyer',
+    eligibleCourses: ['CS201'],
+    gpa: 8.9,
+    availability: 'AVAILABLE',
+    maxCapacity: 2,
+    activeMenteesCount: 0,
+    volunteerStatus: 'ACTIVE_VOLUNTEER',
+  },
+  {
+    id: 'mentor-03',
+    studentId: 'student-mentor-rohan',
+    studentName: 'Rohan Verma',
+    eligibleCourses: ['CS202'],
+    gpa: 9.0,
+    availability: 'AVAILABLE',
+    maxCapacity: 3,
+    activeMenteesCount: 0,
+    volunteerStatus: 'ACTIVE_VOLUNTEER',
+  },
+]
+
+// =========================================================================
+// 8-ROW INTERVENTION MATRIX EVALUATION (Threshold: 60%)
+// =========================================================================
+
+export function evaluateInterventionMatrix(
+  academicPct: number,
+  feedbackPct: number,
+  wellbeingPct: number,
+  threshold: number = 60.0
+): {
+  academicStatus: 'GOOD' | 'LOW'
+  feedbackStatus: 'GOOD' | 'LOW'
+  wellbeingStatus: 'GOOD' | 'LOW'
+  recommendedActions: InterventionAction[]
+} {
+  const acadStatus: 'GOOD' | 'LOW' = academicPct >= threshold ? 'GOOD' : 'LOW'
+  const feedStatus: 'GOOD' | 'LOW' = feedbackPct >= threshold ? 'GOOD' : 'LOW'
+  const wellStatus: 'GOOD' | 'LOW' = wellbeingPct >= threshold ? 'GOOD' : 'LOW'
+
+  let recommendedActions: InterventionAction[] = []
+
+  if (acadStatus === 'LOW' && feedStatus === 'GOOD' && wellStatus === 'GOOD') {
+    recommendedActions = ['PEER_MENTOR_INVITATION']
+  } else if (acadStatus === 'LOW' && feedStatus === 'LOW' && wellStatus === 'GOOD') {
+    recommendedActions = ['PEER_MENTOR_INVITATION', 'FACULTY_REVIEW']
+  } else if (acadStatus === 'LOW' && feedStatus === 'GOOD' && wellStatus === 'LOW') {
+    recommendedActions = ['PEER_MENTOR_INVITATION', 'COUNSELLOR_OFFER']
+  } else if (acadStatus === 'LOW' && feedStatus === 'LOW' && wellStatus === 'LOW') {
+    recommendedActions = ['PEER_MENTOR_INVITATION', 'COUNSELLOR_OFFER', 'FACULTY_REVIEW']
+  } else if (acadStatus === 'GOOD' && feedStatus === 'LOW' && wellStatus === 'GOOD') {
+    recommendedActions = ['FACULTY_REVIEW']
+  } else if (acadStatus === 'GOOD' && feedStatus === 'GOOD' && wellStatus === 'LOW') {
+    recommendedActions = ['COUNSELLOR_OFFER']
+  } else if (acadStatus === 'GOOD' && feedStatus === 'LOW' && wellStatus === 'LOW') {
+    recommendedActions = ['COUNSELLOR_OFFER', 'FACULTY_REVIEW']
+  } else {
+    // GOOD, GOOD, GOOD
+    recommendedActions = []
+  }
+
+  return {
+    academicStatus: acadStatus,
+    feedbackStatus: feedStatus,
+    wellbeingStatus: wellStatus,
+    recommendedActions,
+  }
+}
+
+// =========================================================================
+// 5 DEMO TEST SCENARIOS
+// =========================================================================
+
+export interface PulseDemoScenario {
+  id: string
+  title: string
+  description: string
+  academicScore: number
+  feedbackScore: number
+  wellbeingScore: number
+  expectedActions: InterventionAction[]
+  dialogTitle: string
+  dialogMessage: string
+}
+
+export const PULSE_DEMO_SCENARIOS: Record<string, PulseDemoScenario> = {
+  scenario1: {
+    id: 'scenario1',
+    title: 'Scenario 1: Low Academic, Healthy Others',
+    description: 'Academic score is below 60%, while feedback and wellbeing are healthy (>= 60%).',
+    academicScore: 45.0,
+    feedbackScore: 82.0,
+    wellbeingScore: 78.0,
+    expectedActions: ['PEER_MENTOR_INVITATION'],
+    dialogTitle: 'Peer Mentorship Opportunity',
+    dialogMessage: 'An eligible peer mentor (Arjun Singh) has been invited to offer voluntary academic study sessions.',
+  },
+  scenario2: {
+    id: 'scenario2',
+    title: 'Scenario 2: Healthy Academics, Low Wellbeing',
+    description: 'Academic performance is strong (85%), but wellbeing is below 60%.',
+    academicScore: 85.0,
+    feedbackScore: 80.0,
+    wellbeingScore: 42.0,
+    expectedActions: ['COUNSELLOR_OFFER'],
+    dialogTitle: 'Confidential Support Available',
+    dialogMessage: 'A private check-in with Dr. Meera Nambiar (Lead Student Counsellor) is available if you choose to connect.',
+  },
+  scenario3: {
+    id: 'scenario3',
+    title: 'Scenario 3: Low Across All Categories',
+    description: 'All 3 category scores fall below the 60% operational threshold.',
+    academicScore: 38.0,
+    feedbackScore: 46.0,
+    wellbeingScore: 40.0,
+    expectedActions: ['PEER_MENTOR_INVITATION', 'COUNSELLOR_OFFER', 'FACULTY_REVIEW'],
+    dialogTitle: 'Multi-Tier Support Activated',
+    dialogMessage: 'Connected peer mentor offer, confidential counselling offer, and instructional review alert generated.',
+  },
+  scenario4: {
+    id: 'scenario4',
+    title: 'Scenario 4: Healthy Across All Categories',
+    description: 'All scores meet or exceed 60%. No intervention required.',
+    academicScore: 92.0,
+    feedbackScore: 88.0,
+    wellbeingScore: 84.0,
+    expectedActions: [],
+    dialogTitle: 'Great Progress!',
+    dialogMessage: 'All academic, feedback, and wellbeing indicators are positive. Continue with your scheduled coursework.',
+  },
+  scenario5: {
+    id: 'scenario5',
+    title: 'Scenario 5: Low Classroom Feedback',
+    description: 'Academic and wellbeing are healthy, but feedback on pace and clarity is below 60%.',
+    academicScore: 78.0,
+    feedbackScore: 48.0,
+    wellbeingScore: 75.0,
+    expectedActions: ['FACULTY_REVIEW'],
+    dialogTitle: 'Instructional Review Alert',
+    dialogMessage: 'Instructor alerted to review lecture pace and worked code examples. Student anonymity fully preserved.',
+  },
 }
 
 // =========================================================================
@@ -452,13 +1357,13 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
       'cs201-acad-03',
       'cs201-acad-04',
       'cs201-acad-05',
-      'cs201-feed-01',
-      'cs201-feed-02',
-      'cs201-feed-03',
-      'cs201-feed-04',
-      'cs201-well-01',
-      'cs201-well-02',
-      'cs201-well-03',
+      'feed-01',
+      'feed-02',
+      'feed-03',
+      'feed-04',
+      'well-01',
+      'well-02',
+      'well-03',
     ],
     academicCount: 5,
     feedbackCount: 4,
@@ -482,13 +1387,19 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
       'cs202-acad-02',
       'cs202-acad-03',
       'cs202-acad-04',
-      'cs202-feed-01',
-      'cs202-well-01',
+      'cs202-acad-05',
+      'feed-01',
+      'feed-02',
+      'feed-06',
+      'feed-07',
+      'well-01',
+      'well-03',
+      'well-04',
     ],
-    academicCount: 4,
-    feedbackCount: 1,
-    wellbeingCount: 1,
-    totalMarks: 12.0,
+    academicCount: 5,
+    feedbackCount: 4,
+    wellbeingCount: 3,
+    totalMarks: 15.0,
     submissionCount: 38,
     totalStudents: 44,
     avgScorePercentage: 78.2,
@@ -506,15 +1417,20 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
       'cs201-acad-05',
       'cs201-acad-06',
       'cs201-acad-07',
-      'cs201-feed-01',
-      'cs201-feed-05',
-      'cs201-well-01',
-      'cs201-well-04',
+      'cs201-acad-08',
+      'cs201-acad-09',
+      'feed-01',
+      'feed-04',
+      'feed-08',
+      'feed-10',
+      'well-01',
+      'well-02',
+      'well-07',
     ],
-    academicCount: 3,
-    feedbackCount: 2,
-    wellbeingCount: 2,
-    totalMarks: 11.0,
+    academicCount: 5,
+    feedbackCount: 4,
+    wellbeingCount: 3,
+    totalMarks: 14.0,
     submissionCount: 0,
     totalStudents: 45,
     avgScorePercentage: 0.0,

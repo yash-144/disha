@@ -113,3 +113,60 @@ export interface Pulse3PartAnalytics {
     actionableRecommendations: string[]
   }
 }
+
+export type InterventionAction = 'PEER_MENTOR_INVITATION' | 'COUNSELLOR_OFFER' | 'FACULTY_REVIEW'
+
+export interface PeerMentor {
+  id: string
+  studentId: string
+  studentName: string
+  eligibleCourses: string[]
+  gpa: number
+  availability: 'AVAILABLE' | 'BUSY' | 'INACTIVE'
+  maxCapacity: number
+  activeMenteesCount: number
+  volunteerStatus: string
+}
+
+export interface PeerMentorRequest {
+  id: string
+  submissionId: string
+  studentId: string
+  mentorId: string
+  mentorName: string
+  courseId: string
+  status: 'OFFERED' | 'ACCEPTED' | 'DECLINED'
+  createdAt: string
+  respondedAt?: string
+}
+
+export interface CounsellorSupportOffer {
+  id: string
+  submissionId: string
+  studentId: string
+  counsellorId: string
+  counsellorName: string
+  status: 'OFFERED' | 'ACCEPTED' | 'DECLINED'
+  createdAt: string
+  respondedAt?: string
+  privacyNotice?: string
+}
+
+export interface PulseInterventionRecord {
+  id: string
+  submissionId: string
+  studentId: string
+  pulseId: string
+  courseId: string
+  academicScore: number
+  feedbackScore: number
+  wellbeingScore: number
+  academicStatus: 'GOOD' | 'LOW'
+  feedbackStatus: 'GOOD' | 'LOW'
+  wellbeingStatus: 'GOOD' | 'LOW'
+  recommendedActions: InterventionAction[]
+  status: 'GENERATED' | 'ACTIONED' | 'DISMISSED'
+  scoringVersion: string
+  createdAt: string
+}
+

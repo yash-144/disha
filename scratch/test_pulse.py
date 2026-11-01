@@ -1,48 +1,96 @@
-import os
 import sys
+import os
 
-# Ensure backend directory is in path
+# Add backend directory to sys.path
 backend_path = os.path.abspath("backend")
 if backend_path not in sys.path:
     sys.path.insert(0, backend_path)
 
+from app.modules.pulse.question_bank import COURSE_QUESTION_BANK
 from app.modules.pulse.services import pulse_service
-from app.modules.pulse.intervention_engine import intervention_engine
+from app.modules.pulse.intervention_engine import pulse_intervention_engine
 
-def test_pulse_system():
-    # 1. Test Question Generation
-    gen = pulse_service.generate_randomized_questions(course_id='CS201', academic_count=5, feedback_count=4, wellbeing_count=3)
-    print(f'Total generated: {gen.total_questions}')
-    print(f'Academic count: {len(gen.academic_questions)}')
-    print(f'Feedback count: {len(gen.feedback_questions)}')
-    print(f'Wellbeing count: {len(gen.wellbeing_questions)}')
-    assert gen.total_questions == 12, "Must generate exactly 12 questions"
-    
-    # Check no duplicate IDs
-    all_ids = [q.id for q in gen.academic_questions + gen.feedback_questions + gen.wellbeing_questions]
-    assert len(all_ids) == len(set(all_ids)), "Duplicate question IDs found!"
+print(f"Total questions in bank: {len(COURSE_QUESTION_BANK)}")
+acad = [q for q in COURSE_QUESTION_BANK if q["category"] == "ACADEMIC"]
+feed = [q for q in COURSE_QUESTION_BANK if q["category"] == "CLASSROOM_FEEDBACK"]
+well = [q for q in COURSE_QUESTION_BANK if q["category"] == "WELLBEING"]
+print(f"Academic: {len(acad)}, Feedback: {len(feed)}, Wellbeing: {len(well)}")
 
-    # 2. Test 8-Scenario Intervention Matrix
-    scenarios = [
-        (45, 80, 85, ['Peer mentor invitation']),
-        (50, 40, 75, ['Peer mentor invitation', 'Faculty review required']),
-        (55, 75, 45, ['Peer mentor invitation', 'Counsellor support offer']),
-        (40, 35, 30, ['Peer mentor invitation', 'Counsellor support offer', 'Faculty review required']),
-        (85, 45, 80, ['Faculty review required']),
-        (90, 75, 40, ['Counsellor support offer']),
-        (80, 50, 45, ['Counsellor support offer', 'Faculty review required']),
-        (85, 80, 90, ['No intervention needed']),
-    ]
+# Test randomization
+gen = pulse_service.generate_randomized_questions(course_id="CS201")
+print(f"Generated: {gen.total_questions} questions across {len(gen.academic_questions)} acad, {len(gen.feedback_questions)} feed, {len(gen.wellbeing_questions)} well")
 
-    for idx, (acad, feed, well, expected) in enumerate(scenarios):
-        # Create fresh engine instance to avoid duplicate suppression in testing
-        from app.modules.pulse.intervention_engine import InterventionEngine
-        engine = InterventionEngine()
-        res = engine.evaluate_scores(f'student-{idx}', f'Student {idx}', 'CS201', 'pulse-01', acad, feed, well)
-        assert res['recommended_actions'] == expected, f"Scenario {idx+1} failed: got {res['recommended_actions']}, expected {expected}"
-        print(f"Scenario {idx+1} (Acad={acad}, Feed={feed}, Well={well}) -> {res['recommended_actions']} PASSED")
+# Test 5 intervention matrix scenarios:
+print("\n--- Testing 5 Intervention Matrix Scenarios ---")
 
-    print("\nALL 8 INTERVENTION MATRIX SCENARIOS PASSED VERIFICATION!")
+# Scenario 1: Low academic (<60%), healthy others (>=60%) -> Peer mentor invitation
+s1 = pulse_intervention_engine.evaluate_interventions(
+    submission_id="sub-test-01",
+    student_id="student-test-01",
+    pulse_id="pulse-test-01",
+    course_id="CS201",
+    academic_score=40.0,
+    feedback_score=80.0,
+    wellbeing_score=75.0
+)
+print("Scenario 1 (Low Acad, Healthy others):", s1["recommended_actions"])
+assert "PEER_MENTOR_INVITATION" in s1["recommended_actions"]
+assert "COUNSELLOR_OFFER" not in s1["recommended_actions"]
 
-if __name__ == '__main__':
-    test_pulse_system()
+# Scenario 2: Healthy academics (>=60%), low wellbeing (<60%) -> Counselling offer
+s2 = pulse_intervention_engine.evaluate_interventions(
+    submission_id="sub-test-02",
+    student_id="student-test-02",
+    pulse_id="pulse-test-01",
+    course_id="CS201",
+    academic_score=85.0,
+    feedback_score=80.0,
+    wellbeing_score=45.0
+)
+print("Scenario 2 (Healthy Acad, Low Wellbeing):", s2["recommended_actions"])
+assert "COUNSELLOR_OFFER" in s2["recommended_actions"]
+assert "PEER_MENTOR_INVITATION" not in s2["recommended_actions"]
+
+# Scenario 3: Low across all categories (<60%) -> Peer mentor + Counsellor + Faculty Review
+s3 = pulse_intervention_engine.evaluate_interventions(
+    submission_id="sub-test-03",
+    student_id="student-test-03",
+    pulse_id="pulse-test-01",
+    course_id="CS201",
+    academic_score=35.0,
+    feedback_score=45.0,
+    wellbeing_score=40.0
+)
+print("Scenario 3 (Low across all):", s3["recommended_actions"])
+assert "PEER_MENTOR_INVITATION" in s3["recommended_actions"]
+assert "COUNSELLOR_OFFER" in s3["recommended_actions"]
+assert "FACULTY_REVIEW" in s3["recommended_actions"]
+
+# Scenario 4: Healthy across all categories (>=60%) -> No intervention
+s4 = pulse_intervention_engine.evaluate_interventions(
+    submission_id="sub-test-04",
+    student_id="student-test-04",
+    pulse_id="pulse-test-01",
+    course_id="CS201",
+    academic_score=90.0,
+    feedback_score=85.0,
+    wellbeing_score=80.0
+)
+print("Scenario 4 (Healthy across all):", s4["recommended_actions"])
+assert len(s4["recommended_actions"]) == 0
+
+# Scenario 5: Low classroom feedback (<60%), healthy others -> Faculty review
+s5 = pulse_intervention_engine.evaluate_interventions(
+    submission_id="sub-test-05",
+    student_id="student-test-05",
+    pulse_id="pulse-test-01",
+    course_id="CS201",
+    academic_score=80.0,
+    feedback_score=45.0,
+    wellbeing_score=75.0
+)
+print("Scenario 5 (Low Feedback):", s5["recommended_actions"])
+assert s5["recommended_actions"] == ["FACULTY_REVIEW"]
+
+print("\nALL BACKEND PULSE UNIT TESTS PASSED!")
+

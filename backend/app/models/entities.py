@@ -618,3 +618,79 @@ class StudentPulseSubmission(Base):
     __table_args__ = (
         UniqueConstraint("pulse_id", "student_id", name="uq_pulse_student_submission"),
     )
+
+
+class PeerMentorPool(Base):
+    """Students in good academic standing who volunteer for subject-specific peer mentoring."""
+    __tablename__ = "peer_mentor_pool"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False, unique=True)
+    eligible_courses_json = Column(Text, nullable=False)  # JSON array of course codes, e.g. ["CS201", "CS202"]
+    availability = Column(String(50), default="AVAILABLE", nullable=False)  # 'AVAILABLE', 'BUSY', 'INACTIVE'
+    max_capacity = Column(Integer, default=3, nullable=False)
+    active_mentees_count = Column(Integer, default=0, nullable=False)
+    volunteer_status = Column(String(50), default="ACTIVE_VOLUNTEER", nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class PeerMentorRequest(Base):
+    """Mentorship offers triggered by academic intervention."""
+    __tablename__ = "peer_mentor_requests"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    submission_id = Column(String(36), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
+    mentor_id = Column(String(36), ForeignKey("students.id"), nullable=False)
+    course_id = Column(String(50), nullable=False)
+    status = Column(String(50), default="OFFERED", nullable=False)  # 'OFFERED', 'ACCEPTED', 'DECLINED', 'REASSIGNED'
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    responded_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class CounsellorSupportOffer(Base):
+    """Private counselling offers triggered when wellbeing score < 60%."""
+    __tablename__ = "counsellor_support_offers"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    submission_id = Column(String(36), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
+    counsellor_id = Column(String(36), ForeignKey("user_profiles.id"), nullable=True)
+    status = Column(String(50), default="OFFERED", nullable=False)  # 'OFFERED', 'ACCEPTED', 'DECLINED'
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+    responded_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class PulseInterventionRecord(Base):
+    """Audit log of interventions evaluated by the Student Pulse Intervention Engine."""
+    __tablename__ = "pulse_intervention_records"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    submission_id = Column(String(36), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
+    pulse_id = Column(String(36), ForeignKey("student_pulse_assignments.id"), nullable=False)
+    course_id = Column(String(50), nullable=False)
+    academic_score = Column(Float, nullable=False)
+    feedback_score = Column(Float, nullable=False)
+    wellbeing_score = Column(Float, nullable=False)
+    academic_status = Column(String(20), nullable=False)  # 'GOOD' | 'LOW'
+    feedback_status = Column(String(20), nullable=False)  # 'GOOD' | 'LOW'
+    wellbeing_status = Column(String(20), nullable=False)  # 'GOOD' | 'LOW'
+    recommended_actions_json = Column(Text, nullable=False)  # JSON array
+    status = Column(String(50), default="GENERATED", nullable=False)  # 'GENERATED', 'ACTIONED', 'DISMISSED'
+    scoring_version = Column(String(50), default="v1.0-operational", nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class PulseThresholdConfig(Base):
+    """Configurable operational thresholds for category score evaluation."""
+    __tablename__ = "pulse_threshold_configs"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    category = Column(String(50), nullable=False)  # 'ACADEMIC', 'CLASSROOM_FEEDBACK', 'WELLBEING'
+    threshold_percentage = Column(Float, default=60.0, nullable=False)
+    version = Column(String(50), default="v1.0-operational", nullable=False)
+    description = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
+
