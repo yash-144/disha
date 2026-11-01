@@ -23,7 +23,7 @@ Sign in with Google. The role the server assigns decides which portal opens.
 
 | | Demo campus (what the dashboards show) | Model training data |
 |---|---|---|
-| What | Sample data for the demo: a fictional campus, "Northfield Institute of Technology", with 84 students (invented names), 12 courses, 5 faculty, 2 counsellors, 40 cases, 30 counselling sessions, 306 wellbeing check-ins and 3 weekly scoring runs | **OULAD**, the Open University Learning Analytics Dataset: about 32,600 real, anonymised enrolments, 173,913 assessment results and 10.6 million learning-platform click records, from four course terms (2013B, 2013J, 2014B, 2014J) |
+| What | Sample data for the demo: a fictional campus, "Northfield Institute of Technology", with 84 students (invented names), 12 courses, 5 faculty, 2 counsellors, 40 cases, 30 counselling sessions, 306 wellbeing check-ins and 3 weekly scoring runs | **OULAD**, the Open University Learning Analytics Dataset: about 32,600 real, anonymised enrolments, 173,912 assessment results and 10.6 million learning-platform click records, from four course terms (2013B, 2013J, 2014B, 2014J) |
 | Source | `infra/scripts/seed_demo.py`, reproducible with `make seed` | Open University UK, CC BY 4.0. Citation: Kuzilek, Hlosta, Zdrahal, *Scientific Data* 4, 170171 (2017). Provenance and checksum in `ml/data/raw/oulad/SOURCE.md`. |
 | Used for | Everything the portals display | Training and testing the model only |
 
@@ -89,6 +89,25 @@ Earlier semester-based prototypes (UCI dropout benchmark, checkpoints `cp0`/`cp1
 
 ---
 
+## Meko: the campus's memory of what actually works
+
+Most early-warning tools stop at the flag. DISHA closes the loop, and [Meko](https://cloud.mekodata.ai) (an agent-memory service) is what lets the loop **learn across cases and across terms**.
+
+| What gets remembered | Why it matters |
+|---|---|
+| **Outcomes of every closed case**, linked to the support given and the reasons the student was flagged (for example "missed work + dropping activity") | When the same intervention improves students with the same pattern three times (configurable), it is **promoted into a shared playbook**. The next counsellor facing that pattern is shown "this has helped students like this one", restricted to interventions in the campus's own catalogue. Advice only, never applied automatically. |
+| **Each student's story over the term**: tier changes, sudden drops in marks or activity, one short readable sentence per event | A new counsellor or mentor can read a student's journey in seconds instead of piecing it together from five systems. Written on every scoring run. |
+| **Every human decision on a flag** (accepted, dismissed, case opened) with the reasons | Accountability: for any alert you can show who decided what, and why. It is what makes "no alert without action" auditable. |
+| **Model experiments** (what was tried, what the numbers were, what to avoid) | The next person training the model does not repeat a dead end. For example, the finding that mixing generated data into training did not help is recorded there. |
+
+The AI review brief, when an AI provider is configured, also reads the playbook so its suggestions come from this campus's own results, not generic advice.
+
+**Privacy by design.** Student ids are hashed with a secret salt before anything leaves the system. Every text passes a guard that strips names, emails, roll numbers and marks. Counselling notes and raw marks are never sent. Meko is **optional**: if it is off or unreachable, DISHA runs normally and nothing waits on it.
+
+**Status.** The connection, datapack and memory read/write are verified (`make meko-doctor`; `GET /api/v1/meko/health` reports `reachable: true`). The playbook fills as real outcomes accumulate, so on a fresh campus it starts empty by design. Details: [docs/architecture/MEKO_INTEGRATION.md](docs/architecture/MEKO_INTEGRATION.md).
+
+---
+
 ## Privacy and safety
 
 - **Role-scoped data.** Students never see cases or scores. Faculty see only cases for students in their own sections. Counsellors see cases assigned to them or still unassigned. Counselling notes are readable only by counsellors. The audit trail is admin-only.
@@ -110,7 +129,7 @@ Earlier semester-based prototypes (UCI dropout benchmark, checkpoints `cp0`/`cp1
 | Sign-in | Supabase Auth with Google, exchanged for a short-lived DISHA JWT |
 | ML | scikit-learn 1.7.2 (histogram gradient boosting, isotonic calibration), pandas 3.1, NumPy 2.4 |
 | Background jobs | Optional worker (outbox delivery, deadline escalation) |
-| Agent memory | Optional [Meko](docs/architecture/MEKO_INTEGRATION.md) for experiment notes; never required |
+| Memory | Optional Meko: outcome playbook, student journeys, decision traces (see above); never required |
 
 ```
 api/        FastAPI app: identity, campus, cases, counselling, interventions, faculty, student,
