@@ -9,10 +9,15 @@ try:
     _kwargs = {}
     if "supabase" in _url:
         # Supabase needs TLS, and its pgbouncer pooler cannot use asyncpg's prepared-statement cache.
-        _kwargs["connect_args"] = {"ssl": "require", "statement_cache_size": 0}
-        _kwargs["pool_pre_ping"] = True
-        _kwargs["pool_size"] = 5
-        _kwargs["max_overflow"] = 5
+        _kwargs["connect_args"] = {
+            "ssl": "require",
+            "statement_cache_size": 0,
+            "prepared_statement_cache_size": 0,
+        }
+        # pre_ping costs an extra round trip per checkout; recycle stale connections instead.
+        _kwargs["pool_recycle"] = 300
+        _kwargs["pool_size"] = 10
+        _kwargs["max_overflow"] = 10
 
     engine = create_async_engine(
         _url,

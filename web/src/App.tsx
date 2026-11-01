@@ -17,6 +17,7 @@ import { BlogModal } from './components/landing/BlogModal'
 import {
   NoPortalForRole,
   SessionLoading,
+  ProfileLoadError,
 } from './components/common/SessionScreens'
 
 function Portal() {
@@ -34,6 +35,11 @@ function Portal() {
   // If user has no active campus membership:
   if (status === 'not_provisioned') {
     return <NoPortalForRole />
+  }
+
+  // If error loading user profile from server:
+  if (status === 'error') {
+    return <ProfileLoadError />
   }
 
   // If authenticated with real server session, honor the verified role:
