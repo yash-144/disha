@@ -4,7 +4,9 @@ export type ViewMode =
   | 'live-classes' 
   | 'blogs' 
   | 'about' 
-  | 'contact' 
+  | 'contact'
+  | 'login'
+  | 'onboarding'
   | 'dashboard';
 
 export type DashboardTab = 

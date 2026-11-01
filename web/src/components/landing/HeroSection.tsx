@@ -1,262 +1,213 @@
 import React, { useState, useMemo } from 'react'
-import {
-  Search,
-  ChevronDown,
-  GraduationCap,
-  Star,
-  Globe,
-  User,
-  ArrowRight,
-  Sparkles,
-  BookOpen,
-  Code2,
-  CheckCircle,
-  ExternalLink,
-  Laptop,
-} from 'lucide-react'
+import { Search, ShieldAlert, Cpu, Award } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=700&q=80'
-
-const POPULAR_SEARCH_TAGS = ['React 19', 'SQL Indexing', 'AWS Cloud', 'Figma Tokens', 'Go Microservices']
+const DISHA_SUGGESTIONS = [
+  {
+    title: 'Checkpoint 0: Baseline Admissions & Prior Qualification Risk',
+    category: 'Admissions ML',
+    icon: Cpu,
+  },
+  {
+    title: 'Checkpoint 1: Mid-Semester Attendance & Grade Drop Signals',
+    category: 'Early Warning',
+    icon: ShieldAlert,
+  },
+  {
+    title: 'Checkpoint 2: Exam Eligibility & SLA Case Escalation Queue',
+    category: 'Interventions',
+    icon: ShieldAlert,
+  },
+  {
+    title: 'Base Sepolia: Tamper-Evident Soulbound Student Identity',
+    category: 'Verifiable Credentials',
+    icon: Award,
+  },
+]
 
 export function HeroSection() {
   const {
-    searchQuery,
-    setSearchQuery,
     navigateTo,
-    courses,
-    setActiveCourseDetail,
+    openAuthModal,
+    setCurrentUser,
     addToast,
   } = useApp()
 
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [inputVal, setInputVal] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
 
-  // Real-time suggestions based on user input
+  // Real-time suggestions if user types into input
   const suggestions = useMemo(() => {
-    if (!searchQuery.trim()) return []
-    return courses
-      .filter(
-        (c) =>
-          c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .slice(0, 4)
-  }, [searchQuery, courses])
+    if (!inputVal.trim()) return DISHA_SUGGESTIONS.slice(0, 3)
+    return DISHA_SUGGESTIONS.filter(
+      (s) =>
+        s.title.toLowerCase().includes(inputVal.toLowerCase()) ||
+        s.category.toLowerCase().includes(inputVal.toLowerCase())
+    )
+  }, [inputVal])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    navigateTo('courses')
+  const scrollToSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId)
+    el?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleTagClick = (tag: string) => {
-    setSearchQuery(tag)
-    navigateTo('courses')
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = inputVal.trim()
+    if (!trimmed) {
+      navigateTo('login')
+      return
+    }
+
+    if (trimmed.includes('@') && trimmed.includes('.')) {
+      setCurrentUser((prev) => ({ ...prev, email: trimmed }))
+      navigateTo('login')
+    } else {
+      setCurrentUser((prev) => ({ ...prev, name: trimmed }))
+      navigateTo('login')
+    }
   }
 
   return (
-    <section className="relative overflow-hidden border-b-4 border-ink pb-16 text-ink font-mono">
-      {/* Grid Blueprint Background Pattern */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.07] bg-grid-pattern" />
+    <section className="relative w-full min-h-screen overflow-hidden flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-8 lg:px-12 xl:px-16 font-sans select-none">
+      {/* 1. Cinematic Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none"
+      >
+        <source src="/herosection.mp4" type="video/mp4" />
+      </video>
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-10 sm:px-6 lg:grid-cols-[1.15fr_1fr]">
-        {/* Left Column */}
-        <div>
-          {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 border-2 border-ink bg-white px-3 py-1 text-xs font-bold shadow-[2.5px_2.5px_0_#0d1b3e] mb-4">
-            <span className="flex h-2 w-2 rounded-full bg-[#0f9d58] animate-ping" />
-            <Sparkles className="h-3.5 w-3.5 text-brand" />
-            <span>Over 7,000+ engineers enrolled worldwide</span>
-          </div>
+      {/* 2. Soft Vignette & Cinematic Overlays for perfect contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-[at_center] from-transparent via-black/15 to-black/50 pointer-events-none" />
 
-          <h1 className="text-[32px] font-bold leading-tight tracking-tight text-brand sm:text-[46px]">
-            Unlock your potential with{' '}
-            <span className="block text-ink">SkillsUp's skills development courses.</span>
-          </h1>
+      {/* 3. Top Floating Glass Navigation Bar */}
+      <div className="relative z-20 w-full pt-2">
+        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
+          {/* Brand Logo on Left: Bold White Capital DISHA */}
+          <button
+            onClick={() => navigateTo('landing')}
+            className="outline-none group flex items-center"
+          >
+            <span className="text-2xl sm:text-3xl font-black tracking-widest text-white uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)] group-hover:opacity-90 transition-opacity">
+              DISHA
+            </span>
+          </button>
 
-          <p className="mt-5 max-w-lg text-xs leading-relaxed text-muted sm:text-sm">
-            We offer a rich tapestry of skills development courses and live instructor cohorts.
-            Hone your abilities, sketch architectures on live interactive whiteboards, and accelerate
-            your engineering career.
-          </p>
-
-          {/* Interactive Search Box with Real-Time Dropdown Suggestions */}
-          <div className="relative mt-7 max-w-xl">
-            <form
-              onSubmit={handleSearchSubmit}
-              className="relative z-20 flex flex-wrap items-center gap-2 border-2 border-ink bg-white p-1.5 text-sm shadow-[4px_4px_0_#0d1b3e] sm:flex-nowrap"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2 pl-3">
-                <Search className="h-4 w-4 shrink-0 text-gray-500" />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  placeholder="Search React, SQL, Cloud, UI Design..."
-                  className="w-full min-w-0 bg-transparent py-2 text-xs font-bold text-ink outline-none placeholder:text-gray-400 placeholder:font-normal"
-                />
-              </div>
-
-              {/* Category Dropdown */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="hidden items-center gap-1 border-l-2 border-ink/20 px-3 text-xs font-bold text-ink sm:flex"
-                >
-                  {selectedCategory} <ChevronDown className="h-3 w-3" />
-                </button>
-                {showDropdown && (
-                  <div className="absolute right-0 top-full z-30 mt-2 w-48 border-2 border-ink bg-white p-1 shadow-[4px_4px_0_#0d1b3e]">
-                    {['All', 'Web Dev', 'Database', 'Design', 'Cloud'].map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => {
-                          setSelectedCategory(cat)
-                          setShowDropdown(false)
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100"
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="border-2 border-ink bg-[#0f9d58] px-7 py-2.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
-              >
-                Search
-              </button>
-            </form>
-
-            {/* Instant Suggestions Dropdown Menu */}
-            {isSearchFocused && suggestions.length > 0 && (
-              <div
-                onMouseLeave={() => setIsSearchFocused(false)}
-                className="absolute left-0 right-0 top-full z-30 mt-1 border-2 border-ink bg-white shadow-[6px_6px_0_#0d1b3e] divide-y divide-ink/10 animate-in fade-in"
-              >
-                <div className="bg-[#f5f7fc] px-3 py-1.5 text-[10px] font-bold text-gray-500 uppercase flex justify-between">
-                  <span>Matching Bootcamps &amp; Syllabi</span>
-                  <span>{suggestions.length} Found</span>
-                </div>
-                {suggestions.map((c) => (
-                  <div
-                    key={c.id}
-                    onClick={() => {
-                      setActiveCourseDetail(c)
-                      setIsSearchFocused(false)
-                    }}
-                    className="flex cursor-pointer items-center justify-between p-3 hover:bg-blue-50/60 transition"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-ink">{c.title}</p>
-                      <span className="text-[10px] text-brand font-bold">{c.categoryLabel}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-ink">{c.price}</span>
-                      <span className="block text-[10px] text-amber-500 font-bold">★ {c.rating}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quick Search Tag Pills */}
-          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
-            <span className="text-muted font-bold">Trending:</span>
-            {POPULAR_SEARCH_TAGS.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => handleTagClick(tag)}
-                className="border border-ink bg-white px-2 py-0.5 text-[10px] font-bold text-ink shadow-[1px_1px_0_#0d1b3e] transition hover:bg-brand hover:text-white"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-
-          {/* Direct LMS Feature Links */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          {/* Quick Section Links on Desktop */}
+          <div className="hidden md:flex items-center gap-7 text-xs font-medium text-white/90">
             <button
-              onClick={() => navigateTo('dashboard', 'overview')}
-              className="flex items-center gap-2 border-2 border-ink bg-white px-4 py-2 text-xs font-bold text-ink shadow-[2.5px_2.5px_0_#0d1b3e] hover:bg-gray-100 transition"
+              onClick={() => scrollToSection('why-disha')}
+              className="hover:text-white transition drop-shadow-sm"
             >
-              <Laptop className="h-4 w-4 text-brand" /> Launch LMS Workspace
+              Why DISHA
             </button>
             <button
-              onClick={() => navigateTo('live-classes')}
-              className="flex items-center gap-2 border-2 border-ink bg-brand px-4 py-2 text-xs font-bold text-white shadow-[2.5px_2.5px_0_#0d1b3e] hover:bg-brand-dark transition"
+              onClick={() => scrollToSection('solutions')}
+              className="hover:text-white transition drop-shadow-sm"
             >
-              <span className="h-2 w-2 rounded-full bg-red-400 animate-ping" />
-              Join Live Classes
+              Solutions
+            </button>
+            <button
+              onClick={() => scrollToSection('faqs')}
+              className="hover:text-white transition drop-shadow-sm"
+            >
+              FAQs
             </button>
           </div>
 
-          {/* Key Metric Stats */}
-          <div className="mt-9 flex gap-8 sm:gap-12 pl-2">
-            <div className="flex flex-col items-center text-center">
-              <GraduationCap className="h-7 w-7 text-[#0f9d58]" />
-              <span className="mt-1.5 text-base font-bold leading-none">30K+</span>
-              <span className="mt-1 text-[11px] text-muted font-bold">Graduates</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <Star className="h-6 w-6 fill-[#0f9d58] text-[#0f9d58]" />
-              <span className="mt-1.5 text-base font-bold leading-none">4.9/5</span>
-              <span className="mt-1 text-[11px] text-muted font-bold">Avg. Rating</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <Globe className="h-6 w-6 text-brand" />
-              <span className="mt-1.5 text-base font-bold leading-none">27+</span>
-              <span className="mt-1 text-[11px] text-muted font-bold">Countries</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Hero Graphic with Neo-Brutal Stacks */}
-        <div className="relative mx-auto aspect-square w-full max-w-[420px]">
-          <div className="absolute inset-2 translate-x-3 translate-y-3 rounded-2xl bg-[#0f9d58] border-2 border-ink" />
-          <div className="absolute inset-2 overflow-hidden rounded-2xl border-4 border-ink bg-white shadow-xl">
-            <img
-              src={HERO_IMG}
-              alt="Students collaborating"
-              className="h-full w-full object-cover object-top"
-            />
-          </div>
-
-          {/* Floating Course Count Badge */}
-          <div className="absolute -right-2 top-[18%] flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-3.5 py-2 text-white shadow-[4px_4px_0_#0d1b3e]">
-            <span className="text-xl font-bold">{courses.length}+</span>
-            <span className="text-[10px] leading-tight font-bold">
-              Industry
-              <br />
-              Bootcamps
-            </span>
-          </div>
-
-          {/* Floating Tag */}
-          <div className="absolute left-[6%] top-[6%] flex h-11 w-11 items-center justify-center border-2 border-ink bg-brand text-xs font-bold text-white shadow-[3px_3px_0_#0d1b3e]">
-            AI
-          </div>
-
-          {/* Floating Happy Learners Badge */}
-          <div className="absolute -left-3 bottom-[10%] flex items-center gap-3 border-2 border-ink bg-white px-4 py-2.5 text-ink shadow-[5px_5px_0_#0d1b3e]">
-            <span className="flex h-9 w-9 items-center justify-center border-2 border-ink bg-brand text-white shadow-[1px_1px_0_#0d1b3e]">
-              <User className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="text-lg font-bold leading-none">7,000+</p>
-              <p className="text-[10px] text-muted font-bold">Active Cohort Learners</p>
-            </div>
+          {/* Right Floating Actions */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigateTo('login')}
+              className="hidden sm:inline-block text-xs font-medium text-white/95 hover:text-white px-2 py-1.5 transition drop-shadow-md cursor-pointer"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigateTo('login')}
+              className="rounded-full bg-white px-6 py-2.5 text-xs font-semibold text-gray-900 shadow-xl transition hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              Get Started
+            </button>
           </div>
         </div>
       </div>
+
+      {/* 4. Center Main Hero Content (Clean & Spacious - Problem & Solution Aligned) */}
+      <div className="relative z-20 mx-auto max-w-4xl px-4 text-center my-auto flex flex-col items-center py-12">
+        {/* Large Elegant Headline matching Problem & Solution */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-light tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] leading-[1.08]">
+          Prevent Student Dropout.
+          <br />
+          <span className="font-semibold text-white">No Alert Without Action.</span>
+        </h1>
+
+        {/* Subtitle description changed according to our problem and solution */}
+        <p className="mt-6 max-w-2xl text-sm sm:text-base md:text-lg text-white/90 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
+          Transforming disparate attendance, grade, and engagement signals into reviewable interventions.
+          DISHA uses calibrated ML checkpoints to detect academic slippage long before semester exams, routing every alert to an accountable human owner.
+        </p>
+
+        {/* 5. Floating Frosted Glass Input Pill */}
+        <div className="relative mt-10 w-full max-w-xl">
+          <form
+            onSubmit={handleSubmit}
+            className="group relative flex items-center justify-between rounded-full border border-white/30 bg-white/20 p-2 sm:p-2.5 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)] transition-all focus-within:border-white/60 focus-within:bg-white/25"
+          >
+            <div className="flex flex-1 items-center gap-3 pl-3 sm:pl-4">
+              <Search className="h-4 w-4 text-white/70 shrink-0" />
+              <input
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                placeholder="Enter campus email or student ID to run risk radar..."
+                className="w-full bg-transparent text-xs sm:text-sm font-normal text-white placeholder:text-white/70 outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="rounded-full bg-white px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-gray-900 shadow-md transition hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] shrink-0"
+            >
+              Start Onboarding
+            </button>
+          </form>
+
+          {/* Suggestions Dropdown if typing */}
+          {isFocused && suggestions.length > 0 && (
+            <div
+              className="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-white/20 bg-slate-900/95 p-2 backdrop-blur-2xl shadow-2xl text-left text-xs z-30 animate-in fade-in"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="px-3 py-1.5 text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                DISHA Early-Warning Signals &amp; Checkpoints
+              </div>
+              {suggestions.map((s, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    navigateTo('login')
+                    setIsFocused(false)
+                  }}
+                  className="flex items-center justify-between rounded-lg p-2.5 hover:bg-white/10 cursor-pointer text-white transition"
+                >
+                  <span className="font-medium text-slate-200">{s.title}</span>
+                  <span className="text-[10px] text-blue-400 font-semibold">{s.category}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom spacer for clean symmetrical layout */}
+      <div className="h-4 sm:h-8" />
     </section>
   )
 }

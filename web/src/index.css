@@ -2,119 +2,58 @@
 
 @theme {
   --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   --color-brand: #1d5fd1;
   --color-brand-dark: #123f94;
-  --color-brand-light: #eef4ff;
-  --color-royal: #3d6ae0;
-  --color-ink: #0d1b3e;
-  --color-ink-dark: #080f24;
-  --color-muted: #5a647d;
-  --color-accent: #0f9d58;
-  --color-accent-dark: #0b7a43;
+  --color-brand-light: #eff6ff;
+  --color-royal: #3b82f6;
+  --color-ink: #0f172a;
+  --color-ink-dark: #020617;
+  --color-muted: #64748b;
+  --color-accent: #10b981;
+  --color-accent-dark: #059669;
 }
 
 @layer base {
   body {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     color: var(--color-ink);
-    background-color: #f5f7fc;
+    background-color: #ffffff;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom Neo-Brutalism & Dashboard utilities */
-.brutal-border {
-  border: 2px solid #0d1b3e;
+/* Minimalist & Aesthetic utilities */
+.aesthetic-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.04), 0 0 1px rgba(15, 23, 42, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.brutal-border-thick {
-  border: 3px solid #0d1b3e;
+.aesthetic-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08), 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
-.brutal-shadow {
-  box-shadow: 4px 4px 0 #0d1b3e;
+.glass-pill {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
-.brutal-shadow-sm {
-  box-shadow: 2px 2px 0 #0d1b3e;
-}
-
-.brutal-shadow-lg {
-  box-shadow: 6px 6px 0 #0d1b3e;
-}
-
-.brutal-shadow-green {
-  box-shadow: 4px 4px 0 #0f9d58;
-}
-
-.brutal-btn {
-  border: 2px solid #0d1b3e;
-  box-shadow: 3px 3px 0 #0d1b3e;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.brutal-btn:hover {
-  transform: translate(-1.5px, -1.5px);
-  box-shadow: 4.5px 4.5px 0 #0d1b3e;
-}
-
-.brutal-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #0d1b3e;
-}
-
-/* Dynamic glowing border for the dashboard frame */
-@keyframes dynamicBorderPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 1px rgba(29, 95, 209, 0.4), 0 0 20px rgba(29, 95, 209, 0.25), 6px 6px 0 #0d1b3e;
-  }
-  50% {
-    box-shadow: 0 0 0 2px rgba(15, 157, 88, 0.5), 0 0 35px rgba(29, 95, 209, 0.45), 6px 6px 0 #0d1b3e;
-  }
-}
-
-.dynamic-blue-frame {
-  animation: dynamicBorderPulse 4s ease-in-out infinite;
-}
-
-/* Blueprint Grid Backgrounds */
-.bg-grid-pattern {
-  background-image: 
-    linear-gradient(to right, rgba(29, 95, 209, 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(29, 95, 209, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.bg-grid-pattern-dense {
-  background-image: 
-    linear-gradient(to right, rgba(13, 27, 62, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(13, 27, 62, 0.05) 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-
-.bg-grid-blueprint-dark {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* Marquee animation */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 28s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
+.glass-pill-dark {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* Smooth custom scrollbars */
@@ -124,15 +63,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f4fb;
+  background: #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
-
