@@ -3,8 +3,8 @@ import { CounsellorSidebar, CounsellorNavId, COUNSELLOR_NAV_ITEMS } from './Coun
 import { CounsellorHeader } from './CounsellorHeader'
 import { CounsellorOverview } from './CounsellorOverview'
 import { PortalPlaceholder } from '../common/PortalPlaceholder'
-import { COUNSELLOR_DEMO_DATA } from './counsellorDemoData'
-import { DemoMode } from '../student-portal/studentDemoData'
+import { CounsellorStudentsInNeed } from './CounsellorStudentsInNeed'
+import { CounsellorSupportCases } from './CounsellorSupportCases'
 import { ArrowLeft } from 'lucide-react'
 
 const TAB_METADATA: Record<
@@ -108,8 +108,6 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
     return 'overview'
   })
 
-  const [demoMode, setDemoMode] = useState<DemoMode>('normalStudent')
-
   // Synchronize browser URL route
   const handleSelectTab = (tab: CounsellorNavId) => {
     setActiveTab(tab)
@@ -139,7 +137,6 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
   const currentItem =
     COUNSELLOR_NAV_ITEMS.find((item) => item.id === activeTab) || COUNSELLOR_NAV_ITEMS[0]
   const meta = TAB_METADATA[activeTab] || TAB_METADATA.overview
-  const scenario = COUNSELLOR_DEMO_DATA[demoMode]
 
   return (
     <div className="bg-[#EAEFF8] min-h-screen p-2 sm:p-2.5 md:p-3 flex items-center justify-center font-sans antialiased text-[#1E2433]">
@@ -155,8 +152,6 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
         <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
           {/* Header */}
           <CounsellorHeader
-            demoMode={demoMode}
-            onSelectDemoMode={setDemoMode}
             pageTitle={meta.title}
             subtitle={meta.subtitle}
             showPageTitle={activeTab !== 'overview'}
@@ -164,12 +159,7 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
 
           {/* Conditional View by Tab: Overview vs Other Module Placeholders */}
           {activeTab === 'overview' ? (
-            <CounsellorOverview
-              scenario={scenario}
-              onNavigateToSchedule={() => handleSelectTab('schedule')}
-              onNavigateToStudentsInNeed={() => handleSelectTab('students-in-need')}
-              onNavigateToSupportCases={() => handleSelectTab('support-cases')}
-            />
+            <CounsellorOverview />
           ) : (
             <div className="flex flex-col gap-4">
               <button
@@ -181,6 +171,11 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
                 <span>Return to Counsellor Overview</span>
               </button>
 
+              {activeTab === 'students-in-need' ? (
+                <CounsellorStudentsInNeed />
+              ) : activeTab === 'support-cases' ? (
+                <CounsellorSupportCases />
+              ) : (
               <PortalPlaceholder
                 portalName="Counsellor Portal"
                 pageTitle={currentItem.label}
@@ -189,6 +184,7 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
                 description={meta.description}
                 capabilities={meta.capabilities}
               />
+              )}
             </div>
           )}
         </main>

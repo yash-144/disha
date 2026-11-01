@@ -1,28 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { useApp } from '../../context/AppContext'
 import { StudentSidebar, StudentNavId } from './StudentSidebar'
 import { StudentHeader } from './StudentHeader'
-import { WellbeingStats } from './WellbeingStats'
-import { WellbeingTrend } from './WellbeingTrend'
-import { WeeklyFocus } from './WeeklyFocus'
-import { SelfCareBanner } from './SelfCareBanner'
-import { RecentUpdates } from './RecentUpdates'
-import { UpcomingTimeline } from './UpcomingTimeline'
-import { StudentProfilePanel } from './StudentProfilePanel'
-import { BreathingModal } from './BreathingModal'
-import { STUDENT_DEMO_DATA, DemoMode } from './studentDemoData'
+import { NotAvailable } from '../common/NotAvailable'
+import { StudentOverview } from './StudentOverview'
+import { StudentRewardsPage } from './StudentRewardsPage'
 import { StudentMyCasesPage } from './StudentMyCasesPage'
-import { StudentRequestSupportPage } from './StudentRequestSupportPage'
 import { StudentAssessmentPage } from './StudentAssessmentPage'
-import { StudentMessagesPage } from './StudentMessagesPage'
-import { StudentLeaderboardRewardsPage } from './StudentLeaderboardRewardsPage'
 
 interface StudentDashboardProps {
   initialTab?: StudentNavId
 }
 
 export function StudentDashboard({ initialTab }: StudentDashboardProps) {
-  const { switchRole, addToast } = useApp()
   const [activeTab, setActiveTab] = useState<StudentNavId>(() => {
     if (initialTab) return initialTab
     if (typeof window !== 'undefined') {
@@ -39,10 +28,7 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
     return 'overview'
   })
 
-  const [demoMode, setDemoMode] = useState<DemoMode>('normalStudent')
-  const [isBreathingOpen, setIsBreathingOpen] = useState(false)
 
-  const scenario = STUDENT_DEMO_DATA[demoMode]
 
   const handleSelectTab = (tab: StudentNavId) => {
     setActiveTab(tab)
@@ -68,32 +54,6 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
-
-  const handleSelectDemoMode = (mode: DemoMode) => {
-    setDemoMode(mode)
-    const labels: Record<DemoMode, string> = {
-      normalStudent: 'Normal Student',
-      needsAttention: 'Needs Attention',
-      activeSupport: 'Active Support',
-    }
-    addToast('Demo Mode Changed', `Viewing synthetic scenario: ${labels[mode]}`, 'info')
-  }
-
-  const handleSwitchToFaculty = () => {
-    switchRole('instructor')
-  }
-
-  const handleTakeCheckIn = () => {
-    handleSelectTab('assessment')
-  }
-
-  const handleRequestSupport = () => {
-    handleSelectTab('request-support')
-  }
-
-  const handleStartAssessment = () => {
-    handleSelectTab('assessment')
-  }
 
   const getHeaderTitle = () => {
     switch (activeTab) {
@@ -145,88 +105,26 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
         <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
           {/* Header */}
           <StudentHeader
-            name="Asha"
-            avatar={scenario.avatar}
             title={getHeaderTitle()}
             subtitle={getHeaderSubtitle()}
-            demoMode={demoMode}
-            onSelectDemoMode={handleSelectDemoMode}
-            onSwitchToFaculty={handleSwitchToFaculty}
           />
 
-          {/* Conditional View by Tab */}
           {activeTab === 'cases' ? (
-            <StudentMyCasesPage demoMode={demoMode} />
+            <StudentMyCasesPage />
           ) : activeTab === 'request-support' ? (
-            <StudentRequestSupportPage
-              demoMode={demoMode}
-              onNavigateToCases={() => handleSelectTab('cases')}
-            />
+            <NotAvailable title="Request Support" message="Requesting support needs a faculty directory endpoint, which the server does not expose yet." />
           ) : activeTab === 'assessment' ? (
-            <StudentAssessmentPage
-              demoMode={demoMode}
-              onRequestSupport={() => handleSelectTab('request-support')}
-              onNavigateToOverview={() => handleSelectTab('overview')}
-            />
+            <StudentAssessmentPage />
           ) : activeTab === 'messages' ? (
-            <StudentMessagesPage
-              demoMode={demoMode}
-              onScheduleCall={() => handleSelectTab('request-support')}
-            />
+            <NotAvailable title="Messages" />
           ) : activeTab === 'leaderboard' ? (
-            <StudentLeaderboardRewardsPage demoMode={demoMode} />
+            <StudentRewardsPage />
           ) : (
-            /* Student Overview */
-            <div className="flex flex-col xl:flex-row gap-5 mt-3">
-              {/* Center Content Column */}
-              <div className="flex-1 flex flex-col gap-4">
-                {/* 1. Statistics Cards */}
-                <WellbeingStats
-                  wellbeingScore={scenario.wellbeingScore}
-                  scoreDelta={scenario.scoreDelta}
-                  isScorePositive={scenario.isScorePositive}
-                  checkInsCompleted={scenario.checkInsCompleted}
-                  checkInsTotal={scenario.checkInsTotal}
-                  streakWeeks={scenario.streakWeeks}
-                />
-
-                {/* 2. Middle Row: Wellbeing Trend + This Week's Focus */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-                  <div className="md:col-span-7">
-                    <WellbeingTrend trendData={scenario.trendData} />
-                  </div>
-                  <div className="md:col-span-5">
-                    <WeeklyFocus initialItems={scenario.focusItems} />
-                  </div>
-                </div>
-
-                {/* 3. Self-Care Banner */}
-                <SelfCareBanner onStartBreathing={() => setIsBreathingOpen(true)} />
-
-                {/* 4. Bottom Row: Recent Updates + Upcoming Timeline */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <RecentUpdates updates={scenario.recentUpdates} />
-                  <UpcomingTimeline events={scenario.upcomingEvents} />
-                </div>
-              </div>
-
-              {/* Right Profile & Action Panel */}
-              <StudentProfilePanel
-                scenario={scenario}
-                onTakeCheckIn={handleTakeCheckIn}
-                onRequestSupport={handleRequestSupport}
-                onStartAssessment={handleStartAssessment}
-              />
-            </div>
+            <StudentOverview onCheckIn={() => handleSelectTab('assessment')} />
           )}
         </main>
       </div>
 
-      {/* Mindful Breathing Modal */}
-      <BreathingModal
-        isOpen={isBreathingOpen}
-        onClose={() => setIsBreathingOpen(false)}
-      />
     </div>
   )
 }

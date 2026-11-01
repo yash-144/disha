@@ -1,0 +1,4 @@
+# version: 1
+TASK: Write a short review brief for the staff member handling this case, keeping the tiers separate.
+Schema: {"observed_data": [string, max 6], "rule_signal": string, "ml_estimate": string, "ai_suggestion": string, "human_decision_needed": string}
+Each string is at most 400 characters. "ai_suggestion" is a suggestion for what the staff member could consider, not an instruction.

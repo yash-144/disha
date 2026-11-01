@@ -1,0 +1,4 @@
+# version: 1
+TASK: Summarise the student's recent observations for a staff member.
+Schema: {"summary": string (max 600 characters), "key_points": [string, max 5, each max 200 characters]}
+Describe trends in the numbers only (for example attendance falling); do not explain causes.

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "api:types": "cd ../api && PYTHONPATH=.:../ml:.. ../.venv/bin/python -c \"import json, app.main as m; json.dump(m.app.openapi(), open('../web/src/lib/api/openapi.json','w'), indent=1)\" && cd ../web && npx -y openapi-typescript@7.4.4 src/lib/api/openapi.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.105.0",

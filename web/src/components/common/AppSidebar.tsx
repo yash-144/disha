@@ -16,8 +16,14 @@ import {
   BarChart3,
   Sliders,
   Award,
+  UploadCloud,
+  Cpu,
 } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { useSession } from '../../lib/auth/SessionProvider'
+import { roleLabel } from '../../lib/auth/portals'
+import { UserAvatar } from './UserAvatar'
 
 export type PortalRole = 'faculty' | 'instructor' | 'student' | 'counsellor' | 'admin'
 
@@ -62,41 +68,9 @@ export const ROLE_NAV_ITEMS: Record<string, SidebarNavItem[]> = {
     { id: 'analytics', label: 'Institution Analytics', icon: BarChart3 },
     { id: 'document-integrity', label: 'Document Integrity', icon: ShieldCheck },
     { id: 'reward-fulfilment', label: 'Reward Fulfilment', icon: Award },
+    { id: 'data-import', label: 'Data Import', icon: UploadCloud },
+    { id: 'risk-model', label: 'Risk Model', icon: Cpu },
   ],
-}
-
-interface ProfileMetadata {
-  name: string
-  sublabel: string
-  avatar: string
-}
-
-const ROLE_PROFILES: Record<string, ProfileMetadata> = {
-  faculty: {
-    name: 'Prof. Sharma',
-    sublabel: 'Account & Settings',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-  },
-  instructor: {
-    name: 'Prof. Sharma',
-    sublabel: 'Account & Settings',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-  },
-  student: {
-    name: 'Asha Verma',
-    sublabel: 'Account & Settings',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-  },
-  counsellor: {
-    name: 'Dr. Meera Nambiar',
-    sublabel: '• Counsellor',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
-  },
-  admin: {
-    name: 'Dr. V. Raman',
-    sublabel: 'Account & Settings',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80',
-  },
 }
 
 export interface AppSidebarProps {
@@ -119,7 +93,7 @@ export function AppSidebar({
   // Normalize role key
   const normalizedRole = role === 'instructor' ? 'faculty' : role
   const navItems = ROLE_NAV_ITEMS[normalizedRole] || ROLE_NAV_ITEMS.faculty
-  const profile = ROLE_PROFILES[normalizedRole] || ROLE_PROFILES.faculty
+  const { user, role: serverRole, signOut } = useSession()
 
   return (
     <aside
@@ -232,24 +206,29 @@ export function AppSidebar({
         }`}
       >
         <div className="relative shrink-0">
-          <img
-            src={profile.avatar}
-            alt={profile.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-2xs"
-          />
-          <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+          <UserAvatar name={user?.full_name} />
         </div>
 
         {!isCollapsed && (
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-[#1E2433] truncate leading-tight">
-              {profile.name}
+              {user?.full_name}
             </p>
-            <p className="text-[11px] text-[#717E95] flex items-center gap-1.5 leading-tight mt-0.5 truncate font-medium">
-              {profile.sublabel}
+            <p className="text-[11px] text-[#717E95] leading-tight mt-0.5 truncate font-medium">
+              {roleLabel(serverRole)}
             </p>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          title="Sign out"
+          aria-label="Sign out"
+          className="shrink-0 rounded-full p-1.5 text-[#64748B] hover:bg-black/5 hover:text-[#1E2433] cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </aside>
   )

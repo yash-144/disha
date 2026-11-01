@@ -193,3 +193,18 @@ campus-membership code. Current state:
 - **Not built**: deadline escalation and notification dispatch (worker stubs above), email/SMS adapters, and any
   worker call to the ML scorer ([05](05-api-specification.md) §4.5).
 
+
+### 8.1 Update (counselling, interventions, notifications, campus; migration 004)
+
+- `outbox_dispatch` and `deadline_escalation` are implemented (logic in `api/app/modules/notifications/dispatch.py` and
+  `api/app/modules/cases/escalation.py`; worker jobs are thin). The case service now writes `disha_notification_outbox`
+  rows (ids and template keys only) instead of `disha_notifications`; the `in_app` adapter creates the notification.
+  Email needs `DISHA_SMTP_HOST` and `DISHA_SMTP_FROM`; SMS has no provider, so those rows stay `pending` with a warning.
+  Retry uses `DISHA_OUTBOX_*`; dead letters are listed and retried by institution admins at `/notifications/outbox`.
+- Escalation: per case, `(deadline_version, level)` is the idempotency unit; levels come from campus settings
+  (`escalation_levels`, `escalation_contact_user_id`); follow-ups past `scheduled_at` (+ `followup_grace_hours`) escalate once.
+  Not done: tasks (`case_tasks`) do not exist, so ESC-06 applies to follow-ups only.
+- Guards `follow_up_due` and `outcome_reviewed` read `disha_followups` (completed, type `support_delivered`) and
+  `disha_intervention_outcomes` from the database; the `has_follow_up` / `has_outcome` request flags are ignored over HTTP.
+- New HTTP surface: `/counselling/*`, `/interventions/catalog`, `/cases/{id}/interventions|follow-ups|outcome`,
+  `/notifications/*`, `/campus/*`. See `backend/DEPRECATED.md` for the mapping from the old `backend/` app.

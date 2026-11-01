@@ -42,16 +42,16 @@ import {
 } from '../../types/studentPulse'
 
 interface StudentAssessmentPageProps {
-  demoMode: DemoMode
+  demoMode?: DemoMode
   onRequestSupport?: () => void
   onNavigateToOverview?: () => void
 }
 
 export function StudentAssessmentPage({
-  demoMode,
+  demoMode = 'normalStudent',
   onRequestSupport,
   onNavigateToOverview,
-}: StudentAssessmentPageProps) {
+}: StudentAssessmentPageProps = {}) {
   const { addToast } = useApp()
 
   // Selected course pulse assignment (defaults to CS201 Student Pulse #3)

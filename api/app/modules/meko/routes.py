@@ -5,9 +5,13 @@ from typing import List, Literal, Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, Field
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_db
 from app.core.dependencies import TenancyContext, require_role
 from app.core.meko import catalog_entries, fire_and_forget, get_meko
 from app.core.permissions import STAFF_ROLES, Role
+from app.modules.meko.hooks import catalogue_has
 
 try:
     from disha_meko import catalog as cat, guard, playbook as pb
@@ -170,11 +174,14 @@ async def review_flag(body: FlagReview, tasks: BackgroundTasks, meko=Depends(get
 
 @router.post("/outcomes")
 async def record_outcome(body: OutcomeIn, tasks: BackgroundTasks, meko=Depends(get_meko),
-                         tenancy: TenancyContext = Depends(staff)):
+                         tenancy: TenancyContext = Depends(staff), db: AsyncSession = Depends(get_db)):
     """Feed a closed case's outcome to Meko (hashed case id only). Recurring good outcomes are promoted into the
     shared playbook (MEKO_PROMOTE_MIN). The cases module stays the source of truth for the outcome itself."""
-    entries = catalog_entries()
-    if entries and body.intervention_id not in {str(e["id"]) for e in entries if e.get("active", True)}:
+    in_db = await catalogue_has(db, tenancy.campus_id, body.intervention_id)  # DB catalogue first
+    if in_db is None:  # no catalogue rows: fall back to the catalogue file
+        entries = catalog_entries()
+        in_db = not entries or body.intervention_id in {str(e["id"]) for e in entries if e.get("active", True)}
+    if not in_db:
         raise HTTPException(422, "intervention_id is not an active intervention in the campus catalogue")
     if pb is not None and meko.active:
         fire_and_forget(tasks, pb.record_outcome(

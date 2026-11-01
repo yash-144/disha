@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Play, Radio, Clock, Users, ArrowRight, Video, Calendar, Sparkles } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { LIVE_SESSIONS_DATA } from '../../mockData'
@@ -8,15 +8,6 @@ const LIVE_IMG = 'https://images.unsplash.com/photo-1531482615713-2afd69097998?a
 export function LiveClassesSection() {
   const { setActiveLiveModal, addToast } = useApp()
   const activeSession = LIVE_SESSIONS_DATA[0]
-  const [activeLearners, setActiveLearners] = useState(142)
-
-  // Minor simulated real-time learner counter fluctuation for live feel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveLearners((prev) => prev + (Math.random() > 0.5 ? 1 : -1))
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
 
   return (
     <section className="border-y-4 border-ink bg-white font-mono py-20">
@@ -33,7 +24,7 @@ export function LiveClassesSection() {
 
             {/* Live badge */}
             <span className="absolute left-4 top-4 flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-3 py-1 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] animate-pulse">
-              <Radio className="h-3.5 w-3.5" /> LIVE · {activeLearners} Active Learners
+              <Radio className="h-3.5 w-3.5" /> LIVE
             </span>
 
             {/* Play Button Trigger */}

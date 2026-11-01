@@ -1,0 +1,43 @@
+[project]
+name = "disha-api"
+version = "1.0.0"
+description = "FastAPI backend for DISHA Student Early-Warning & Intervention Platform"
+authors = [{ name = "DISHA Engineering Team" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    "sqlalchemy[asyncio]>=2.0.28",
+    "asyncpg>=0.29.0",
+    "aiosqlite>=0.20.0",
+    "alembic>=1.13.1",
+    "pyjwt>=2.8.0",
+    "cryptography>=42.0.0",
+    "passlib[bcrypt,argon2]>=1.7.4",
+    "bcrypt>=4.0.0",
+    "argon2-cffi>=23.1.0",
+    "python-multipart>=0.0.9",
+    "httpx>=0.27.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.7.2,<1.8",
+    "joblib>=1.3.2",
+    "openpyxl>=3.1.0"
+]
+
+[project.optional-dependencies]
+meko = ["disha-meko"]  # pip install -e ../meko
+test = ["pytest", "aiosqlite", "alembic", "eth-account>=0.11"]
+# on-chain anchoring + student identity (DISHA_BLOCKCHAIN_RPC_URL etc.); both stay disabled without it
+chain = ["web3>=6.15", "eth-account>=0.11"]
+# S3-compatible document storage (DISHA_DOCUMENTS_S3_BUCKET)
+s3 = ["boto3>=1.34"]
+# optional local IndicTrans2 translation (DISHA_TRANSLATE_ENABLED=true); CPU torch is enough
+translate = ["torch", "transformers>=4.45,<5", "sentencepiece", "IndicTransToolkit"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
