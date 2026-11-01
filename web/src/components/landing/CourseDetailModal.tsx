@@ -30,7 +30,7 @@ export function CourseDetailModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in overflow-y-auto">
       <div className="relative my-8 max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border-4 border-ink bg-white shadow-[10px_10px_0_#0d1b3e] flex flex-col">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b-2 border-ink bg-[#f5f7fc] px-6 py-4">
+        <div className="flex items-center justify-between border-b-2 border-ink bg-paper px-6 py-4">
           <div className="flex items-center gap-2">
             <span className={`px-2 py-0.5 text-xs font-bold text-white ${activeCourseDetail.badgeColor || 'bg-brand'}`}>
               {activeCourseDetail.categoryLabel}
@@ -76,7 +76,7 @@ export function CourseDetailModal() {
                 <span>{activeCourseDetail.duration} Total Duration</span>
               </div>
               <div className="flex items-center gap-1 text-gray-700">
-                <BookOpen className="h-4 w-4 text-[#0f9d58]" />
+                <BookOpen className="h-4 w-4 text-accent" />
                 <span>{activeCourseDetail.lecturesCount} Lessons</span>
               </div>
               <div className="flex items-center gap-1 text-gray-700">
@@ -87,7 +87,7 @@ export function CourseDetailModal() {
           </div>
 
           {/* Instructor Snapshot */}
-          <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-[#f8fafc] p-3.5">
+          <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-paper p-3.5">
             <img
               src={activeCourseDetail.instructorAvatar}
               alt={activeCourseDetail.instructorName}
@@ -114,7 +114,7 @@ export function CourseDetailModal() {
                   <div key={mod.title} className="rounded-lg border-2 border-ink bg-white overflow-hidden">
                     <button
                       onClick={() => setOpenModuleIndex(isOpen ? -1 : idx)}
-                      className="flex w-full items-center justify-between bg-[#f5f7fc] p-3 text-left text-xs font-bold hover:bg-gray-100"
+                      className="flex w-full items-center justify-between bg-paper p-3 text-left text-xs font-bold hover:bg-gray-100"
                     >
                       <span className="flex items-center gap-2">
                         <PlayCircle className="h-4 w-4 text-brand" />
@@ -130,7 +130,7 @@ export function CourseDetailModal() {
                       <ul className="divide-y divide-gray-100 p-3 text-xs text-gray-700 space-y-1.5">
                         {mod.lessons.map((lesson, lIdx) => (
                           <li key={lIdx} className="flex items-center gap-2 pt-1">
-                            <CheckCircle className="h-3.5 w-3.5 text-[#0f9d58] shrink-0" />
+                            <CheckCircle className="h-3.5 w-3.5 text-accent shrink-0" />
                             <span>{lesson}</span>
                           </li>
                         ))}
@@ -154,12 +154,12 @@ export function CourseDetailModal() {
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t-2 border-ink bg-[#f5f7fc] px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="border-t-2 border-ink bg-paper px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-ink">{activeCourseDetail.price}</span>
               <span className="text-sm text-gray-400 line-through">{activeCourseDetail.originalPrice}</span>
-              <span className="text-xs font-bold text-[#0f9d58]">Save 68%</span>
+              <span className="text-xs font-bold text-accent">Save 68%</span>
             </div>
             <p className="text-[10px] text-muted">Lifetime access with 30-day money-back guarantee</p>
           </div>
@@ -170,12 +170,12 @@ export function CourseDetailModal() {
                 disabled
                 className="flex items-center gap-2 border-2 border-ink bg-gray-200 px-6 py-2.5 text-xs font-bold text-gray-700"
               >
-                <CheckCircle className="h-4 w-4 text-[#0f9d58]" /> Already Enrolled
+                <CheckCircle className="h-4 w-4 text-accent" /> Already Enrolled
               </button>
             ) : (
               <button
                 onClick={() => enrollInCourse(activeCourseDetail.id)}
-                className="border-2 border-ink bg-[#0f9d58] px-8 py-2.5 text-xs font-bold text-white shadow-[3px_3px_0_#0d1b3e] transition hover:bg-[#0b7a43]"
+                className="border-2 border-ink bg-accent px-8 py-2.5 text-xs font-bold text-white shadow-[3px_3px_0_#0d1b3e] transition hover:bg-accent-dark"
               >
                 Enroll Now →
               </button>

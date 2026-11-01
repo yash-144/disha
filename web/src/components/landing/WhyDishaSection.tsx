@@ -33,7 +33,7 @@ export function WhyDishaSection() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.35fr_1fr] gap-6 sm:gap-8 items-stretch">
 
           {/* Left Card: Lower Monthly Dropouts */}
-          <div className="group rounded-3xl bg-[#eef2f6] border border-slate-200/90 p-8 flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
+          <div className="group rounded-3xl bg-paper border border-slate-200/90 p-8 flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <div className="w-full h-48 rounded-2xl overflow-hidden mb-6 bg-slate-200">
               <img
                 src={CARD1_IMG}
@@ -46,13 +46,13 @@ export function WhyDishaSection() {
                 Early dropout risk prevention
               </h3>
               <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600 font-normal">
-                Calibrated machine learning models evaluate signals at checkpoints with ≥85% precision to catch academic slippage long before semester exams.
+                A weekly risk score for every student in every course, with the reasons behind it, so help arrives before exams.
               </p>
               <div
                 onClick={() => navigateTo('login')}
                 className="mt-6 flex items-center gap-1.5 text-xs font-semibold text-blue-600 group-hover:text-blue-700 cursor-pointer"
               >
-                <span>Explore ML Radar</span>
+                <span>See the risk model</span>
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -80,26 +80,26 @@ export function WhyDishaSection() {
           </div>
 
           {/* Right Card: Increase Student Value */}
-          <div className="group rounded-3xl bg-[#eef2f6] border border-slate-200/90 p-8 flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
+          <div className="group rounded-3xl bg-paper border border-slate-200/90 p-8 flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <div className="w-full h-48 rounded-2xl overflow-hidden mb-6 bg-slate-200">
               <img
                 src={CARD3_IMG}
-                alt="Verifiable academic credentials"
+                alt="Student support"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
-                Verifiable student identity &amp; achievements
+                Students stay in the loop
               </h3>
               <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600 font-normal">
-                Smart contract anchored soulbound documents on Base Sepolia guarantee authentic, tamper-evident skills that build genuine career value.
+                Wellbeing check-ins, support requests and rewards for good habits, all in one place.
               </p>
               <div
                 onClick={() => navigateTo('login')}
                 className="mt-6 flex items-center gap-1.5 text-xs font-semibold text-blue-600 group-hover:text-blue-700 cursor-pointer"
               >
-                <span>View Verifiable Credential</span>
+                <span>Sign in</span>
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>

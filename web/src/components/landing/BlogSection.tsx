@@ -7,7 +7,7 @@ export function BlogSection() {
   const { setActiveBlogPost, navigateTo } = useApp()
 
   return (
-    <section className="border-t-4 border-ink bg-[#f5f5f5]">
+    <section className="border-t-4 border-ink bg-paper">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>

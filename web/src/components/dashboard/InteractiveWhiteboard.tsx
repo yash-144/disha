@@ -228,7 +228,7 @@ export function InteractiveWhiteboard() {
         </div>
 
         {/* Stroke width selector */}
-        <div className="flex items-center gap-1 border-2 border-ink bg-[#f5f7fc] px-1.5 py-0.5 text-xs text-gray-700">
+        <div className="flex items-center gap-1 border-2 border-ink bg-paper px-1.5 py-0.5 text-xs text-gray-700">
           <span className="text-[10px] font-bold text-ink">PX:</span>
           {STROKE_SIZES.map((size) => (
             <button
@@ -296,7 +296,7 @@ export function InteractiveWhiteboard() {
             title="Add Text"
             className={`flex h-7 w-7 items-center justify-center border transition-all ${
               tool === 'text'
-                ? 'border-2 border-ink bg-[#0f9d58] text-white shadow-[1.5px_1.5px_0_#0d1b3e]'
+                ? 'border-2 border-ink bg-accent text-white shadow-[1.5px_1.5px_0_#0d1b3e]'
                 : 'border-transparent text-gray-600 hover:border-ink hover:bg-gray-100'
             }`}
           >
@@ -334,7 +334,7 @@ export function InteractiveWhiteboard() {
           <button
             onClick={downloadCanvas}
             title="Save Snapshot (PNG)"
-            className="flex h-7 w-7 items-center justify-center border border-ink bg-[#0f9d58] text-white shadow-[1.5px_1.5px_0_#0d1b3e] hover:bg-[#0b7a43]"
+            className="flex h-7 w-7 items-center justify-center border border-ink bg-accent text-white shadow-[1.5px_1.5px_0_#0d1b3e] hover:bg-accent-dark"
           >
             <Download className="h-3.5 w-3.5" />
           </button>
@@ -368,7 +368,7 @@ export function InteractiveWhiteboard() {
         />
 
         <div className="pointer-events-none absolute bottom-2 left-3 flex items-center gap-1.5 border border-ink bg-white/95 px-2 py-0.5 text-[9px] font-bold text-ink shadow-[1.5px_1.5px_0_#0d1b3e]">
-          <span className="h-2 w-2 rounded-full bg-[#0f9d58] animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
           Vector Canvas Active · Draw shapes or text notes
         </div>
       </div>

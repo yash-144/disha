@@ -96,7 +96,7 @@ export function DashboardLayout() {
     >
       {/* Outer Dynamic Royal Blue Frame wrapping screen */}
       <div
-        className={`relative flex flex-1 flex-col lg:flex-row overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[34px] border-[3px] sm:border-4 border-ink bg-gradient-to-br from-[#1d5fd1] via-[#164db6] to-[#0d347f] p-1.5 sm:p-2.5 shadow-[0_0_35px_rgba(29,95,209,0.35),6px_6px_0_#0d1b3e] dynamic-blue-frame transition-all duration-300`}
+        className={`relative flex flex-1 flex-col lg:flex-row overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[34px] border-[3px] sm:border-4 border-ink bg-gradient-to-br from-accent via-[#164db6] to-accent-dark p-1.5 sm:p-2.5 shadow-[0_0_35px_rgba(29,95,209,0.35),6px_6px_0_#0d1b3e] dynamic-blue-frame transition-all duration-300`}
       >
         {/* Subtle Blueprint grid texture overlay on the blue frame */}
         <div className="pointer-events-none absolute inset-0 opacity-15 bg-grid-blueprint-dark rounded-[inherit]" />
@@ -104,7 +104,7 @@ export function DashboardLayout() {
         {/* Dynamic Frame Status Bar (Top Mini Strip) */}
         <div className="relative z-10 flex items-center justify-between px-3 py-1 text-[10px] text-white/80 lg:hidden border-b border-white/10 mb-1">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#0f9d58] animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
             <span className="font-bold tracking-wider">DISHA COCKPIT</span>
           </div>
           <div className="flex items-center gap-3">
@@ -137,7 +137,7 @@ export function DashboardLayout() {
                   className="flex items-center gap-1.5 text-left group"
                   title="Return to Public Site"
                 >
-                  <span className="rounded bg-[#0f9d58] px-1.5 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                  <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                     v2.0
                   </span>
                   <span className="text-sm font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
@@ -146,7 +146,7 @@ export function DashboardLayout() {
                 </button>
               ) : (
                 <div className="mx-auto">
-                  <span className="rounded bg-[#0f9d58] px-1.5 py-0.5 text-[11px] font-bold text-white">
+                  <span className="rounded bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">
                     SU
                   </span>
                 </div>
@@ -180,14 +180,14 @@ export function DashboardLayout() {
                   alt={currentUser.name}
                   className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
                 />
-                <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-brand bg-[#0f9d58] animate-pulse" />
+                <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-brand bg-accent animate-pulse" />
               </div>
 
               {!sidebarCollapsed && (
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-bold leading-snug">{currentUser.name}</p>
                   <div className="mt-0.5 flex items-center gap-1.5">
-                    <span className="inline-block rounded bg-[#0f9d58] px-1.5 py-0.2 text-[9px] font-bold uppercase text-white shadow-xs">
+                    <span className="inline-block rounded bg-accent px-1.5 py-0.2 text-[9px] font-bold uppercase text-white shadow-xs">
                       {userRole}
                     </span>
                     <span className="text-[10px] text-white/70">· Online</span>
@@ -328,7 +328,7 @@ export function DashboardLayout() {
               </div>
             ) : (
               <div className="flex justify-center" title="Live Node Active">
-                <span className="h-3 w-3 rounded-full bg-[#0f9d58] animate-pulse" />
+                <span className="h-3 w-3 rounded-full bg-accent animate-pulse" />
               </div>
             )}
 
@@ -346,13 +346,13 @@ export function DashboardLayout() {
         </aside>
 
         {/* MAIN WORKSPACE SURFACE (Neo-Brutal Canvas inside Royal Blue Frame) */}
-        <main className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden rounded-[16px] sm:rounded-[24px] md:rounded-[28px] border-2 sm:border-3 border-ink bg-[#fdfdfd] shadow-sm">
+        <main className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden rounded-[16px] sm:rounded-[24px] md:rounded-[28px] border-2 sm:border-3 border-ink bg-paper shadow-sm">
           {/* TOP COCKPIT CONTROLS HEADER */}
           <header className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-white px-4 py-3 sm:px-6 shadow-xs">
             {/* Title / Greeting with Live Breadcrumb */}
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded bg-[#0f9d58] px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   LMS COCKPIT
                 </span>
                 <span className="hidden text-xs text-muted sm:inline font-mono">
@@ -367,7 +367,7 @@ export function DashboardLayout() {
             {/* Quick Actions & Dynamic Controls */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Quick Search */}
-              <div className="hidden md:flex items-center rounded-lg border-2 border-ink bg-[#f5f7fc] px-2.5 py-1.5 text-xs shadow-[2px_2px_0_#0d1b3e]">
+              <div className="hidden md:flex items-center rounded-lg border-2 border-ink bg-paper px-2.5 py-1.5 text-xs shadow-[2px_2px_0_#0d1b3e]">
                 <Search className="mr-1.5 h-3.5 w-3.5 text-gray-500" />
                 <input
                   value={globalSearch}
@@ -398,7 +398,7 @@ export function DashboardLayout() {
                   title="Switch to Student Dashboard"
                   className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-bold transition ${
                     userRole === 'student'
-                      ? 'bg-[#0f9d58] text-white shadow-xs'
+                      ? 'bg-accent text-white shadow-xs'
                       : 'text-gray-600 hover:text-black'
                   }`}
                 >
@@ -430,7 +430,7 @@ export function DashboardLayout() {
                   className="relative flex h-8 w-8 items-center justify-center rounded-lg border-2 border-ink bg-white text-ink shadow-[2px_2px_0_#0d1b3e] transition hover:bg-gray-100"
                 >
                   <Bell className="h-4 w-4" />
-                  <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-[#0f9d58] text-[8px] font-bold text-white animate-pulse" />
+                  <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white animate-pulse" />
                 </button>
 
                 {showNotifications && (
@@ -465,7 +465,7 @@ export function DashboardLayout() {
                         setShowNotifications(false)
                         addToast('All Caught Up', 'All notifications marked as read.', 'info')
                       }}
-                      className="mt-3 w-full rounded border-2 border-ink bg-[#0f9d58] py-1 text-center text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43]"
+                      className="mt-3 w-full rounded border-2 border-ink bg-accent py-1 text-center text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark"
                     >
                       Clear All Notifications
                     </button>
@@ -486,7 +486,7 @@ export function DashboardLayout() {
           </header>
 
           {/* DYNAMIC SCROLLABLE CONTENT BODY */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-[#fbfcfd] bg-grid-pattern">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-paper bg-grid-pattern">
             {dashboardTab === 'overview' && <OverviewTab />}
             {(dashboardTab === 'courses-list' ||
               dashboardTab === 'all-courses' ||

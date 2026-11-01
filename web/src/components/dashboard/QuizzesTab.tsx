@@ -58,7 +58,7 @@ export function QuizzesTab() {
     <div className="mx-auto max-w-3xl space-y-6 font-mono">
       <div className="border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-[#0f9d58] px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+          <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
             KNOWLEDGE LAB
           </span>
           <span className="text-xs text-muted">React &amp; Systems Architecture</span>
@@ -74,7 +74,7 @@ export function QuizzesTab() {
               Question {currentIdx + 1} of {QUIZ_QUESTIONS.length}
             </span>
             <div className="flex items-center gap-2">
-              <span className="border border-ink bg-[#0f9d58] px-2.5 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+              <span className="border border-ink bg-accent px-2.5 py-0.5 text-xs font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                 Score: {score * 25} PTS
               </span>
             </div>
@@ -135,7 +135,7 @@ export function QuizzesTab() {
 
           {/* Explanation Box */}
           {isAnswered && (
-            <div className="mt-5 border-2 border-ink bg-[#f5f7fc] p-4 text-xs shadow-[3px_3px_0_#0d1b3e] animate-in fade-in">
+            <div className="mt-5 border-2 border-ink bg-paper p-4 text-xs shadow-[3px_3px_0_#0d1b3e] animate-in fade-in">
               <p className="font-bold text-brand flex items-center gap-1.5">
                 <HelpCircle className="h-4 w-4" /> Explanation &amp; Key Concept:
               </p>
@@ -148,7 +148,7 @@ export function QuizzesTab() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-6 py-2.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                className="flex items-center gap-2 border-2 border-ink bg-accent px-6 py-2.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 {currentIdx + 1 === QUIZ_QUESTIONS.length ? 'View Final Results' : 'Next Question'}{' '}
                 <ArrowRight className="h-4 w-4" />
@@ -159,7 +159,7 @@ export function QuizzesTab() {
       ) : (
         /* Results Card */
         <div className="border-4 border-ink bg-white p-8 text-center shadow-[6px_6px_0_#0d1b3e]">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center border-2 border-ink bg-[#0f9d58] text-white shadow-[3px_3px_0_#0d1b3e]">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center border-2 border-ink bg-accent text-white shadow-[3px_3px_0_#0d1b3e]">
             <Award className="h-8 w-8" />
           </div>
 
@@ -168,7 +168,7 @@ export function QuizzesTab() {
             Here is your verified performance report for this cohort module.
           </p>
 
-          <div className="mx-auto mt-6 max-w-xs border-2 border-ink bg-[#f5f7fc] p-4 shadow-[3px_3px_0_#0d1b3e]">
+          <div className="mx-auto mt-6 max-w-xs border-2 border-ink bg-paper p-4 shadow-[3px_3px_0_#0d1b3e]">
             <span className="text-[11px] font-bold text-gray-500">Total Score:</span>
             <p className="text-3xl font-bold text-brand">
               {score} / {QUIZ_QUESTIONS.length}

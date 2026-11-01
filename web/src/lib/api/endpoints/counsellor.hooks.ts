@@ -22,8 +22,8 @@ export const useCases = (state?: string) =>
 export function useCaseDecision() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (v: { id: string; version: number; action: 'accept' | 'dismiss' }) =>
-      v.action === 'accept' ? counsellorApi.accept(v.id, v.version) : counsellorApi.dismiss(v.id, v.version),
+    mutationFn: (v: { id: string; version: number; action: 'advance' | 'dismiss'; target?: string }) =>
+      v.action === 'advance' ? counsellorApi.advance(v.id, v.version, v.target!) : counsellorApi.dismiss(v.id, v.version).then((c) => ({ case: c })),
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: ['cases'] })
       void qc.invalidateQueries({ queryKey: ['counselling'] })

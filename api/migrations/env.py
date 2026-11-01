@@ -59,8 +59,8 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Set database URL from DISHA settings if not explicitly passed
-if not config.get_main_option("sqlalchemy.url"):
-    config.set_main_option("sqlalchemy.url", settings.DISHA_DATABASE_URL)
+# DISHA_DATABASE_URL always wins over the placeholder in alembic.ini
+config.set_main_option("sqlalchemy.url", settings.DISHA_DATABASE_URL.replace("%", "%%"))
 
 target_metadata = Base.metadata
 
@@ -88,11 +88,13 @@ def do_run_migrations(connection: Connection) -> None:
 async def run_async_migrations() -> None:
     """Run migrations in 'online' mode with async engine."""
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = config.get_main_option("sqlalchemy.url") or settings.DISHA_DATABASE_URL
+    configuration["sqlalchemy.url"] = settings.DISHA_DATABASE_URL
+    extra = {"connect_args": {"ssl": "require", "statement_cache_size": 0}} if "supabase" in settings.DISHA_DATABASE_URL else {}
     connectable = async_engine_from_config(
         configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        **extra,
     )
 
     async with connectable.connect() as connection:

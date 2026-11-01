@@ -98,11 +98,11 @@ export function LmsPreviewSection() {
   }
 
   return (
-    <section className="border-t-4 border-ink bg-[#f8fafd] py-20 font-mono text-ink">
+    <section className="border-t-4 border-ink bg-paper py-20 font-mono text-ink">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 border-2 border-ink bg-[#0f9d58] px-3 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e]">
+          <span className="inline-flex items-center gap-1.5 border-2 border-ink bg-accent px-3 py-0.5 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e]">
             <Sparkles className="h-3.5 w-3.5" /> LIVE LMS TEST-DRIVE
           </span>
           <h2 className="mt-3 text-2xl font-bold text-ink sm:text-[34px]">
@@ -130,7 +130,7 @@ export function LmsPreviewSection() {
             onClick={() => setActiveTab('quiz')}
             className={`flex items-center gap-2 border-2 border-ink px-4 py-2 text-xs font-bold shadow-[2px_2px_0_#0d1b3e] transition ${
               activeTab === 'quiz'
-                ? 'bg-[#0f9d58] text-white -translate-y-0.5'
+                ? 'bg-accent text-white -translate-y-0.5'
                 : 'bg-white text-ink hover:bg-gray-100'
             }`}
           >
@@ -149,13 +149,13 @@ export function LmsPreviewSection() {
         </div>
 
         {/* Interactive Preview Surface (Styled with Dashboard Royal Frame Theme!) */}
-        <div className="mt-8 border-4 border-ink rounded-2xl bg-gradient-to-br from-[#1d5fd1] to-[#0d347f] p-2.5 sm:p-4 shadow-[8px_8px_0_#0d1b3e]">
+        <div className="mt-8 border-4 border-ink rounded-2xl bg-gradient-to-br from-accent to-accent-dark p-2.5 sm:p-4 shadow-[8px_8px_0_#0d1b3e]">
           <div className="border-2 border-ink bg-white p-4 sm:p-6 rounded-xl">
             {activeTab === 'canvas' && (
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink/20 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#0f9d58] animate-pulse" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-accent animate-pulse" />
                     <span className="text-xs font-bold text-ink">Interactive Vector Canvas Demo</span>
                   </div>
 
@@ -258,21 +258,21 @@ export function LmsPreviewSection() {
               <div>
                 <div className="flex items-center justify-between border-b-2 border-ink/20 pb-2">
                   <span className="text-xs font-bold text-ink">Live Cohort CS402 Performance Matrix</span>
-                  <span className="border border-ink bg-[#0f9d58] px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white">
                     96.8% PASS RATE
                   </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="border-2 border-ink bg-[#f5f7fc] p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
+                  <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
                     <span className="text-[10px] text-muted font-bold">Average Score</span>
                     <p className="text-xl font-bold text-brand">91.4%</p>
                   </div>
-                  <div className="border-2 border-ink bg-[#f5f7fc] p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
+                  <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
                     <span className="text-[10px] text-muted font-bold">Graded PRs</span>
-                    <p className="text-xl font-bold text-[#0f9d58]">142</p>
+                    <p className="text-xl font-bold text-accent">142</p>
                   </div>
-                  <div className="border-2 border-ink bg-[#f5f7fc] p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
+                  <div className="border-2 border-ink bg-paper p-3 text-center shadow-[2px_2px_0_#0d1b3e]">
                     <span className="text-[10px] text-muted font-bold">Attendance</span>
                     <p className="text-xl font-bold text-ink">98.2%</p>
                   </div>
@@ -287,7 +287,7 @@ export function LmsPreviewSection() {
               </span>
               <button
                 onClick={() => navigateTo('dashboard', 'overview')}
-                className="flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-5 py-2 text-xs font-bold text-white shadow-[2.5px_2.5px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                className="flex items-center gap-2 border-2 border-ink bg-accent px-5 py-2 text-xs font-bold text-white shadow-[2.5px_2.5px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 Launch LMS Dashboard <ArrowRight className="h-4 w-4" />
               </button>

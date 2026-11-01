@@ -46,7 +46,7 @@ class Course(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     primary_faculty = relationship("User", foreign_keys=[primary_faculty_id], lazy="selectin")
-    sections = relationship("CourseSection", back_populates="course", cascade="all, delete-orphan", lazy="selectin")
+    sections = relationship("CourseSection", back_populates="course", cascade="all, delete-orphan", lazy="select")
 
 
 class CourseSection(Base):
@@ -66,9 +66,9 @@ class CourseSection(Base):
 
     course = relationship("Course", back_populates="sections", lazy="selectin")
     faculty = relationship("User", foreign_keys=[faculty_id], lazy="selectin")
-    enrollments = relationship("CourseEnrollment", back_populates="section", cascade="all, delete-orphan", lazy="selectin")
-    attendance_records = relationship("StudentAttendanceRecord", back_populates="section", cascade="all, delete-orphan", lazy="selectin")
-    assessments = relationship("Assessment", back_populates="section", cascade="all, delete-orphan", lazy="selectin")
+    enrollments = relationship("CourseEnrollment", back_populates="section", cascade="all, delete-orphan", lazy="select")
+    attendance_records = relationship("StudentAttendanceRecord", back_populates="section", cascade="all, delete-orphan", lazy="select")
+    assessments = relationship("Assessment", back_populates="section", cascade="all, delete-orphan", lazy="select")
 
 
 class CourseEnrollment(Base):
@@ -122,7 +122,7 @@ class Assessment(Base):
 
     section = relationship("CourseSection", back_populates="assessments", lazy="selectin")
     creator = relationship("User", foreign_keys=[created_by], lazy="selectin")
-    submissions = relationship("AssessmentSubmission", back_populates="assessment", cascade="all, delete-orphan", lazy="selectin")
+    submissions = relationship("AssessmentSubmission", back_populates="assessment", cascade="all, delete-orphan", lazy="select")
 
 
 class AssessmentSubmission(Base):

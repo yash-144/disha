@@ -73,7 +73,7 @@ export function CoursesTab() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center border-2 border-ink bg-[#f5f7fc] px-3 py-1.5 text-xs shadow-[2px_2px_0_#0d1b3e]">
+          <div className="flex items-center border-2 border-ink bg-paper px-3 py-1.5 text-xs shadow-[2px_2px_0_#0d1b3e]">
             <Search className="mr-2 h-3.5 w-3.5 text-gray-400" />
             <input
               value={search}
@@ -85,7 +85,7 @@ export function CoursesTab() {
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 border-2 border-ink bg-[#0f9d58] px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+            className="flex items-center gap-1.5 border-2 border-ink bg-accent px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
           >
             <Plus className="h-4 w-4" /> Add Course
           </button>
@@ -101,7 +101,7 @@ export function CoursesTab() {
           >
             <div>
               <div className="flex items-start justify-between">
-                <span className="border border-ink bg-[#1d5fd1] px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   {course.categoryLabel}
                 </span>
                 <span className="flex items-center gap-1 text-xs font-bold text-amber-500">
@@ -117,7 +117,7 @@ export function CoursesTab() {
                   <Clock className="h-3.5 w-3.5 text-brand" /> {course.duration}
                 </span>
                 <span className="flex items-center gap-1">
-                  <BookOpen className="h-3.5 w-3.5 text-[#0f9d58]" /> {course.modules.length} Modules
+                  <BookOpen className="h-3.5 w-3.5 text-accent" /> {course.modules.length} Modules
                 </span>
               </div>
 
@@ -140,7 +140,7 @@ export function CoursesTab() {
               </div>
               <button
                 onClick={() => setActiveCourseDetail(course)}
-                className="border-2 border-ink bg-[#f5f7fc] px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_#0d1b3e] transition hover:bg-white hover:text-brand"
+                className="border-2 border-ink bg-paper px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_#0d1b3e] transition hover:bg-white hover:text-brand"
               >
                 View Syllabus →
               </button>
@@ -171,7 +171,7 @@ export function CoursesTab() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Microservices with Docker and Go"
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -197,7 +197,7 @@ export function CoursesTab() {
                     value={newDuration}
                     onChange={(e) => setNewDuration(e.target.value)}
                     placeholder="e.g. 30 Hours"
-                    className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                    className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                   />
                 </div>
               </div>
@@ -208,7 +208,7 @@ export function CoursesTab() {
                   value={newPrice}
                   onChange={(e) => setNewPrice(e.target.value)}
                   placeholder="e.g. ₹1,599"
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -219,7 +219,7 @@ export function CoursesTab() {
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                   placeholder="Outline syllabus learning objectives and technologies covered..."
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -233,7 +233,7 @@ export function CoursesTab() {
                 </button>
                 <button
                   type="submit"
-                  className="border-2 border-ink bg-[#0f9d58] px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] hover:bg-[#0b7a43]"
+                  className="border-2 border-ink bg-accent px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] hover:bg-accent-dark"
                 >
                   Publish Course
                 </button>

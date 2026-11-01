@@ -17,7 +17,7 @@ const CATEGORIES = [
     title: 'Business & Entrepreneurship',
     desc: 'Learn to start, run and grow a venture with practical unit economics and scaling.',
     icon: Briefcase,
-    iconBg: 'bg-[#0f9d58]',
+    iconBg: 'bg-accent',
     count: '14 Courses',
   },
   {
@@ -33,7 +33,7 @@ const CATEGORIES = [
     title: 'Design & Multimedia',
     desc: 'Create compelling interfaces, design systems in Figma, typography, and motion.',
     icon: Palette,
-    iconBg: 'bg-[#0f9d58]',
+    iconBg: 'bg-accent',
     count: '18 Courses',
   },
   {

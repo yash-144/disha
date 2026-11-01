@@ -48,7 +48,7 @@ export function ClassesTab() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-white p-4 shadow-[4px_4px_0_#0d1b3e]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-[#0f9d58] px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+            <span className="rounded bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
               ACTIVE COHORTS
             </span>
             <span className="text-xs text-muted">({activeClasses.length} Scheduled)</span>
@@ -58,7 +58,7 @@ export function ClassesTab() {
 
         <button
           onClick={() => setShowAddClassModal(true)}
-          className="flex items-center gap-1.5 border-2 border-ink bg-[#0f9d58] px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-[#0b7a43] hover:-translate-x-0.5 hover:-translate-y-0.5"
+          className="flex items-center gap-1.5 border-2 border-ink bg-accent px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] transition hover:bg-accent-dark hover:-translate-x-0.5 hover:-translate-y-0.5"
         >
           <Plus className="h-4 w-4" /> Add New Class
         </button>
@@ -72,18 +72,18 @@ export function ClassesTab() {
           >
             <div>
               <div className="flex items-start justify-between">
-                <span className="border border-ink bg-[#1d5fd1] px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
+                <span className="border border-ink bg-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-[1.5px_1.5px_0_#0d1b3e]">
                   {cls.code}
                 </span>
                 <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700">
-                  <Radio className="h-2.5 w-2.5 text-[#0f9d58] animate-pulse" /> Live Room
+                  <Radio className="h-2.5 w-2.5 text-accent animate-pulse" /> Live Room
                 </span>
               </div>
 
               <h3 className="mt-3 text-sm font-bold text-ink leading-snug">{cls.name}</h3>
               <p className="mt-1 text-xs text-muted">{cls.subject}</p>
 
-              <div className="mt-4 flex items-center justify-between border-2 border-ink bg-[#f5f7fc] p-2 text-xs">
+              <div className="mt-4 flex items-center justify-between border-2 border-ink bg-paper p-2 text-xs">
                 <span className="flex items-center gap-1.5 text-gray-700 text-[11px]">
                   <KeyRound className="h-3.5 w-3.5 text-amber-500" />
                   Code: <span className="font-mono font-bold text-brand">{cls.accessCode}</span>
@@ -102,7 +102,7 @@ export function ClassesTab() {
                   <Calendar className="h-3.5 w-3.5 text-brand" />
                   <span>{cls.term}</span>
                 </p>
-                <p className="flex items-center gap-1.5 text-[11px] font-bold text-[#0f9d58]">
+                <p className="flex items-center gap-1.5 text-[11px] font-bold text-accent">
                   <Users className="h-3.5 w-3.5" />
                   <span>{cls.activeStudents} active students in cohort</span>
                 </p>
@@ -113,7 +113,7 @@ export function ClassesTab() {
               <span className="text-[10px] text-gray-400 font-mono">Created: {cls.createdAt}</span>
               <button
                 onClick={() => addToast('Class Settings', `Managing cohort session for ${cls.code}.`, 'info')}
-                className="border-2 border-ink bg-[#f5f7fc] px-2.5 py-1 text-xs font-bold text-brand shadow-[1.5px_1.5px_0_#0d1b3e] hover:bg-white"
+                className="border-2 border-ink bg-paper px-2.5 py-1 text-xs font-bold text-brand shadow-[1.5px_1.5px_0_#0d1b3e] hover:bg-white"
               >
                 Manage Room →
               </button>
@@ -143,7 +143,7 @@ export function ClassesTab() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. CS501: Distributed Cloud Architecture"
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -153,7 +153,7 @@ export function ClassesTab() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="CS501"
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export function ClassesTab() {
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   placeholder="Jul 1, 2025 - Aug 20, 2025"
-                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-[#f8fafd]"
+                  className="mt-1 w-full border-2 border-ink p-2 text-xs outline-none focus:bg-paper"
                 />
               </div>
 
@@ -191,7 +191,7 @@ export function ClassesTab() {
                 </button>
                 <button
                   type="submit"
-                  className="border-2 border-ink bg-[#0f9d58] px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] hover:bg-[#0b7a43]"
+                  className="border-2 border-ink bg-accent px-5 py-2 text-xs font-bold text-white shadow-[2px_2px_0_#0d1b3e] hover:bg-accent-dark"
                 >
                   Launch Cohort
                 </button>

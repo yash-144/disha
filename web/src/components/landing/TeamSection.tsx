@@ -9,7 +9,7 @@ export function TeamSection() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-20">
       <div className="text-center">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#0f9d58]">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
           World-Class Faculty
         </span>
         <h2 className="mt-1 text-2xl font-bold text-brand sm:text-3xl">
@@ -43,7 +43,7 @@ export function TeamSection() {
               <p className="text-xs font-medium text-brand">{m.role}</p>
               <p className="mt-0.5 text-[10px] text-muted">{m.company}</p>
 
-              <div className="mt-3 rounded border border-gray-100 bg-[#f8fafc] p-2 text-[10px] font-medium text-gray-700">
+              <div className="mt-3 rounded border border-gray-100 bg-paper p-2 text-[10px] font-medium text-gray-700">
                 <span className="font-bold text-gray-900">Focus: </span>
                 {m.specialty}
               </div>

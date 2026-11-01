@@ -33,10 +33,10 @@ export function EmptyState({
   action?: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-white/60 px-6 py-10 text-center">
-      <Inbox className="h-6 w-6 text-gray-400" aria-hidden="true" />
-      <p className="text-sm font-bold text-[#1E2433]">{title}</p>
-      {message && <p className="max-w-sm text-xs text-[#717E95]">{message}</p>}
+    <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-white/60 px-6 py-10 text-center">
+      <Inbox className="h-6 w-6 text-muted" aria-hidden="true" />
+      <p className="text-sm font-bold text-ink">{title}</p>
+      {message && <p className="max-w-sm text-xs text-muted">{message}</p>}
       {action}
     </div>
   )
@@ -52,14 +52,14 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
       className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-red-100 bg-red-50/70 px-6 py-10 text-center"
     >
       <AlertTriangle className="h-6 w-6 text-red-500" aria-hidden="true" />
-      <p className="text-sm font-bold text-[#1E2433]">{title}</p>
-      <p className="max-w-sm text-xs text-[#717E95]">{errorMessage(error)}</p>
-      {requestId && <p className="font-mono text-[10px] text-gray-400">Reference: {requestId}</p>}
+      <p className="text-sm font-bold text-ink">{title}</p>
+      <p className="max-w-sm text-xs text-muted">{errorMessage(error)}</p>
+      {requestId && <p className="font-mono text-[10px] text-muted">Reference: {requestId}</p>}
       {onRetry && !forbidden && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-[#1E2433] hover:bg-gray-50"
+          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-gray-50"
         >
           <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> Try again
         </button>

@@ -69,6 +69,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const me = useMe({ enabled: hasToken === true })
 
+  // A token for an account that no longer exists (404 on /me) is stale: drop it and show sign-in.
+  useEffect(() => {
+    if (me.error instanceof ApiError && me.error.status === 404) {
+      void getAuthProvider().signOut?.()
+      queryClient.clear()
+      setHasToken(false)
+    }
+  }, [me.error, queryClient])
+
   const membership = useMemo<Membership | null>(() => {
     const active = me.data?.memberships.filter((m) => m.is_active) ?? []
     if (!active.length) return null
@@ -109,9 +118,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       error: err,
       signOut,
       retry: () => void me.refetch(),
-      setActiveCampus: (id) => sessionStore.setCampusId(id),
+      setActiveCampus: (id) => {
+        if (id === sessionStore.getCampusId()) return
+        // Drop every campus-scoped cache (keep the profile), then re-resolve the portal for the new membership.
+        queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== 'identity' })
+        sessionStore.setCampusId(id)
+        if (window.location.pathname !== '/dashboard') window.history.replaceState({}, '', '/dashboard')
+      },
     }
-  }, [hasToken, me, membership, signOut])
+  }, [hasToken, me, membership, signOut, queryClient])
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }

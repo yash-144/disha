@@ -23,7 +23,7 @@ export function StatCard({ title, value, icon: Icon, variant }: StatCardProps) {
     purple: {
       bg: 'bg-[#ECE8FB]',
       titleColor: 'text-[#524077]',
-      iconColor: 'text-[#7C3AED]',
+      iconColor: 'text-accent',
     },
   }[variant]
 
@@ -36,7 +36,7 @@ export function StatCard({ title, value, icon: Icon, variant }: StatCardProps) {
       </span>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="text-3xl font-bold tracking-tight text-[#1E2433]">
+        <span className="text-3xl font-bold tracking-tight text-ink">
           {value}
         </span>
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-2xs">

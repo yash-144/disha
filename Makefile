@@ -1,4 +1,4 @@
-.PHONY: help install lint test test-dataset build run-api run-web run-worker clean meko-doctor
+.PHONY: seed help install lint test test-dataset build run-api run-web run-worker clean meko-doctor
 
 help:
 	@echo "DISHA Management Commands:"
@@ -28,6 +28,9 @@ test: test-dataset
 
 test-dataset:
 	python -m unittest tests/test_dataset.py -v
+
+seed:
+	python infra/scripts/seed_demo.py --reset
 
 run-api:
 	cd api && uvicorn app.main:app --reload --port 8000

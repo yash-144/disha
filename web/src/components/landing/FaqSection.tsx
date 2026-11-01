@@ -7,24 +7,24 @@ const FAQS = [
     a: 'DISHA operates on "No Alert Without Action." Unlike passive analytics dashboards, every warning signal generates an immutable SHA-256 evidence packet, assigns a single accountable owner, sets a binding SLA deadline, and records an auditable human outcome.',
   },
   {
-    q: 'How does the Calibrated Early-Warning ML model work?',
-    a: 'Models evaluate student indicators strictly at chronological checkpoints (cp0 at admission, cp1 after Sem 1, cp2 after Sem 2) using only academic and engagement data. Protected demographic features are never used in scoring. Cutoffs guarantee ≥85% precision with a 15% cohort capacity cap to avoid advisor alert fatigue.',
+    q: 'How does the risk model work?',
+    a: 'The DISHA Risk Model estimates, every week, the chance that a student will fail or withdraw from a course. It uses grades, submissions and online activity, and explains each flag in plain words. Alerts are capped to what advisors can handle, so the list stays useful.',
   },
   {
-    q: 'How does Meko by YugabyteDB handle universal context memory?',
-    a: 'Meko provides an agent-native universal context engine over standard Model Context Protocol (MCP). It synchronizes longitudinal student case notes, intervention histories, and peer notes across multiple campuses in real-time on a distributed YugabyteDB PostgreSQL-compatible backbone.',
+    q: 'Can the team learn from past cases?',
+    a: 'Yes. Outcomes of past interventions feed shared, anonymised memory, so counsellors can see what helped similar students. No names or raw IDs are shared.',
   },
   {
     q: 'Is DISHA compliant with data privacy regulations like DPDP Act 2023?',
-    a: 'Yes. DISHA is built from the ground up to comply with India’s Digital Personal Data Protection (DPDP) Act 2023 and FERPA guidelines. It enforces tenant row-level security (RLS), field-level consent controls, automated data retention purges, and cryptographic document verification on Base Sepolia.',
+    a: 'Yes. DISHA is built from the ground up to comply with India’s Digital Personal Data Protection (DPDP) Act 2023 and FERPA guidelines. It enforces tenant row-level security (RLS), field-level consent controls, automated data retention purges, and a tamper-evident audit trail.',
   },
   {
     q: 'How does DISHA solve the problem of advisor alert fatigue?',
-    a: 'Traditional dashboards inundate faculty with thousands of unprioritized, passive alerts. DISHA solves this by capping cohort signals to an advisor capacity limit (default 15%), requiring high-precision cutoffs (≥85%), and enforcing strict ownership and binding SLA deadlines for every accepted signal.',
+    a: 'Traditional dashboards inundate faculty with thousands of unprioritized, passive alerts. DISHA solves this by capping cohort signals to an advisor capacity limit (default 15%), using calibrated cutoffs, and enforcing strict ownership and binding SLA deadlines for every accepted signal.',
   },
   {
     q: 'What makes DISHA different from traditional campus ERP or LMS analytics?',
-    a: 'Traditional campus systems are retrospective, highlighting failure only after exams or dropouts occur. DISHA operates proactively across three chronological checkpoints (cp0 at admission, cp1 mid-year, cp2 end-of-year) using pure academic indicators, backed by Meko universal context memory and auditable intervention tracking.',
+    a: 'Traditional campus systems are retrospective, highlighting failure only after exams or dropouts occur. DISHA works proactively: it re-scores students every week as the term progresses, and tracks every intervention to an outcome.',
   },
 ]
 

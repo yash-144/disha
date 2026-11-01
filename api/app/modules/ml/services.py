@@ -394,3 +394,69 @@ async def apply_policy_to_run(db: AsyncSession, run: MlScoringRun, actor: Any) -
         return None
     return {"evaluation_id": result.evaluation_id, "flags_sent": result.flags_received,
             "cases_created": result.cases_created, "skipped": result.skipped}
+
+
+# ---- how early students are flagged -------------------------------------------------------------------
+def _median(xs):
+    xs = sorted(xs)
+    if not xs:
+        return None
+    m = len(xs) // 2
+    return float(xs[m]) if len(xs) % 2 else (xs[m - 1] + xs[m]) / 2
+
+
+async def early_warning(db: AsyncSession, campus_id: str) -> Dict[str, Any]:
+    """Earliness of the alerts: when in the term each student was first flagged, and, for students who left a
+    course, how many days before they left. Measured at the scoring-run days, so resolution is the run cadence."""
+    from app.modules.ingestion.models import MlEnrolment, MlWithdrawal
+    model = await get_model()
+    bench = (model.manifest.get("results") or {}).get("lead_time") or {}
+
+    batch_ids = await active_batch_ids(db, campus_id)
+    lengths = {(r.student_ref, r.course_id, r.term_id): r.term_length_days for r in (await db.execute(
+        select(MlEnrolment).where(MlEnrolment.campus_id == campus_id, MlEnrolment.batch_id.in_(batch_ids)))).scalars()}
+    left = {(r.student_ref, r.course_id, r.term_id): r.day for r in (await db.execute(
+        select(MlWithdrawal).where(MlWithdrawal.campus_id == campus_id, MlWithdrawal.batch_id.in_(batch_ids)))).scalars()}
+    rows = (await db.execute(select(MlRiskScore.student_ref, MlRiskScore.course_id, MlRiskScore.term_id,
+                                    MlRiskScore.as_of_day, MlRiskScore.signal)
+                             .where(MlRiskScore.campus_id == campus_id))).all()
+    if not rows:
+        raise MlError("No scoring runs yet", 404, "NO_RUNS")
+
+    first, scored = {}, {}
+    for ref, course, term, day, signal in rows:
+        k = (ref, course, term)
+        scored[k] = max(scored.get(k, 0), day)
+        if signal and day < first.get(k, 1e9):
+            first[k] = day
+    flagged_days, flagged_pct, lead = [], [], []
+    for k, day in first.items():
+        flagged_days.append(day)
+        tl = lengths.get(k)
+        if tl:
+            flagged_pct.append(100.0 * day / tl)
+        if k in left and day <= left[k]:
+            lead.append(left[k] - day)
+    n_left = sum(1 for k in left if k in scored)
+    n_flagged = len(first)
+    share = lambda xs, cut: round(sum(1 for x in xs if x <= cut) / len(xs), 3) if xs else None  # noqa: E731
+    run_days = sorted({d for *_, d, _s in rows})
+    curve = [{"day": d, "flagged_students": len({k for k, fd in first.items() if fd <= d}),
+              "share_of_scored": round(len({k for k, fd in first.items() if fd <= d}) / max(1, len(scored)), 3)} for d in run_days]
+    return {
+        "campus": {
+            "enrolments_scored": len(scored), "enrolments_flagged": n_flagged,
+            "median_first_flag_day": _median(flagged_days),
+            "median_first_flag_pct_of_term": round(_median(flagged_pct), 1) if flagged_pct else None,
+            "flagged_in_first_half_of_term": share(flagged_pct, 50),
+            "left_course": n_left, "left_after_flag": len(lead),
+            "median_days_warning_before_leaving": _median(lead),
+            "cumulative_flagged": curve, "resolution": "scoring-run days",
+        },
+        "benchmark": {
+            "source": "held-out term of the training data",
+            "left_course": bench.get("withdrawn_scorable"), "flagged_before_leaving": bench.get("withdrawn_signalled"),
+            "detection_rate": bench.get("detection_rate"), "median_days_warning": bench.get("median_days"),
+            "p25_days": bench.get("p25_days"), "p75_days": bench.get("p75_days"),
+        },
+    }

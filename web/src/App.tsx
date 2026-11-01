@@ -55,6 +55,11 @@ function Portal() {
   return <LoginPage />
 }
 
+function LoginRoute() {
+  const { status } = useSession()
+  return status === 'authenticated' ? <Portal /> : <LoginPage />
+}
+
 export default function App() {
   const { currentView } = useApp()
 
@@ -64,7 +69,7 @@ export default function App() {
       {currentView === 'dashboard' ? (
         <Portal />
       ) : currentView === 'login' ? (
-        <LoginPage />
+        <LoginRoute />
       ) : currentView === 'auth-callback' ? (
         <AuthCallback />
       ) : currentView === 'onboarding' ? (

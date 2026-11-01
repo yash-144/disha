@@ -120,3 +120,4 @@ export const adminExtensionsApi = {
   issueIdentity: () =>
     api.post<StudentIdentityRecord>('/api/v1/student-identity/me/issue'),
 }
+

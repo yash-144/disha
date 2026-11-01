@@ -2,6 +2,17 @@ import os
 from pathlib import Path
 from typing import List
 
+try:  # the shared repo-root .env holds DATABASE_URL, JWT secret, etc.; real environment variables win
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parents[3] / ".env", override=False)
+except ImportError:
+    pass
+
+import sys
+_ML_DIR = Path(__file__).resolve().parents[3] / "ml"
+if _ML_DIR.is_dir() and str(_ML_DIR) not in sys.path:  # the rolling model package (disha_ml) lives beside the api
+    sys.path.append(str(_ML_DIR))
+
 try:
     from pydantic_settings import BaseSettings
 except ImportError:
@@ -76,10 +87,23 @@ class Settings(BaseSettings):
     # Secret for pseudonymising campus student ids in score rows (falls back to MEKO_PII_SALT, then the JWT secret).
     DISHA_STUDENT_REF_SALT: str = os.getenv("DISHA_STUDENT_REF_SALT", "")
 
+    # Supabase Auth: used to verify the Google sign-in token before issuing a DISHA JWT.
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "https://endyirtqxbepbndqayrh.supabase.co")
+    SUPABASE_JWT_SECRET: str = os.getenv("SUPABASE_JWT_SECRET", "")  # only for legacy HS256 projects
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"  # shared .env also holds MEKO_*, web and worker keys
         case_sensitive = True
 
+def _normalise_db_url(url: str) -> str:
+    """Accept the plain `postgresql://` string Supabase shows and make it the asyncpg dialect."""
+    for prefix in ("postgresql://", "postgres://"):
+        if url.startswith(prefix):
+            return "postgresql+asyncpg://" + url[len(prefix):]
+    return url
+
+
 settings = Settings()
+settings.DISHA_DATABASE_URL = _normalise_db_url(settings.DISHA_DATABASE_URL)

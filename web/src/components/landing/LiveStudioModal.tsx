@@ -82,7 +82,7 @@ export function LiveStudioModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm animate-in fade-in">
       <div className="relative flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border-4 border-ink bg-white shadow-[12px_12px_0_#0d1b3e]">
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b-2 border-ink bg-[#0d1b3e] px-5 py-3 text-white">
+        <div className="flex items-center justify-between border-b-2 border-ink bg-ink px-5 py-3 text-white">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 rounded bg-red-600 px-2 py-0.5 text-xs font-bold text-white animate-pulse">
               <Radio className="h-3 w-3" /> LIVE
@@ -220,7 +220,7 @@ export function LiveStudioModal() {
           </div>
 
           {/* Real-Time Live Chat */}
-          <div className="flex flex-col border-t-2 border-ink bg-[#f8fafc] lg:border-l-2 lg:border-t-0">
+          <div className="flex flex-col border-t-2 border-ink bg-paper lg:border-l-2 lg:border-t-0">
             <div className="border-b border-gray-200 bg-white px-4 py-3 text-xs font-bold text-ink">
               Cohort Live Chat &amp; Q&amp;A
             </div>
@@ -253,7 +253,7 @@ export function LiveStudioModal() {
 
             {/* Input bar */}
             <form onSubmit={handleSendMessage} className="border-t border-gray-200 bg-white p-2.5">
-              <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-[#f5f7fc] px-3 py-1.5">
+              <div className="flex items-center gap-2 rounded-lg border-2 border-ink bg-paper px-3 py-1.5">
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}

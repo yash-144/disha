@@ -1,40 +1,65 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { CheckCircle2, FileSpreadsheet, FileText, UploadCloud, X, AlertTriangle } from 'lucide-react'
 import { QueryState, EmptyState } from '../common/QueryState'
-import { errorMessage } from '../../lib/api/errors'
+import { errorMessage, ApiError } from '../../lib/api/errors'
 import { useCreateImport, useImports, useIngestionSchema } from '../../lib/api/endpoints/admin.hooks'
 import type { ImportBatch, ImportIssue } from '../../lib/api/endpoints/admin'
-import { ApiError } from '../../lib/api/errors'
+import { Button, Card, InfoTip, Pill, Tabs, fmtDateTime, pretty } from '../common/ui'
 
-function IssueList({ title, issues }: { title: string; issues: ImportIssue[] }) {
-  if (!issues.length) return null
+function IssueList({ title, issues, tone }: { title: string; issues: ImportIssue[]; tone: string }) {
+  if (!issues?.length) return null
   return (
-    <div className="mt-2">
-      <p className="text-xs font-bold text-[#1E2433]">{title} ({issues.length})</p>
-      <ul className="mt-1 space-y-1 text-xs text-[#4A5568]">
-        {issues.map((i, k) => (
-          <li key={k}>
-            <span className="font-mono">{i.table}</span> [{i.code}] {i.message}
-            {i.count > 1 ? ` (x${i.count})` : ''}
-          </li>
+    <div className={`mt-3 rounded-xl p-3 ${tone}`}>
+      <p className="text-xs font-bold">{title} ({issues.length})</p>
+      <ul className="mt-1 space-y-1 text-[11px]">
+        {issues.slice(0, 8).map((i, k) => (
+          <li key={k}><span className="font-mono font-semibold">{i.table}</span>: {i.message}{i.count > 1 ? ` (${i.count} rows)` : ''}</li>
         ))}
+        {issues.length > 8 && <li>…and {issues.length - 8} more</li>}
       </ul>
     </div>
   )
 }
 
-function BatchSummary({ batch, label }: { batch: ImportBatch; label: string }) {
+function BatchSummary({ batch, label, dry }: { batch: ImportBatch; label: string; dry?: boolean }) {
+  const failed = (batch.validation_errors?.length ?? 0) > 0 || batch.status === 'failed' || batch.status === 'rejected'
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 text-xs">
-      <p className="text-sm font-bold text-[#1E2433]">
-        {label}: {batch.status}
-        {batch.duplicate ? ' (identical to an earlier upload)' : ''}
-      </p>
-      <p className="mt-1 text-[#4A5568]">
-        Rows: {Object.entries(batch.row_counts).map(([t, n]) => `${t} ${n}`).join(', ') || 'none'}. Linked students{' '}
-        {batch.linked_students}, unlinked {batch.unlinked_students}.
-      </p>
-      <IssueList title="Validation errors" issues={batch.validation_errors} />
-      <IssueList title="Warnings" issues={batch.warnings} />
+    <div className="rounded-2xl border border-line bg-white p-4 text-xs">
+      <div className="flex flex-wrap items-center gap-2">
+        {failed ? <AlertTriangle className="h-4 w-4 text-rose-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+        <p className="text-sm font-bold text-ink">{label}</p>
+        <Pill tone={failed ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}>{pretty(batch.status)}</Pill>
+        {dry && <Pill>Nothing saved</Pill>}
+        {batch.duplicate && <Pill tone="bg-amber-50 text-amber-700">Same as an earlier upload</Pill>}
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {Object.entries(batch.row_counts ?? {}).map(([t, n]) => (
+          <div key={t} className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{n as number}</p><p className="text-[10px] text-muted">{pretty(t)}</p></div>
+        ))}
+        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.linked_students}</p><p className="text-[10px] text-muted">Students matched</p></div>
+        <div className="rounded-xl bg-gray-50 p-2.5"><p className="text-base font-semibold tabular-nums">{batch.unlinked_students}</p><p className="text-[10px] text-muted">Not matched</p></div>
+      </div>
+      <IssueList title="Fix these first" issues={batch.validation_errors} tone="bg-rose-50 text-rose-800" />
+      <IssueList title="Worth a look" issues={batch.warnings} tone="bg-amber-50 text-amber-900" />
+    </div>
+  )
+}
+
+function FilePick({ name, hint, accept, file, onFile }: { name: string; hint?: string; accept: string; file?: File; onFile: (f?: File) => void }) {
+  const ref = useRef<HTMLInputElement>(null)
+  return (
+    <div className={`flex items-center gap-3 rounded-xl border border-dashed p-3 text-xs ${file ? 'border-emerald-300 bg-emerald-50/50' : 'border-line bg-white'}`}>
+      {file ? <FileText className="h-5 w-5 shrink-0 text-emerald-600" /> : <FileSpreadsheet className="h-5 w-5 shrink-0 text-muted" />}
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-ink">{pretty(name)}</p>
+        <p className="truncate text-[11px] text-muted">{file ? file.name : hint}</p>
+      </div>
+      <input ref={ref} type="file" accept={accept} className="sr-only" aria-label={`Choose file for ${name}`} onChange={(e) => onFile(e.target.files?.[0])} />
+      {file ? (
+        <button type="button" aria-label="Remove file" onClick={() => { onFile(undefined); if (ref.current) ref.current.value = '' }} className="rounded-full p-1 text-gray-500 hover:bg-black/5"><X className="h-4 w-4" /></button>
+      ) : (
+        <Button variant="ghost" onClick={() => ref.current?.click()}>Choose file</Button>
+      )}
     </div>
   )
 }
@@ -43,101 +68,66 @@ export function AdminDataImportPage() {
   const schema = useIngestionSchema()
   const imports = useImports()
   const create = useCreateImport()
+  const [mode, setMode] = useState<'workbook' | 'csv'>('workbook')
   const [files, setFiles] = useState<Record<string, File>>({})
-  const [result, setResult] = useState<{ batch: ImportBatch; label: string } | null>(null)
+  const [result, setResult] = useState<{ batch: ImportBatch; label: string; dry: boolean } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const submit = (dryRun: boolean) => {
+  const setFile = (k: string, f?: File) => setFiles((prev) => { const n = { ...prev }; if (f) n[k] = f; else delete n[k]; return n })
+  const active = mode === 'workbook' ? (files.workbook ? { workbook: files.workbook } : {}) : Object.fromEntries(Object.entries(files).filter(([k]) => k !== 'workbook'))
+  const ready = Object.keys(active).length > 0
+
+  const submit = (dry: boolean) => {
     setError(null)
     setResult(null)
-    create.mutate(
-      { files, dryRun },
-      {
-        onSuccess: (batch) => setResult({ batch, label: dryRun ? 'Dry run (nothing stored)' : 'Import' }),
-        onError: (e) => {
-          const body = e instanceof ApiError ? (e.body as { validation_errors?: unknown } | undefined) : undefined
-          if (body && typeof body === 'object' && 'validation_errors' in body) {
-            setResult({ batch: body as unknown as ImportBatch, label: 'Validation failed' })
-          } else setError(errorMessage(e))
-        },
+    create.mutate({ files: active as Record<string, File>, dryRun: dry }, {
+      onSuccess: (batch) => setResult({ batch, label: dry ? 'Check complete' : 'Import complete', dry }),
+      onError: (e) => {
+        const body = e instanceof ApiError ? (e.body as { validation_errors?: unknown } | undefined) : undefined
+        if (body && typeof body === 'object' && 'validation_errors' in body) setResult({ batch: body as unknown as ImportBatch, label: 'Problems found', dry })
+        else setError(errorMessage(e))
       },
-    )
+    })
   }
 
   return (
     <div className="flex flex-col gap-4 font-sans">
-      <section className="rounded-3xl border border-gray-100 bg-white p-5">
-        <h2 className="text-sm font-bold text-[#1E2433]">Upload canonical tables</h2>
-        <QueryState query={schema} empty={<EmptyState title="No schema" />} isEmpty={(d) => !d.tables.length}>
-          {(sc) => (
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              {sc.tables.map((t) => (
-                <label key={t.name} className="flex flex-col gap-1 text-xs">
-                  <span className="font-semibold text-[#1E2433]">
-                    {t.name} {t.required ? '(required)' : '(optional)'}
-                  </span>
-                  <span className="text-[#717E95]">
-                    Columns: {[...t.required_columns, ...t.optional_columns.map((c) => `${c}?`)].join(', ')}
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0]
-                      setFiles((prev) => {
-                        const next = { ...prev }
-                        if (f) next[t.name] = f
-                        else delete next[t.name]
-                        return next
-                      })
-                    }}
-                  />
-                </label>
-              ))}
-              {sc.notes.length > 0 && (
-                <ul className="md:col-span-2 list-disc pl-5 text-xs text-[#717E95]">
-                  {sc.notes.map((n, i) => <li key={i}>{n}</li>)}
-                </ul>
-              )}
-            </div>
-          )}
-        </QueryState>
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            disabled={create.isPending || Object.keys(files).length === 0}
-            onClick={() => submit(true)}
-            className="rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold disabled:opacity-50"
-          >
-            Validate only (dry run)
-          </button>
-          <button
-            type="button"
-            disabled={create.isPending || Object.keys(files).length === 0}
-            onClick={() => submit(false)}
-            className="rounded-full bg-purple-700 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
-          >
-            {create.isPending ? 'Uploading...' : 'Import'}
-          </button>
-        </div>
-        {error && <p role="alert" className="mt-3 text-xs text-red-600">{error}</p>}
-        {result && <div className="mt-3"><BatchSummary batch={result.batch} label={result.label} /></div>}
-      </section>
-
-      <section className="rounded-3xl border border-gray-100 bg-white p-5">
-        <h2 className="text-sm font-bold text-[#1E2433]">Import history</h2>
-        <div className="mt-3">
-          <QueryState query={imports} isEmpty={(d) => d.items.length === 0} empty={<EmptyState title="No imports yet" />}>
-            {(page) => (
-              <div className="space-y-2">
-                {page.items.map((b) => (
-                  <BatchSummary key={b.id} batch={b} label={new Date(b.created_at).toLocaleString()} />
-                ))}
-              </div>
-            )}
+      <Card title="Upload campus data" tip="Upload one Excel workbook with a sheet per table, or one CSV per table. Always run the check first: it validates the files without saving anything.">
+        <Tabs value={mode} onChange={setMode} items={[{ id: 'workbook', label: 'One Excel file' }, { id: 'csv', label: 'CSV per table' }]} />
+        <div className="mt-4">
+          <QueryState query={schema} isEmpty={(d) => !d.tables.length} empty={<EmptyState title="No schema available" />}>
+            {(sc) =>
+              mode === 'workbook' ? (
+                <div className="space-y-3">
+                  <FilePick name="workbook" hint=".xlsx with one sheet per table" accept=".xlsx" file={files.workbook} onFile={(f) => setFile('workbook', f)} />
+                  <p className="text-[11px] text-muted">Sheets: {sc.tables.map((t) => `${t.name}${t.required ? '*' : ''}`).join(', ')} (* required)</p>
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {sc.tables.map((t) => (
+                    <FilePick key={t.name} name={`${t.name}${t.required ? ' *' : ''}`} hint={`${t.required_columns.join(', ')}`} accept=".csv" file={files[t.name]} onFile={(f) => setFile(t.name, f)} />
+                  ))}
+                </div>
+              )
+            }
           </QueryState>
         </div>
-      </section>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button variant="ghost" disabled={create.isPending || !ready} onClick={() => submit(true)}>Check files (dry run)</Button>
+          <Button disabled={create.isPending || !ready} onClick={() => submit(false)}><UploadCloud className="h-3.5 w-3.5" /> {create.isPending ? 'Working…' : 'Import'}</Button>
+          <InfoTip text="After a real import, open Risk Model and run scoring so the new data is scored." />
+        </div>
+        {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}
+        {result && <div className="mt-3"><BatchSummary batch={result.batch} label={result.label} dry={result.dry} /></div>}
+      </Card>
+
+      <Card title="Past imports">
+        <QueryState query={imports} isEmpty={(d) => d.items.length === 0} empty={<EmptyState title="No imports yet" message="Your first upload will show up here." />}>
+          {(page) => (
+            <div className="space-y-2">{page.items.map((b) => <BatchSummary key={b.id} batch={b} label={fmtDateTime(b.created_at)} />)}</div>
+          )}
+        </QueryState>
+      </Card>
     </div>
   )
 }

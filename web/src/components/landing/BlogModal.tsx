@@ -20,7 +20,7 @@ export function BlogModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in overflow-y-auto">
       <div className="relative my-8 max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border-4 border-ink bg-white shadow-[10px_10px_0_#0d1b3e] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b-2 border-ink bg-[#f5f7fc] px-6 py-4">
+        <div className="flex items-center justify-between border-b-2 border-ink bg-paper px-6 py-4">
           <div className="flex items-center gap-2">
             <span className={`px-2 py-0.5 text-xs font-bold text-white ${activeBlogPost.tagBg}`}>
               {activeBlogPost.tag}
@@ -80,7 +80,7 @@ export function BlogModal() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-xl border-2 border-ink bg-[#f8fafc] p-4 flex items-center justify-between">
+          <div className="mt-8 rounded-xl border-2 border-ink bg-paper p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-ink">Did you find this article valuable?</p>
               <p className="text-[11px] text-muted">Join over 7,000+ engineers reading SkillsUp weekly digest.</p>

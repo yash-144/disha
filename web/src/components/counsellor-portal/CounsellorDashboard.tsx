@@ -6,7 +6,6 @@ import { CounsellorStudentsInNeed } from './CounsellorStudentsInNeed'
 import { CounsellorSupportCases } from './CounsellorSupportCases'
 import { ScheduleSessionsView } from '../common/ScheduleSessionsView'
 import { AdminAnalyticsPage } from '../admin-portal/AdminAnalyticsPage'
-import { ArrowLeft } from 'lucide-react'
 
 const TAB_METADATA: Record<
   CounsellorNavId,
@@ -18,8 +17,8 @@ const TAB_METADATA: Record<
   }
 > = {
   overview: {
-    title: 'Counsellor Overview',
-    subtitle: 'Student emotional triage and confidential consultation cockpit',
+    title: 'Overview',
+    subtitle: '',
     description:
       'The Counsellor Overview provides student wellbeing advisors with high-level signal queues, active intervention trajectories, and upcoming check-ins.',
     capabilities: [
@@ -31,7 +30,7 @@ const TAB_METADATA: Record<
   },
   schedule: {
     title: 'Schedule & Calls',
-    subtitle: 'Manage one-on-one sessions, office hours and support consultations',
+    subtitle: '',
     description:
       'Coordinate private student counseling slots, faculty syncs, and emergency support sessions.',
     capabilities: [
@@ -43,7 +42,7 @@ const TAB_METADATA: Record<
   },
   'students-in-need': {
     title: 'Students in Need',
-    subtitle: 'Early warning signals and priority wellbeing assistance queue',
+    subtitle: '',
     description:
       'Identify students experiencing academic distress, attendance drop-offs, or negative wellbeing sentiment trends.',
     capabilities: [
@@ -55,7 +54,7 @@ const TAB_METADATA: Record<
   },
   'support-cases': {
     title: 'Support Cases',
-    subtitle: 'Active counseling trajectories and personalized support plans',
+    subtitle: '',
     description:
       'Manage longitudinal counseling cases, action milestones, and inter-departmental collaboration records.',
     capabilities: [
@@ -67,7 +66,7 @@ const TAB_METADATA: Record<
   },
   analytics: {
     title: 'Counsellor Analytics',
-    subtitle: 'Cohort wellbeing statistics, referral volumes and resolution trends',
+    subtitle: '',
     description:
       'Evaluate aggregate mental wellbeing indicators, common student stressors, and efficacy of supportive interventions.',
     capabilities: [
@@ -128,22 +127,22 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
   const meta = TAB_METADATA[activeTab] || TAB_METADATA.overview
 
   return (
-    <div className="bg-[#EAEFF8] min-h-screen p-2 sm:p-2.5 md:p-3 flex items-center justify-center font-sans antialiased text-[#1E2433]">
+    <div className="bg-paper min-h-screen flex font-sans antialiased text-ink">
       {/* Outer Card with rounded corners matching DISHA design system */}
-      <div className="bg-[#F8F9FD] rounded-[28px] md:rounded-[32px] shadow-sm border border-[#E0E6ED] w-full flex overflow-hidden min-h-[92vh]">
+      <div className="w-full flex min-h-screen">
         {/* Left Navigation Sidebar */}
         <CounsellorSidebar activeTab={activeTab} onSelectTab={handleSelectTab} />
 
         {/* Vertical divider */}
-        <div className="w-[1px] bg-[#E8EEF5] shrink-0" />
+        
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col p-4 sm:p-5 md:p-6 overflow-y-auto">
+        <main className="flex-1 min-w-0 flex flex-col p-4 sm:p-6 lg:px-8 lg:py-6 overflow-y-auto">
           {/* Header */}
           <CounsellorHeader
             pageTitle={meta.title}
             subtitle={meta.subtitle}
-            showPageTitle={activeTab !== 'overview'}
+            showPageTitle
           />
 
           {/* Conditional View by Tab: Overview vs Other Module Placeholders */}
@@ -151,15 +150,6 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
             <CounsellorOverview />
           ) : (
             <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                onClick={() => handleSelectTab('overview')}
-                className="self-start inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-black transition"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Return to Counsellor Overview</span>
-              </button>
-
               {activeTab === 'students-in-need' ? (
                 <CounsellorStudentsInNeed />
               ) : activeTab === 'support-cases' ? (

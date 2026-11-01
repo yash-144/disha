@@ -35,7 +35,7 @@ export function BenefitsSection() {
         </div>
 
         {/* Floating Callout Card */}
-        <div className="absolute left-0 top-[-6%] w-[48%] border-2 border-ink bg-[#0f9d58] p-4 text-white shadow-[4px_4px_0_#0d1b3e]">
+        <div className="absolute left-0 top-[-6%] w-[48%] border-2 border-ink bg-accent p-4 text-white shadow-[4px_4px_0_#0d1b3e]">
           <p className="text-sm font-bold leading-snug sm:text-base">
             Empower Your Future <span className="font-normal block text-xs mt-1">with modern skills development</span>
           </p>
@@ -44,7 +44,7 @@ export function BenefitsSection() {
 
       {/* Copy & Benefits Checklist */}
       <div>
-        <span className="text-xs font-bold uppercase tracking-wider text-[#0f9d58]">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
           Why Choose SkillsUp
         </span>
         <h2 className="mt-2 text-2xl font-bold leading-snug text-brand sm:text-[32px]">
@@ -56,7 +56,7 @@ export function BenefitsSection() {
         <ul className="mt-7 space-y-4 text-xs leading-relaxed text-gray-700 sm:text-sm">
           {BENEFITS.map(([title, body]) => (
             <li key={title} className="flex items-start gap-3">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#0f9d58]" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
               <div>
                 <span className="font-bold text-ink">{title}: </span>
                 <span className="text-muted">{body}</span>
@@ -67,7 +67,7 @@ export function BenefitsSection() {
 
         <button
           onClick={() => navigateTo('courses')}
-          className="mt-8 flex items-center gap-2 border-2 border-ink bg-[#0f9d58] px-7 py-3 text-xs font-bold text-white shadow-[3px_3px_0_#0d1b3e] transition hover:bg-[#0b7a43]"
+          className="mt-8 flex items-center gap-2 border-2 border-ink bg-accent px-7 py-3 text-xs font-bold text-white shadow-[3px_3px_0_#0d1b3e] transition hover:bg-accent-dark"
         >
           Explore All Bootcamps <ArrowRight className="h-4 w-4" />
         </button>

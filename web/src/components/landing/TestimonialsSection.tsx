@@ -35,7 +35,7 @@ export function TestimonialsSection() {
   const [active, setActive] = useState(0)
 
   return (
-    <section className="border-t-4 border-ink bg-[#f5f5f5] py-20">
+    <section className="border-t-4 border-ink bg-paper py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -99,7 +99,7 @@ export function TestimonialsSection() {
                   <div>
                     <p className="text-xs font-bold text-ink">{r.name}</p>
                     <p className="text-[10px] text-muted">{r.role}</p>
-                    <span className="mt-0.5 inline-block text-[9px] font-bold text-[#0f9d58]">
+                    <span className="mt-0.5 inline-block text-[9px] font-bold text-accent">
                       {r.course}
                     </span>
                   </div>

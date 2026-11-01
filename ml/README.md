@@ -1,5 +1,8 @@
 # DISHA ML — Early Academic Risk Signals
 
+> **Status:** the production model is the rolling risk model (`disha_ml/rolling/`, bundle `artifacts_rolling/`). The semester-based `cp0`/`cp1`/`cp2` prototypes described in older sections are superseded, kept for reference, and not used by the product or shown in the UI. See the root [README](../README.md) for the current summary.
+
+
 Isolated machine-learning pipeline for predicting student dropout and raising
 early academic risk signals. Ground rules:
 * Strict temporal separation: no data leakage between checkpoints.

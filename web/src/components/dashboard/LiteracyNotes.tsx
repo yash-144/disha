@@ -80,7 +80,7 @@ export function LiteracyNotes() {
           </button>
           <button
             onClick={handleManualSave}
-            className="ml-2 flex items-center gap-1 border border-ink bg-[#0f9d58] px-2.5 py-1 text-[11px] font-bold text-white shadow-[1px_1px_0_#0d1b3e] transition hover:bg-[#0b7a43]"
+            className="ml-2 flex items-center gap-1 border border-ink bg-accent px-2.5 py-1 text-[11px] font-bold text-white shadow-[1px_1px_0_#0d1b3e] transition hover:bg-accent-dark"
           >
             <Save className="h-3 w-3" /> Save Notes
           </button>
@@ -91,13 +91,13 @@ export function LiteracyNotes() {
         value={noteContent}
         onChange={(e) => setNoteContent(e.target.value)}
         rows={8}
-        className="mt-2 w-full resize-y border-2 border-ink bg-[#f8fafd] p-3 font-mono text-xs leading-relaxed text-ink outline-none focus:bg-white"
+        className="mt-2 w-full resize-y border-2 border-ink bg-paper p-3 font-mono text-xs leading-relaxed text-ink outline-none focus:bg-white"
         placeholder="Type lesson outline, student notes, code snippets, or discussion prompts here..."
       />
 
       <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500 font-bold">
         <span className="flex items-center gap-1">
-          <Sparkles className="h-3 w-3 text-[#0f9d58]" /> Auto-saves every stroke locally
+          <Sparkles className="h-3 w-3 text-accent" /> Auto-saves every stroke locally
         </span>
         <span>{wordCount} words · Markdown supported</span>
       </div>
