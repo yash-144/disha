@@ -5,8 +5,9 @@ import { errorMessage } from '../../lib/api/errors'
 import { useSession } from '../../lib/auth/SessionProvider'
 import { useCohorts, useDrift, useModelInfo, useRuns, useTriggerRun } from '../../lib/api/endpoints/admin.hooks'
 import { buildPeopleIndex, displayName, useAllCases, useAllScores, type DriftFeature, type ScoreRow } from '../../lib/api/endpoints/risk'
-import { Button, Card, KpiStrip, ColorLegend, DetailsDisclosure, Direction, InfoTip, Kpi, LineChart, TierBadge, TierTrend, TIERS, TIER_STYLE, fmtDateTime, pct, pretty, type Tier } from '../common/ui'
+import { Button, Card, KpiStrip, ColorLegend, DetailsDisclosure, Direction, InfoTip, Kpi, LineChart, TierBadge, TIERS, TIER_STYLE, fmtDateTime, pct, pretty, type Tier } from '../common/ui'
 import { EarlyWarningHero } from './EarlyWarning'
+import { TierRunsChart } from './charts'
 import { StudentInsightDrawer } from './StudentInsightDrawer'
 
 const RANK: Record<string, number> = { ON_TRACK: 0, WATCH: 1, MEDIUM: 2, HIGH: 3 }
@@ -293,7 +294,7 @@ export function AdminRiskModelPage() {
       <Reliability />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Risk across scoring runs" tip="Each column is one weekly scoring run. Watch the red and orange shrink as support works.">
-          {runs.isPending ? <LoadingSkeleton rows={2} /> : runs.isError ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} /> : trend.length < 2 ? <p className="text-xs text-muted">Needs at least two runs.</p> : (<><TierTrend points={trend} /><div className="mt-2"><ColorLegend /></div></>)}
+          {runs.isPending ? <LoadingSkeleton rows={2} /> : runs.isError ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} /> : trend.length < 2 ? <p className="text-xs text-muted">Needs at least two runs.</p> : (<><TierRunsChart runs={trend} /><div className="mt-2"><ColorLegend /></div></>)}
         </Card>
         <RunScoring />
       </div>

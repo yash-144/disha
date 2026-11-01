@@ -16,10 +16,10 @@ export function TierRunsChart({ runs }: { runs: { label: string; counts: Partial
     <div>
       <div className="h-[300px]">
         <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 4, bottom: 8 }} barCategoryGap="22%">
+          <BarChart data={data} margin={{ top: 8, right: 8, left: 22, bottom: 8 }} barCategoryGap="22%">
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} />
-            <YAxis tick={AXIS} tickLine={false} axisLine={false} width={44} label={{ value: 'Student-courses', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: 8 }} />
+            <YAxis tick={AXIS} tickLine={false} axisLine={false} width={36} label={{ value: 'Student-courses', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: -4 }} />
             <Tooltip
               cursor={{ fill: 'rgba(20,24,31,0.04)' }}
               content={({ active, payload, label }) =>
@@ -72,10 +72,10 @@ export function FlaggedLine({ points }: { points: { day: number; flagged_student
   return (
     <div className="h-[260px]">
       <ResponsiveContainer>
-        <LineChart data={data} margin={{ top: 22, right: 28, left: 4, bottom: 24 }}>
+        <LineChart data={data} margin={{ top: 22, right: 28, left: 22, bottom: 24 }}>
           <CartesianGrid vertical={false} stroke={GRID} />
           <XAxis dataKey="day" type="number" domain={['dataMin - 4', 'dataMax + 4']} ticks={data.map((d) => d.day)} tickFormatter={(v) => `Day ${v}`} tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} label={{ value: 'Weekly scoring run (day of term)', position: 'insideBottom', offset: -14, style: { ...AXIS, textAnchor: 'middle' } }} />
-          <YAxis tick={AXIS} tickLine={false} axisLine={false} width={44} domain={[0, 'dataMax + 20']} label={{ value: 'Flagged so far', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: 6 }} />
+          <YAxis tick={AXIS} tickLine={false} axisLine={false} width={36} domain={[0, 'dataMax + 20']} label={{ value: 'Flagged so far', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: -4 }} />
           <Tooltip content={({ active, payload }) => active && payload?.length ? <Tip><p className="font-semibold">Day {payload[0].payload.day}</p><p><b>{payload[0].payload.n}</b> student-courses flagged so far</p></Tip> : null} />
           <Line type="stepAfter" dataKey="n" stroke="#1F54D6" strokeWidth={3} dot={{ r: 5, fill: '#1F54D6', stroke: '#FCFBF8', strokeWidth: 2 }} isAnimationActive={false}>
             <LabelList dataKey="n" position="top" offset={10} style={{ fill: '#14181F', fontSize: 13, fontWeight: 700 }} />
@@ -112,8 +112,8 @@ export function TierDonut({ counts, unit = 'student-courses' }: { counts: Partia
   const c = 2 * Math.PI * r
   let offset = 0
   return (
-    <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
-      <svg viewBox="0 0 200 200" className="h-52 w-52 shrink-0" role="img" aria-label={`Risk tiers across ${total} ${unit}`}>
+    <div className="flex flex-col items-center gap-5">
+      <svg viewBox="0 0 200 200" className="h-56 w-56 shrink-0" role="img" aria-label={`Risk tiers across ${total} ${unit}`}>
         <circle cx="100" cy="100" r={r} fill="none" stroke="#ECE9E0" strokeWidth="26" />
         {TIERS.map((t) => {
           const len = ((counts[t] ?? 0) / total) * c
@@ -128,11 +128,11 @@ export function TierDonut({ counts, unit = 'student-courses' }: { counts: Partia
         <text x="100" y="98" textAnchor="middle" fontSize="38" fontWeight="800" fill="#14181F">{total}</text>
         <text x="100" y="120" textAnchor="middle" fontSize="13" fill="#4A5160">{unit}</text>
       </svg>
-      <ul className="w-full min-w-[170px] space-y-3">
+      <ul className="w-full max-w-xs space-y-2.5">
         {TIERS.map((t) => (
           <li key={t} className="flex items-center justify-between gap-4 text-sm">
-            <span className="flex items-center gap-2.5 font-semibold text-ink"><span className="h-3.5 w-3.5 rounded-sm" style={{ background: TIER_STYLE[t].color }} />{TIER_STYLE[t].label}</span>
-            <span className="tabular-nums"><b className="text-base">{counts[t] ?? 0}</b> <span className="text-muted">· {pct((counts[t] ?? 0) / total)}</span></span>
+            <span className="flex items-center gap-2.5 whitespace-nowrap font-semibold text-ink"><span className="h-3.5 w-3.5 rounded-sm" style={{ background: TIER_STYLE[t].color }} />{TIER_STYLE[t].label}</span>
+            <span className="whitespace-nowrap tabular-nums"><b className="text-base">{counts[t] ?? 0}</b> <span className="text-muted">· {pct((counts[t] ?? 0) / total)}</span></span>
           </li>
         ))}
       </ul>
