@@ -20,10 +20,10 @@ export function WhyDishaSection() {
           <div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-slate-900 leading-[1.25] max-w-5xl">
               <span className="font-semibold text-slate-950">
-                The silent dropout crisis ends with timely, accountable intervention.
+                Students often struggle quietly. Disha helps in time.
               </span>{' '}
               <span className="text-slate-500">
-                Traditional universities lose up to 32% of at-risk students due to delayed alerts. We build ML early-warning systems that catch slippage and guarantee human action.
+                Disha spots students who are slipping and makes sure a real person steps in.
               </span>
             </h2>
           </div>
@@ -43,16 +43,16 @@ export function WhyDishaSection() {
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
-                Early dropout risk prevention
+                Help before it is too late
               </h3>
               <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600 font-normal">
-                A weekly risk score for every student in every course, with the reasons behind it, so help arrives before exams.
+                A weekly check for every student in every course, with the reasons, so help arrives before exams.
               </p>
               <div
                 onClick={() => navigateTo('login')}
                 className="mt-6 flex items-center gap-1.5 text-xs font-semibold text-blue-600 group-hover:text-blue-700 cursor-pointer"
               >
-                <span>See the risk model</span>
+                <span>See how it works</span>
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -62,10 +62,10 @@ export function WhyDishaSection() {
           <div className="group rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white p-8 sm:p-10 flex flex-col justify-between overflow-hidden relative shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1">
             <div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white leading-snug">
-                End-to-end accountable intervention management
+                Every concern gets an owner
               </h3>
               <p className="mt-3.5 text-xs sm:text-sm md:text-base text-blue-100/90 leading-relaxed font-light max-w-lg">
-                Every alert becomes an owned case with tracked SLA deadlines. Multi-campus context synced seamlessly via Meko on YugabyteDB.
+                Each warning becomes a case with a named person and a due date, so nothing is left unanswered.
               </p>
             </div>
 

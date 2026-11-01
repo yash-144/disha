@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext'
 
 export function SolutionsSection() {
   const { navigateTo } = useApp()
-  const [activeDial] = useState(88)
+  const [activeDial] = useState(100)
 
   return (
     <section className="w-full py-24 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-slate-50/50 font-sans border-t border-slate-100">
@@ -16,12 +16,12 @@ export function SolutionsSection() {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-slate-900 leading-[1.2]">
             <span className="font-semibold text-slate-950">
-              Accountable early-warning designed
+              Early warning that works
             </span>{' '}
-            for every campus stakeholder
+            for everyone on campus
           </h2>
           <p className="mt-3.5 text-xs sm:text-sm md:text-base text-slate-500 font-normal leading-relaxed max-w-2xl mx-auto">
-            Whether you are a student seeking academic resilience, an advisor managing case interventions, or an institutional dean steering student retention.
+            For students who want to stay on track, counsellors who help them, and leaders who want more students to finish.
           </p>
         </div>
 
@@ -31,30 +31,30 @@ export function SolutionsSection() {
           {/* Card 1: Student Cockpit */}
           <div className="rounded-3xl bg-paper border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
-              Student Academic Radar
+              For students
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed font-normal">
-              Continuous academic transparency with clear milestones. No surprises before semester finals.
+              Clear goals and no surprises before the exams.
             </p>
             <ul className="mt-6 space-y-3.5 text-xs sm:text-sm text-slate-600">
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Attendance floor tracking (75% UGC benchmark)</span>
+                <span>Attendance tracked against the 75% minimum</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Personalized SGPA &amp; exam performance goals</span>
+                <span>Your own grades and exam goals</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Instant 1-click peer tutor &amp; mentor bookings</span>
+                <span>Ask for a peer tutor or mentor in one click</span>
               </li>
             </ul>
             <button
               onClick={() => navigateTo('login')}
               className="mt-8 flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition cursor-pointer"
             >
-              <span>Explore Student Portal</span>
+              <span>See the student view</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -84,51 +84,51 @@ export function SolutionsSection() {
               </svg>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl sm:text-5xl font-bold tracking-tight text-white">{activeDial}%</span>
-                <span className="text-xs uppercase font-semibold text-blue-200 mt-1 tracking-wider">
-                  Retention Rate
+                <span className="text-4xl sm:text-5xl font-bold tracking-tight text-white">Weekly</span>
+                <span className="text-xs font-semibold text-blue-200 mt-1">
+                  check of every student
                 </span>
                 <span className="text-xs text-emerald-300 font-medium mt-1">
-                  +14% vs National Avg
+                  With reasons in plain words
                 </span>
               </div>
             </div>
 
             <h4 className="mt-4 text-xl font-semibold text-white tracking-tight">
-              Calibrated Early-Warning ML
+              Warnings you can trust
             </h4>
             <p className="mt-2 text-xs sm:text-sm text-blue-100/90 font-light max-w-xs leading-relaxed">
-              Operating on the strict principle: <strong className="font-semibold text-white">"No Alert Without Action"</strong>.
+              <strong className="font-semibold text-white">Every warning gets a follow-up.</strong>
             </p>
           </div>
 
           {/* Card 3: Faculty & Counsellor Portal */}
           <div className="rounded-3xl bg-paper border border-slate-200/90 p-8 sm:p-10 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1">
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">
-              Faculty &amp; Counsellor Suite
+              For teachers and counsellors
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed font-normal">
-              Eliminate alert fatigue. Every accepted signal has an assigned owner and SLA deadline.
+              Fewer, clearer alerts. Each one has an owner and a due date.
             </p>
             <ul className="mt-6 space-y-3.5 text-xs sm:text-sm text-slate-600">
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Deterministic case routing &amp; escalation jobs</span>
+                <span>Cases go to the right person automatically</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Meko universal context memory across campuses</span>
+                <span>What worked before, shared without student names</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>DPDP Act 2023 auditable outcome records</span>
+                <span>A clear record of what was done and how it went</span>
               </li>
             </ul>
             <button
               onClick={() => navigateTo('login')}
               className="mt-8 flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition cursor-pointer"
             >
-              <span>Explore Faculty Suite</span>
+              <span>See the teacher and counsellor view</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>

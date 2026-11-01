@@ -9,9 +9,9 @@ import { LanguageSwitcher } from '../common/HeaderControls'
 import { useT } from '../../i18n'
 
 const FACTS = [
-  { n: 'Weekly', t: 'risk score for every student in every course' },
-  { n: 'Plain', t: 'language reasons behind every flag' },
-  { n: 'One', t: 'named owner for every case, tracked to an outcome' },
+  { n: 'Weekly', t: 'check of how every student is doing in every course' },
+  { n: 'Plain', t: 'words explain why a student was flagged' },
+  { n: 'One', t: 'named person for every case, followed to the end' },
 ]
 
 export function HeroSection() {
@@ -51,10 +51,10 @@ export function HeroSection() {
         <div className="lg:col-span-7">
           <h1 className="font-display text-[clamp(3rem,7.2vw,6rem)] leading-[0.98] tracking-tight">
             {t('Catch struggling students early.')}
-            <span className="mt-2 block text-white/55">{t('No alert without action.')}</span>
+            <span className="mt-2 block text-white/55">{t('Every warning gets a follow-up.')}</span>
           </h1>
           <p className="mt-7 max-w-lg text-base leading-relaxed text-white/70">
-            {t('Disha scores risk every week, explains why, and turns each flag into a case with an owner.')}
+            {t('Every week, Disha checks how each student is doing, explains why, and gives each concern to someone who follows up.')}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <button onClick={signedIn ? goDashboard : () => navigateTo('login')} className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-accent px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#2c63e8]">

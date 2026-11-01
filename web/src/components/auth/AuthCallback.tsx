@@ -27,7 +27,7 @@ export function AuthCallback() {
         localStorage.removeItem('disha_selected_role')
         if (!cancelled) window.location.replace('/dashboard')
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Sign-in failed')
+        if (!cancelled) setError('We could not sign you in. Please try again.')
       }
     })()
     return () => {

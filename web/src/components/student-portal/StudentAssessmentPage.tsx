@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { DemoMode } from './studentDemoData'
 import { useApp } from '../../context/AppContext'
+import { friendlyDate } from '../../lib/labels'
 import {
   PULSE_QUESTION_BANK,
   INITIAL_PULSE_ASSIGNMENTS,
@@ -115,50 +116,6 @@ export function StudentAssessmentPage({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Handler: Load one of the 5 verified demo scenarios
-  const handleLoadDemoScenario = (scenarioKey: string) => {
-    const sc = PULSE_DEMO_SCENARIOS[scenarioKey]
-    if (!sc) return
-
-    const academicQuestions = activeQuestions.filter((q) => q.category === 'ACADEMIC')
-    const totalMax = academicQuestions.reduce((sum, q) => sum + (q.marks || 2), 0)
-    const earned = Math.round((sc.academicScore / 100) * totalMax * 10) / 10
-
-    const evalRes = evaluateInterventionMatrix(sc.academicScore, sc.feedbackScore, sc.wellbeingScore, 60.0)
-
-    setFeedbackPctScore(sc.feedbackScore)
-    setWellbeingPctScore(sc.wellbeingScore)
-    setEvaluationResult(evalRes)
-    setMentorOfferStatus('OFFERED')
-    setCounsellorOfferStatus('OFFERED')
-
-    const mockSub: StudentPulseSubmission = {
-      submissionId: `sub-demo-${scenarioKey}-${Date.now().toString().slice(-4)}`,
-      pulseId: currentPulse.id,
-      studentId: 'student-asha',
-      studentName: 'Asha Verma',
-      academicScore: earned,
-      academicMaxMarks: totalMax,
-      percentage: sc.academicScore,
-      submittedAt: new Date().toISOString(),
-      isAnonymous: true,
-      objectiveResults: academicQuestions.map((q, idx) => ({
-        questionId: q.id,
-        prompt: q.prompt,
-        selectedOption: sc.academicScore >= 60 ? q.correctOption ?? 0 : (q.correctOption === 0 ? 1 : 0),
-        correctOption: q.correctOption,
-        isCorrect: sc.academicScore >= 60 ? true : idx % 2 === 0,
-        marksAwarded: sc.academicScore >= 60 ? q.marks : (idx % 2 === 0 ? q.marks : 0),
-        maxMarks: q.marks,
-        explanation: q.explanation,
-      })),
-    }
-
-    setSubmissionResult(mockSub)
-    setStage('results')
-    addToast(sc.title, `Loaded demo scenario: ${sc.description}`, 'info')
-  }
-
   // Handler: Next question
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
@@ -207,13 +164,13 @@ export function StudentAssessmentPage({
         objectiveResults.push({
           questionId: q.id,
           prompt: q.prompt,
-          selectedOption: userText || '(No answer provided)',
+          selectedOption: userText || '(No answer given)',
           correctOption: undefined,
           isCorrect: userText.trim().length > 10,
           marksAwarded: awarded,
           maxMarks: q.marks,
           explanation:
-            'Descriptive answer received. Provisional marks awarded; subject to final faculty rubric assessment.',
+            'We got your answer. Your teacher will mark it.',
         })
       }
     })
@@ -302,7 +259,7 @@ export function StudentAssessmentPage({
     })
     submitPulseMutation.mutate({
       responses: Object.keys(responsesMap).length > 0 ? responsesMap : { q_stress: 3, q_sleep: 4, q_belonging: 4 },
-      reflection: 'Submitted via student pulse check-in',
+      reflection: 'Wellbeing check-in',
     })
 
     setSubmissionResult(result)
@@ -310,8 +267,8 @@ export function StudentAssessmentPage({
     window.scrollTo({ top: 0, behavior: 'smooth' })
 
     addToast(
-      'Assessment Submitted! 🎉',
-      `Academic Score: ${acadPct}%. Category feedback and wellbeing evaluated against operational thresholds.`,
+      'Check-in sent',
+      `Your quiz score is ${acadPct}%. Thank you!`,
       'success'
     )
   }
@@ -357,27 +314,6 @@ export function StudentAssessmentPage({
 
   return (
     <div className="flex-1 flex flex-col gap-5 font-sans select-none pb-12">
-      {/* Demo Scenario Test Toolbar */}
-      <div className="p-3.5 rounded-2xl bg-white border border-purple-100 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-600" />
-          <span className="text-xs font-bold text-gray-800">Intervention Matrix Demos (5 Scenarios):</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {Object.entries(PULSE_DEMO_SCENARIOS).map(([key, sc]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => handleLoadDemoScenario(key)}
-              title={sc.description}
-              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all border border-purple-200 cursor-pointer"
-            >
-              {sc.title.split(':')[0]}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* =========================================================================
           STAGE 1: INTRO SCREEN (Questions do not appear until student clicks Start)
          ========================================================================= */}
@@ -388,7 +324,7 @@ export function StudentAssessmentPage({
             <div className="max-w-2xl z-10">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-purple-200 text-purple-700 text-xs font-bold mb-3 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Student Pulse Assessment</span>
+                <span>Wellbeing check-in</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight leading-tight">
@@ -396,21 +332,21 @@ export function StudentAssessmentPage({
               </h1>
 
               <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
-                Student Pulse brings together your academic mastery check, classroom learning experience, and daily wellbeing into one supportive session.
+                A short check-in on your learning, your classes and how you are feeling. It takes a few minutes.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 mt-5 text-xs text-gray-600 font-medium">
                 <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-line">
                   <Clock className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Due: {new Date(currentPulse.dueAt).toLocaleDateString()}</span>
+                  <span>Due: {friendlyDate(currentPulse.dueAt)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-line">
                   <Award className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{currentPulse.totalMarks} Academic Marks</span>
+                  <span>{currentPulse.totalMarks} marks for the quiz</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full border border-line">
                   <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Feedback & Wellbeing Anonymized</span>
+                  <span>Your feelings and class feedback stay anonymous</span>
                 </div>
               </div>
 
@@ -421,7 +357,7 @@ export function StudentAssessmentPage({
                   className="px-6 py-3 rounded-2xl bg-ink hover:bg-ink text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer hover:shadow-lg"
                 >
                   <Play className="w-4 h-4 fill-white" />
-                  <span>Start Student Pulse</span>
+                  <span>Start check-in</span>
                 </button>
               </div>
             </div>
@@ -433,8 +369,8 @@ export function StudentAssessmentPage({
                   5Q
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-900">Category A: Academic</p>
-                  <p className="text-xs text-gray-500">3 MCQs, 1 Conceptual, 1 Application</p>
+                  <p className="text-xs font-bold text-gray-900">Part 1: Quick quiz</p>
+                  <p className="text-xs text-gray-500">5 questions on what you learned</p>
                 </div>
               </div>
 
@@ -443,8 +379,8 @@ export function StudentAssessmentPage({
                   4Q
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-900">Category B: Classroom Feedback</p>
-                  <p className="text-xs text-gray-500">2 Likert, 1 MCQ, 1 Optional Suggestion</p>
+                  <p className="text-xs font-bold text-gray-900">Part 2: Your class</p>
+                  <p className="text-xs text-gray-500">4 questions. The last is optional</p>
                 </div>
               </div>
 
@@ -453,8 +389,8 @@ export function StudentAssessmentPage({
                   3Q
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-900">Category C: Student Wellbeing</p>
-                  <p className="text-xs text-gray-500">2 Likert, 1 MCQ (Support & Motivation)</p>
+                  <p className="text-xs font-bold text-gray-900">Part 3: How you feel</p>
+                  <p className="text-xs text-gray-500">3 questions about support and motivation</p>
                 </div>
               </div>
             </div>
@@ -480,7 +416,7 @@ export function StudentAssessmentPage({
                       : 'bg-emerald-100 text-emerald-800'
                   }`}
                 >
-                  {currentQuestion.categoryLabel || currentQuestion.category}
+                  {currentQuestion.category === 'ACADEMIC' ? 'Quick quiz' : currentQuestion.category === 'CLASSROOM_FEEDBACK' ? 'Your class' : 'How you feel'}
                 </span>
 
                 {currentQuestion.difficulty && (
@@ -502,7 +438,7 @@ export function StudentAssessmentPage({
               <div className="flex items-center gap-2">
                 {currentQuestion.marks > 0 && (
                   <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
-                    {currentQuestion.marks} Marks
+                    {currentQuestion.marks} marks
                   </span>
                 )}
                 <span className="text-xs font-bold text-gray-500">
@@ -574,11 +510,11 @@ export function StudentAssessmentPage({
                   rows={4}
                   value={(getCurrentAnswerValue() as string) || ''}
                   onChange={(e) => handleSelectAnswer(e.target.value)}
-                  placeholder="Type your explanation here clearly..."
+                  placeholder="Type your answer here..."
                   className="w-full p-3.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white font-sans"
                 />
                 <span className="text-xs text-muted block text-right">
-                  Descriptive responses are reviewed by your instructor using conceptual rubrics.
+                  Your teacher will read this answer.
                 </span>
               </div>
             )}
@@ -606,7 +542,7 @@ export function StudentAssessmentPage({
                 onClick={handleNextQuestion}
                 className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Next Question</span>
+                <span>Next</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
@@ -616,7 +552,7 @@ export function StudentAssessmentPage({
                 className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                <span>Submit Student Pulse</span>
+                <span>Finish check-in</span>
               </button>
             )}
           </div>
@@ -633,15 +569,15 @@ export function StudentAssessmentPage({
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Student Pulse Completed</span>
+                <span>Check-in done</span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Academic Score: {submissionResult.percentage}%
+                Quiz score: {submissionResult.percentage}%
               </h2>
 
               <p className="text-xs sm:text-sm text-purple-200 mt-1.5 leading-relaxed">
-                Objective questions have been evaluated. Your classroom feedback and wellbeing answers have been securely anonymized under k-anonymity (≥5).
+                Your quiz is marked. Your answers about your class and how you feel are kept anonymous.
               </p>
 
               <div className="mt-5 flex items-center gap-3">
@@ -651,7 +587,7 @@ export function StudentAssessmentPage({
                   className="px-5 py-2.5 rounded-full bg-white text-purple-900 hover:bg-purple-50 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Retake Pulse</span>
+                  <span>Do it again</span>
                 </button>
 
                 {onNavigateToOverview && (
@@ -660,7 +596,7 @@ export function StudentAssessmentPage({
                     onClick={onNavigateToOverview}
                     className="px-5 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition-all flex items-center gap-1.5 cursor-pointer"
                   >
-                    <span>Return to Overview</span>
+                    <span>Back to home</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -670,22 +606,22 @@ export function StudentAssessmentPage({
             {/* 3 Normalized Scores Display */}
             <div className="grid grid-cols-3 gap-2 w-full md:w-auto shrink-0">
               <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
-                <span className="text-xs text-purple-200 block font-medium">Academic</span>
+                <span className="text-xs text-purple-200 block font-medium">Quiz</span>
                 <div className="text-2xl font-extrabold text-white mt-0.5">
                   {submissionResult.percentage}%
                 </div>
                 <span className={`text-xs font-bold mt-1 block ${submissionResult.percentage >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {submissionResult.percentage >= 60 ? 'Benchmark Met' : 'Needs Support'}
+                  {submissionResult.percentage >= 60 ? 'On track' : 'Could use support'}
                 </span>
               </div>
 
               <div className="bg-white/10 backdrop-blur-xs p-3.5 rounded-2xl border border-white/20 text-center">
-                <span className="text-xs text-purple-200 block font-medium">Feedback</span>
+                <span className="text-xs text-purple-200 block font-medium">Your class</span>
                 <div className="text-2xl font-extrabold text-white mt-0.5">
                   {feedbackPctScore}%
                 </div>
                 <span className={`text-xs font-bold mt-1 block ${feedbackPctScore >= 60 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {feedbackPctScore >= 60 ? 'Healthy Pace' : 'Review Alert'}
+                  {feedbackPctScore >= 60 ? 'Going well' : 'Teacher will take a look'}
                 </span>
               </div>
 
@@ -695,7 +631,7 @@ export function StudentAssessmentPage({
                   {wellbeingPctScore}%
                 </div>
                 <span className={`text-xs font-bold mt-1 block ${wellbeingPctScore >= 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {wellbeingPctScore >= 60 ? 'Balanced' : 'Support Offered'}
+                  {wellbeingPctScore >= 60 ? 'Doing fine' : 'Support is available'}
                 </span>
               </div>
             </div>
@@ -705,62 +641,6 @@ export function StudentAssessmentPage({
               INTERVENTION OFFERS & ACTIONS (From the 8-Row Matrix)
              ========================================================================= */}
 
-          {/* Action 1: Peer Mentor Invitation (Triggered when Academic < 60%) */}
-          {evaluationResult.recommendedActions.includes('PEER_MENTOR_INVITATION') && (
-            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="max-w-xl">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-xs font-bold uppercase tracking-wide">
-                    Academic Support Available
-                  </span>
-                  <span className="text-xs text-amber-700 font-semibold">• Voluntary Peer Mentoring</span>
-                </div>
-                <h3 className="text-base font-bold text-gray-900">
-                  Connect with a Volunteer Peer Mentor for {currentPulse.courseId}
-                </h3>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  We noticed some challenging concepts in this assessment. Arjun Singh (B.Tech 3rd Yr, GPA 9.2) has volunteered to hold peer study sessions. Peer mentors provide academic coaching only and never see your feedback or wellbeing records.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2.5 shrink-0">
-                {mentorOfferStatus === 'OFFERED' ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMentorOfferStatus('ACCEPTED')
-                        addToast('Peer Mentorship Accepted! 🤝', 'Connected with Arjun Singh. You can message in the Messages tab.', 'success')
-                      }}
-                      className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <UserCheck className="w-3.5 h-3.5" />
-                      <span>Accept Mentorship</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMentorOfferStatus('DECLINED')
-                        addToast('Mentorship Declined', 'You can request support anytime from the Request Support page.', 'info')
-                      }}
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold border border-line transition-all cursor-pointer"
-                    >
-                      <span>Decline</span>
-                    </button>
-                  </>
-                ) : mentorOfferStatus === 'ACCEPTED' ? (
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-white px-4 py-2 rounded-xl border border-emerald-200 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Mentorship Connected with Arjun Singh</span>
-                  </div>
-                ) : (
-                  <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-line">
-                    Offer Declined
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Action 2: Confidential Counsellor Offer (Triggered when Wellbeing < 60%) */}
           {evaluationResult.recommendedActions.includes('COUNSELLOR_OFFER') && (
@@ -768,15 +648,15 @@ export function StudentAssessmentPage({
               <div className="max-w-xl">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="px-2.5 py-0.5 rounded-full bg-purple-200 text-purple-900 text-xs font-bold uppercase tracking-wide">
-                    Confidential Wellbeing Check-in
+                    Private support
                   </span>
-                  <span className="text-xs text-purple-700 font-semibold">• 100% Private</span>
+                  <span className="text-xs text-purple-700 font-semibold">• Only you and your counsellor</span>
                 </div>
                 <h3 className="text-base font-bold text-gray-900">
-                  A Supportive Conversation is Always Available
+                  Someone is here to talk
                 </h3>
                 <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Your wellbeing matters most. A student counsellor is available for confidential one-on-one sessions. Faculty, peers, and mentors cannot view your individual responses.
+                  A counsellor can meet you privately. Teachers, classmates and mentors cannot see your answers.
                 </p>
               </div>
 
@@ -787,18 +667,18 @@ export function StudentAssessmentPage({
                       type="button"
                       onClick={() => {
                         setCounsellorOfferStatus('ACCEPTED')
-                        addToast('Confidential Session Accepted 💜', 'Your counsellor has been notified. Meeting schedule opened.', 'success')
+                        addToast('Your counsellor knows', 'They will contact you to find a time.', 'success')
                       }}
                       className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                     >
                       <Heart className="w-3.5 h-3.5 fill-white" />
-                      <span>Accept Support</span>
+                      <span>Yes, I would like that</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         setCounsellorOfferStatus('DECLINED')
-                        addToast('Counselling Offer Closed', 'Remember, support is always available whenever you need it.', 'info')
+                        addToast('No problem', 'Support is there whenever you need it.', 'info')
                       }}
                       className="px-4 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold border border-line transition-all cursor-pointer"
                     >
@@ -812,7 +692,7 @@ export function StudentAssessmentPage({
                   </div>
                 ) : (
                   <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-line">
-                    Offer Respectfully Closed
+                    You said no thanks. You can ask any time.
                   </div>
                 )}
               </div>
@@ -824,7 +704,7 @@ export function StudentAssessmentPage({
             <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-center gap-2.5">
               <FileText className="w-5 h-5 text-blue-600 shrink-0" />
               <span>
-                <strong>Instructional Review Alert Triggered:</strong> Aggregated, anonymous classroom feedback has alerted the instructor to review recent lecture pacing and code walkthroughs. Your identity remains strictly anonymous.
+                <strong>Your teacher will take a look:</strong> Anonymous feedback from the class suggests lessons may need a different pace. Nobody will know it was you.
               </span>
             </div>
           )}
@@ -833,17 +713,17 @@ export function StudentAssessmentPage({
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2.5">
             <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
             <span>
-              <strong>Anonymity Guarantee:</strong> Your responses to Category B (Classroom Feedback) and Category C (Student Wellbeing) have been detached from your student profile and recorded anonymously into aggregate batch statistics under k-anonymity (≥5).
+              <strong>Your privacy:</strong> Your answers about your class and how you feel are not linked to your name. They only count in totals for groups of 5 or more.
             </span>
           </div>
 
           {/* Objective Question Review Section */}
           <div className="bg-white rounded-3xl p-6 border border-line shadow-2xs">
             <h3 className="text-base font-bold text-gray-900 mb-1">
-              Category A: Question Breakdown & Explanations
+              Your quiz answers
             </h3>
             <p className="text-xs text-gray-500 mb-4">
-              Review your answers, correct options, and faculty explanations below.
+              See what was right and why.
             </p>
 
             <div className="space-y-4">
@@ -868,7 +748,7 @@ export function StudentAssessmentPage({
                       <span className="text-xs font-bold text-gray-800">Question {idx + 1}</span>
                     </div>
                     <span className="text-xs font-bold text-gray-700">
-                      {item.marksAwarded} / {item.maxMarks} Marks
+                      {item.marksAwarded} of {item.maxMarks} marks
                     </span>
                   </div>
 
@@ -877,18 +757,18 @@ export function StudentAssessmentPage({
                   <div className="text-xs text-gray-700 space-y-1 mb-2">
                     {typeof item.selectedOption === 'number' ? (
                       <p>
-                        Your Answer: <strong>Option {item.selectedOption + 1}</strong>
+                        Your answer: <strong>Option {item.selectedOption + 1}</strong>
                       </p>
                     ) : (
                       <p>
-                        Your Answer: <strong>"{item.selectedOption}"</strong>
+                        Your answer: <strong>"{item.selectedOption}"</strong>
                       </p>
                     )}
                   </div>
 
                   {item.explanation && (
                     <div className="p-3 rounded-xl bg-white/80 border border-line text-xs text-gray-700 mt-2">
-                      <strong>Concept Explanation:</strong> {item.explanation}
+                      <strong>Why:</strong> {item.explanation}
                     </div>
                   )}
                 </div>

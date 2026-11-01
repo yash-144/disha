@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { categoryLabel } from '../../lib/labels'
 import { QueryState, EmptyState } from '../common/QueryState'
 import { useCatalogue } from '../../lib/api/endpoints/admin.hooks'
 import { BookOpen, ShieldCheck, Clock, Users, Sparkles, Filter } from 'lucide-react'
@@ -11,24 +12,24 @@ export function InterventionsProtocolsPage() {
     <main className="flex-1 p-4 font-sans space-y-4 overflow-y-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <div>
-          <h1 className="text-lg font-bold text-ink">Accountable Interventions &amp; Protocols</h1>
+          <h1 className="text-lg font-bold text-ink">Ways to help students</h1>
           <p className="text-xs text-muted">
-            Evidence-based standard intervention protocols to arrest academic decline and support student retention.
+            Support options you can suggest when a student is struggling.
           </p>
         </div>
 
         {/* Filter Pills */}
         <div className="flex items-center gap-1.5 p-1 bg-white border border-line rounded-full text-xs font-semibold text-gray-500">
           <Filter className="w-3.5 h-3.5 ml-2 text-muted" />
-          {['ALL', 'academic', 'counselling', 'financial', 'tutoring'].map((cat) => (
+          {[['ALL', 'All'], ['academic', 'Study'], ['counselling', 'Counselling'], ['financial', 'Money'], ['tutoring', 'Tutoring']].map(([cat, catLabel]) => (
             <button
               key={cat}
               onClick={() => setFilterCat(cat)}
-              className={`px-3 py-1 rounded-full uppercase transition cursor-pointer ${
+              className={`px-3 py-1 rounded-full transition cursor-pointer ${
                 filterCat === cat ? 'bg-indigo-600 text-white font-bold' : 'hover:text-gray-900'
               }`}
             >
-              {cat}
+              {catLabel}
             </button>
           ))}
         </div>
@@ -36,7 +37,7 @@ export function InterventionsProtocolsPage() {
 
       <QueryState
         query={catalogue}
-        empty={<EmptyState title="No active protocols in catalogue" message="Institutional interventions will appear here." />}
+        empty={<EmptyState title="No support options yet" message="Your campus admin can add them." />}
       >
         {(rows) => {
           const filtered = filterCat === 'ALL' ? rows : rows.filter((r) => r.category?.toLowerCase().includes(filterCat))
@@ -50,11 +51,11 @@ export function InterventionsProtocolsPage() {
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono">
-                        {item.category?.replace('_', ' ') || 'Protocol'}
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">
+                        {categoryLabel(item.category) || 'Support'}
                       </span>
                       <span className={`text-xs font-bold ${item.is_active ? 'text-emerald-600' : 'text-muted'}`}>
-                        {item.is_active ? '● Active' : '○ Inactive'}
+                        {item.is_active ? '● Available' : '○ Not available'}
                       </span>
                     </div>
 
@@ -66,13 +67,6 @@ export function InterventionsProtocolsPage() {
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-xs text-muted">
-                    <span className="flex items-center gap-1 font-medium text-slate-700">
-                      <Clock className="w-3.5 h-3.5 text-indigo-500" />
-                      <span className="capitalize">{item.category ? `${item.category} protocol` : 'Standard SLA'}</span>
-                    </span>
-                    <span className="text-xs font-mono">ID: {item.id.slice(0, 8)}</span>
-                  </div>
                 </div>
               ))}
             </div>

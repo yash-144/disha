@@ -8,6 +8,15 @@ from dataclasses import dataclass, field
 
 log = logging.getLogger("disha_meko")
 
+try:  # standalone runs (doctor, training, seeding) read the repo-root .env too; real environment variables win
+    from pathlib import Path
+
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
+except ImportError:
+    pass
+
 DEFAULT_URL = "https://mcp.mekodata.ai/mcp"  # self-hosted: MEKO_MCP_URL=http://localhost:8080/mcp
 
 

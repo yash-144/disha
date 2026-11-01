@@ -54,11 +54,11 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
   const getHeaderTitle = () => {
     switch (activeTab) {
       case 'cases':
-        return 'My Cases'
+        return 'My requests'
       case 'request-support':
-        return 'Request Support'
+        return 'Ask for help'
       case 'assessment':
-        return 'Wellbeing Assessment'
+        return 'Wellbeing check-in'
       case 'messages':
         return 'Messages'
       case 'overview':
@@ -70,13 +70,13 @@ export function StudentDashboard({ initialTab }: StudentDashboardProps) {
   const getHeaderSubtitle = () => {
     switch (activeTab) {
       case 'cases':
-        return 'Your support cases, interventions, and progress — all in one place.'
+        return 'Everything you have asked help for, and how it is going.'
       case 'request-support':
-        return "Reach out for the right support. You're not alone in this."
+        return "Tell us what you need. You are not alone."
       case 'assessment':
-        return "Take a moment to understand how you've been feeling lately."
+        return "A few minutes to tell us how you have been feeling."
       case 'messages':
-        return 'Communicate with your assigned faculty mentor and student counsellors in a secure, confidential environment.'
+        return 'Notes from your mentors and counsellors.'
       case 'overview':
       default:
         return "Here's your wellbeing overview for this week."

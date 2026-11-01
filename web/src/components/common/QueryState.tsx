@@ -1,6 +1,7 @@
 import React from 'react'
 import { AlertTriangle, Inbox, RefreshCw } from 'lucide-react'
-import { ApiError, errorMessage } from '../../lib/api/errors'
+import { ApiError } from '../../lib/api/errors'
+import { friendlyError } from '../../lib/labels'
 
 /** Minimal shape shared by TanStack Query results (useQuery, useInfiniteQuery, ...). */
 interface QueryLike<T> {
@@ -44,7 +45,7 @@ export function EmptyState({
 
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const forbidden = error instanceof ApiError && error.isForbidden
-  const title = forbidden ? 'You do not have access to this' : 'Could not load this'
+  const title = forbidden ? 'You do not have access to this' : 'We could not load this'
   const requestId = error instanceof ApiError ? error.requestId : null
   return (
     <div
@@ -53,8 +54,13 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
     >
       <AlertTriangle className="h-6 w-6 text-red-500" aria-hidden="true" />
       <p className="text-sm font-bold text-ink">{title}</p>
-      <p className="max-w-sm text-xs text-muted">{errorMessage(error)}</p>
-      {requestId && <p className="font-mono text-xs text-muted">Reference: {requestId}</p>}
+      <p className="max-w-sm text-xs text-muted">{friendlyError(error)}</p>
+      {requestId && (
+        <details className="text-[11px] text-muted">
+          <summary className="cursor-pointer">Details for support</summary>
+          <span className="font-mono">{requestId}</span>
+        </details>
+      )}
       {onRetry && !forbidden && (
         <button
           type="button"

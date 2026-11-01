@@ -2,9 +2,10 @@ import React, { useMemo, useState } from 'react'
 import { QueryState, EmptyState } from '../common/QueryState'
 import { errorMessage } from '../../lib/api/errors'
 import { useInvitations, useInvite, useMemberships } from '../../lib/api/endpoints/admin.hooks'
-import { buildPeopleIndex, displayName, useAllCases, useAllScores, type ScoreRow } from '../../lib/api/endpoints/risk'
+import { buildPeopleIndex, displayName, knownName, useAllCases, useAllScores, type ScoreRow } from '../../lib/api/endpoints/risk'
 import { Button, Card, Direction, SearchInput, Tabs, TierBadge, TIERS, TIER_STYLE, pct, pretty, fmtDate, type Tier } from '../common/ui'
 import { StudentInsightDrawer } from './StudentInsightDrawer'
+import { inTen } from '../../lib/labels'
 import { roleLabel } from '../../lib/auth/portals'
 
 const RANK: Record<string, number> = { ON_TRACK: 0, WATCH: 1, MEDIUM: 2, HIGH: 3 }
@@ -37,7 +38,7 @@ function Students() {
     return [...by.entries()].map(([k, list]) => {
       const worst = [...list].sort((a, b) => b.probability - a.probability)[0]
       const nm = displayName(people, worst)
-      return { key: k, id: worst.student_id ?? worst.external_student_ref_hash ?? worst.student_ref, ref: worst.student_ref, name: nm, hasName: nm !== worst.student_ref, department: people.get(k)?.department ?? null, courses: list, worst }
+      return { key: k, id: worst.student_id ?? worst.external_student_ref_hash ?? worst.student_ref, ref: worst.student_ref, name: nm, hasName: knownName(people, worst) != null, department: people.get(k)?.department ?? null, courses: list, worst }
     })
   }, [scores.data, people])
 
@@ -55,7 +56,7 @@ function Students() {
           ))}
         </div>
       </div>
-      <QueryState query={scores} isEmpty={(d) => !d.items.length} empty={<EmptyState title="No students scored yet" message="Import data and run the risk model first." />}>
+      <QueryState query={scores} isEmpty={(d) => !d.items.length} empty={<EmptyState title="No students checked yet" message="Import your data and run the weekly check first." />}>
         {() => (
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
             <table className="w-full min-w-[640px] text-left text-xs">
@@ -64,17 +65,17 @@ function Students() {
                   <th className="p-3 font-bold">Student</th>
                   <th className="p-3 font-bold">Department</th>
                   <th className="p-3 font-bold">Courses</th>
-                  <th className="p-3 font-bold">Highest risk</th>
+                  <th className="p-3 font-bold">Needs help?</th>
                   <th className="p-3 font-bold">Main reason</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.slice(0, 100).map((r) => (
                   <tr key={r.key} tabIndex={0} onClick={() => setOpen(r)} onKeyDown={(e) => e.key === 'Enter' && setOpen(r)} className="cursor-pointer border-b border-gray-50 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none">
-                    <td className="p-3"><p className="font-bold text-ink">{r.name}</p>{r.hasName && <p className="text-xs text-muted">{r.ref}</p>}</td>
+                    <td className="p-3"><p className="font-bold text-ink">{r.name}</p>{r.hasName && <p className="text-xs text-muted">Student {r.ref}</p>}</td>
                     <td className="p-3 text-ink-2">{r.department ?? '—'}</td>
                     <td className="p-3 text-ink-2">{r.courses.length}</td>
-                    <td className="p-3"><span className="flex items-center gap-2"><TierBadge tier={r.worst.tier} /><span className="font-bold tabular-nums">{pct(r.worst.probability)}</span><Direction d={r.worst.direction} /></span></td>
+                    <td className="p-3"><span className="flex items-center gap-2"><TierBadge tier={r.worst.tier} /><span className="text-xs text-ink-2" title="Chance of struggling">{inTen(r.worst.probability)}</span><Direction d={r.worst.direction} /></span></td>
                     <td className="max-w-[260px] truncate p-3 text-ink-2">{r.worst.reasons?.[0]?.text ?? 'No concerns'}</td>
                   </tr>
                 ))}

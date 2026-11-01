@@ -13,7 +13,7 @@ function IssueList({ title, issues, tone }: { title: string; issues: ImportIssue
       <p className="text-xs font-bold">{title} ({issues.length})</p>
       <ul className="mt-1 space-y-1 text-xs">
         {issues.slice(0, 8).map((i, k) => (
-          <li key={k}><span className="font-mono font-semibold">{i.table}</span>: {i.message}{i.count > 1 ? ` (${i.count} rows)` : ''}</li>
+          <li key={k}><span className="font-semibold">{pretty(i.table)}</span>: {i.message}{i.count > 1 ? ` (${i.count} rows)` : ''}</li>
         ))}
         {issues.length > 8 && <li>…and {issues.length - 8} more</li>}
       </ul>
@@ -29,7 +29,7 @@ function BatchSummary({ batch, label, dry }: { batch: ImportBatch; label: string
         {failed ? <AlertTriangle className="h-4 w-4 text-rose-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
         <p className="text-sm font-bold text-ink">{label}</p>
         <Pill tone={failed ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}>{pretty(batch.status)}</Pill>
-        {dry && <Pill>Nothing saved</Pill>}
+        {dry && <Pill>Nothing was saved</Pill>}
         {batch.duplicate && <Pill tone="bg-amber-50 text-amber-700">Same as an earlier upload</Pill>}
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -81,10 +81,10 @@ export function AdminDataImportPage() {
     setError(null)
     setResult(null)
     create.mutate({ files: active as Record<string, File>, dryRun: dry }, {
-      onSuccess: (batch) => setResult({ batch, label: dry ? 'Check complete' : 'Import complete', dry }),
+      onSuccess: (batch) => setResult({ batch, label: dry ? 'Check finished' : 'Import finished', dry }),
       onError: (e) => {
         const body = e instanceof ApiError ? (e.body as { validation_errors?: unknown } | undefined) : undefined
-        if (body && typeof body === 'object' && 'validation_errors' in body) setResult({ batch: body as unknown as ImportBatch, label: 'Problems found', dry })
+        if (body && typeof body === 'object' && 'validation_errors' in body) setResult({ batch: body as unknown as ImportBatch, label: 'We found problems', dry })
         else setError(errorMessage(e))
       },
     })
@@ -92,20 +92,20 @@ export function AdminDataImportPage() {
 
   return (
     <div className="flex flex-col gap-4 font-sans">
-      <Card title="Upload campus data" tip="Upload one Excel workbook with a sheet per table, or one CSV per table. Always run the check first: it validates the files without saving anything.">
+      <Card title="Upload campus data" tip="Upload one Excel file with a sheet for each kind of data, or one CSV file for each. Run the check first: it looks for problems without saving anything.">
         <Tabs value={mode} onChange={setMode} items={[{ id: 'workbook', label: 'One Excel file' }, { id: 'csv', label: 'CSV per table' }]} />
         <div className="mt-4">
-          <QueryState query={schema} isEmpty={(d) => !d.tables.length} empty={<EmptyState title="No schema available" />}>
+          <QueryState query={schema} isEmpty={(d) => !d.tables.length} empty={<EmptyState title="We could not load the file layout" message="Try again in a moment." />}>
             {(sc) =>
               mode === 'workbook' ? (
                 <div className="space-y-3">
-                  <FilePick name="workbook" hint=".xlsx with one sheet per table" accept=".xlsx" file={files.workbook} onFile={(f) => setFile('workbook', f)} />
-                  <p className="text-xs text-muted">Sheets: {sc.tables.map((t) => `${t.name}${t.required ? '*' : ''}`).join(', ')} (* required)</p>
+                  <FilePick name="workbook" hint="An .xlsx file with one sheet for each kind of data" accept=".xlsx" file={files.workbook} onFile={(f) => setFile('workbook', f)} />
+                  <p className="text-xs text-muted">Sheets to include: {sc.tables.map((t) => `${pretty(t.name)}${t.required ? '*' : ''}`).join(', ')} (* must have)</p>
                 </div>
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
                   {sc.tables.map((t) => (
-                    <FilePick key={t.name} name={`${t.name}${t.required ? ' *' : ''}`} hint={`${t.required_columns.join(', ')}`} accept=".csv" file={files[t.name]} onFile={(f) => setFile(t.name, f)} />
+                    <FilePick key={t.name} name={`${t.name}${t.required ? ' *' : ''}`} hint={`Needs columns: ${t.required_columns.join(', ')}`} accept=".csv" file={files[t.name]} onFile={(f) => setFile(t.name, f)} />
                   ))}
                 </div>
               )
@@ -113,9 +113,9 @@ export function AdminDataImportPage() {
           </QueryState>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button variant="ghost" disabled={create.isPending || !ready} onClick={() => submit(true)}>Check files (dry run)</Button>
+          <Button variant="ghost" disabled={create.isPending || !ready} onClick={() => submit(true)}>Check files first</Button>
           <Button disabled={create.isPending || !ready} onClick={() => submit(false)}><UploadCloud className="h-3.5 w-3.5" /> {create.isPending ? 'Working…' : 'Import'}</Button>
-          <InfoTip text="After a real import, open Risk Model and run scoring so the new data is scored." />
+          <InfoTip text="After importing, open Early warning and run the weekly check so the new data is used." />
         </div>
         {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}
         {result && <div className="mt-3"><BatchSummary batch={result.batch} label={result.label} dry={result.dry} /></div>}

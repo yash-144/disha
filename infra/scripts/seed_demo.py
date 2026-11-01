@@ -408,6 +408,7 @@ async def seed(reset: bool) -> None:
         print("Counselling, support requests, pulse, rewards, notifications")
         await seed_counselling(db, pool, counsellors)
         await seed_support_requests(db, pool, faculty_users, course_rows)
+        await seed_student_messages(db, pool)
         await seed_pulse(db, pool, admin)
         await seed_rewards(db, pool, admin)
         await db.commit()
@@ -586,6 +587,20 @@ PULSE_QUESTIONS = [
 ]
 
 
+async def seed_student_messages(db, pool):
+    """Messages meant for students (never case alerts): check-in reminders, answers to support requests, bookings."""
+    uid_ = pool[0]["row"].user_id
+    items = [
+        ("PULSE_OPEN", "Your weekly check-in is open", "It takes two minutes and helps us support you early.", 0.2, False),
+        ("SUPPORT_REQUEST_UPDATE", "Dr. Meera Iyer replied to your request", "Happy to help. Come to my office hours on Thursday.", 1.0, False),
+        ("SESSION_SCHEDULED", "A counselling session was booked for you", "Wellbeing Centre, Room 2. You can ask to move it.", 2.0, True),
+    ]
+    for typ, title, body, days, read in items:
+        db.add(Notification(recipient_id=uid_, campus_id=CAMPUS_ID, notification_type=typ, title=title, body=body,
+                            is_read=read, sent_at=ago(days=days), created_at=ago(days=days)))
+    await db.flush()
+
+
 async def seed_pulse(db, pool, admin):
     q = PulseQuestionnaire(id=uid(), campus_id=CAMPUS_ID, version_key="v1", questions=PULSE_QUESTIONS, created_by=admin.id, created_at=ago(80))
     db.add(q)
@@ -593,7 +608,7 @@ async def seed_pulse(db, pool, admin):
     periods = []
     for k in range(5):  # four closed fortnights and the current one
         start = NOW - timedelta(days=14 * (4 - k) + 7)
-        p = PulsePeriod(id=uid(), campus_id=CAMPUS_ID, questionnaire_id=q.id, label=f"2026-P{k + 1}", starts_at=start,
+        p = PulsePeriod(id=uid(), campus_id=CAMPUS_ID, questionnaire_id=q.id, label=f"{start:%d %b} to {(start + timedelta(days=14)):%d %b}", starts_at=start,
                         ends_at=start + timedelta(days=14), created_by=admin.id, created_at=start - timedelta(days=1))
         periods.append(p)
         db.add(p)

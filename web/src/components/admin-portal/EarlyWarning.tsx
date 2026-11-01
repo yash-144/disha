@@ -3,6 +3,7 @@ import { useEarlyWarning } from '../../lib/api/endpoints/admin.hooks'
 import { ErrorState, LoadingSkeleton } from '../common/QueryState'
 import { Card, pct } from '../common/ui'
 import { FlaggedLine } from './charts'
+import { termWeek } from '../../lib/labels'
 
 /** Warning-time range: where the middle half of students sat (25th to 75th percentile) and the median. */
 function WarningRange({ p25, med, p75 }: { p25: number; med: number; p75: number }) {
@@ -34,18 +35,18 @@ export function EarlyWarningHero() {
   const half = c.flagged_in_first_half_of_term
   return (
     <section aria-label="How early we catch students" className="grid gap-4 lg:grid-cols-5">
-      <Card className="lg:col-span-2" title="Days of warning before students leave" tip="Benchmark from a held-out test on real student data, not this campus.">
+      <Card className="lg:col-span-2" title="Days of warning before students leave" tip="Measured on real student data from a past term, not on this campus.">
         <p className="text-base font-semibold text-ink">When students who later left were first flagged.</p>
         <p className="mt-1 text-sm text-ink-2"><b>{pct(b.detection_rate)}</b> of students who later withdrew were flagged first ({b.flagged_before_leaving.toLocaleString()} of {b.left_course.toLocaleString()}).</p>
         <WarningRange p25={b.p25_days} med={b.median_days_warning} p75={b.p75_days} />
-        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">Proven on a past term the model never saw.</p>
+        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">Tested on a past term the system had never seen.</p>
       </Card>
-      <Card className="lg:col-span-3" title="Students flagged as the term goes on" tip="Cumulative student-courses flagged High or Medium at each weekly scoring run on this campus.">
+      <Card className="lg:col-span-3" title="Students flagged as the term goes on" tip="Running total of students flagged as needing help at each weekly check on this campus.">
         <p className="text-base font-semibold text-ink">
           {half != null ? `${pct(half)} of flagged students were caught in the first half of the term.` : 'Flags build up as the term goes on.'}
         </p>
         <FlaggedLine points={c.cumulative_flagged} />
-        <p className="text-sm text-ink-2">{c.enrolments_flagged} of {c.enrolments_scored} student-courses flagged so far{c.median_first_flag_day != null ? `. Typical first flag: day ${Math.round(c.median_first_flag_day)}.` : '.'} <span className="text-muted">This campus.</span></p>
+        <p className="text-sm text-ink-2">{c.enrolments_flagged} of {c.enrolments_scored} student-courses flagged so far{c.median_first_flag_day != null ? `. Students are usually flagged by ${termWeek(c.median_first_flag_day).toLowerCase()}.` : '.'} <span className="text-muted">This campus.</span></p>
       </Card>
     </section>
   )

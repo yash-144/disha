@@ -3,7 +3,7 @@ import { Card } from '../common/ui'
 import { useAnalyticsOverview, useEarlyWarning } from '../../lib/api/endpoints/admin.hooks'
 import { ErrorState, LoadingSkeleton } from '../common/QueryState'
 
-const PROVEN = 'Proven on a past term the model never saw'
+const PROVEN = 'Tested on a past term the system had never seen'
 
 function Proof({ kicker, tag, tone, value, unit, sentence, sub }: {
   kicker: string

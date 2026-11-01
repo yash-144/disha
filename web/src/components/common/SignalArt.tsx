@@ -10,7 +10,7 @@ export function SignalArt({ className = '' }: { className?: string }) {
       {weeks.map((v, i) => (
         <g key={i}>
           <rect x={34 + i * 46} y={220 - v * 2.3} width="28" height={v * 2.3} fill={tier(v)} />
-          <text x={48 + i * 46} y="240" textAnchor="middle" fontSize="10" fill="#fff" fillOpacity="0.5">W{i + 4}</text>
+          <text x={48 + i * 46} y="240" textAnchor="middle" fontSize="10" fill="#fff" fillOpacity="0.5">Wk {i + 4}</text>
         </g>
       ))}
       <path d="M48 181 L94 165 L140 169 L186 148 L232 133 L278 114 L324 80 L370 41" fill="none" stroke="#fff" strokeWidth="2" />

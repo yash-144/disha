@@ -37,13 +37,13 @@ export interface NavItem {
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Overview', route: '/admin/overview', icon: LayoutGrid },
-  { id: 'schedule', label: 'Schedule & Calls', route: '/admin/schedule', icon: Calendar },
-  { id: 'case-management', label: 'Case Management', route: '/admin/case-management', icon: FolderKanban },
-  { id: 'student-directory', label: 'Student Directory', route: '/admin/student-directory', icon: GraduationCap },
-  { id: 'interventions', label: 'Interventions & Protocols', route: '/admin/interventions', icon: Sliders },
-  { id: 'analytics', label: 'Institution Analytics', route: '/admin/analytics', icon: BarChart3 },
-  { id: 'data-import', label: 'Data Import', route: '/admin/data-import', icon: UploadCloud },
-  { id: 'risk-model', label: 'Risk Model', route: '/admin/risk-model', icon: Cpu },
+  { id: 'schedule', label: 'Sessions and calls', route: '/admin/schedule', icon: Calendar },
+  { id: 'case-management', label: 'Cases', route: '/admin/case-management', icon: FolderKanban },
+  { id: 'student-directory', label: 'Students & staff', route: '/admin/student-directory', icon: GraduationCap },
+  { id: 'interventions', label: 'Support options', route: '/admin/interventions', icon: Sliders },
+  { id: 'analytics', label: 'Reports', route: '/admin/analytics', icon: BarChart3 },
+  { id: 'data-import', label: 'Upload data', route: '/admin/data-import', icon: UploadCloud },
+  { id: 'risk-model', label: 'Early warning', route: '/admin/risk-model', icon: Cpu },
 ]
 
 export function AdminSidebar({ activeTab, onSelectTab }: AdminSidebarProps) {

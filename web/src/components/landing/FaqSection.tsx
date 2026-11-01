@@ -3,28 +3,28 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 
 const FAQS = [
   {
-    q: 'What is DISHA’s core operating principle?',
-    a: 'DISHA operates on "No Alert Without Action." Unlike passive analytics dashboards, every warning signal generates an immutable SHA-256 evidence packet, assigns a single accountable owner, sets a binding SLA deadline, and records an auditable human outcome.',
+    q: 'What does “every warning gets a follow-up” mean?',
+    a: 'Every warning becomes a case with one named person and a due date. We then record how it turned out, so nothing gets lost.',
   },
   {
-    q: 'How does the risk model work?',
-    a: 'The DISHA Risk Model estimates, every week, the chance that a student will fail or withdraw from a course. It uses grades, submissions and online activity, and explains each flag in plain words. Alerts are capped to what advisors can handle, so the list stays useful.',
+    q: 'How does the early warning work?',
+    a: 'Each week, Disha estimates how likely a student is to struggle in a course, using marks, missed work and online activity. It explains every flag in plain words. Only as many students are flagged as your team can realistically help.',
   },
   {
     q: 'Can the team learn from past cases?',
-    a: 'Yes. Outcomes of past interventions feed shared, anonymised memory, so counsellors can see what helped similar students. No names or raw IDs are shared.',
+    a: 'Yes. What helped past students is kept without names, so counsellors can see what works for similar students.',
   },
   {
-    q: 'Is DISHA compliant with data privacy regulations like DPDP Act 2023?',
-    a: 'Yes. DISHA is built from the ground up to comply with India’s Digital Personal Data Protection (DPDP) Act 2023 and FERPA guidelines. It enforces tenant row-level security (RLS), field-level consent controls, automated data retention purges, and a tamper-evident audit trail.',
+    q: 'Is my data safe?',
+    a: 'Yes. Disha follows India’s data protection law (DPDP Act 2023). People only see what their role allows, old data is deleted on schedule, and every access is recorded.',
   },
   {
-    q: 'How does DISHA solve the problem of advisor alert fatigue?',
-    a: 'Traditional dashboards inundate faculty with thousands of unprioritized, passive alerts. DISHA solves this by capping cohort signals to an advisor capacity limit (default 15%), using calibrated cutoffs, and enforcing strict ownership and binding SLA deadlines for every accepted signal.',
+    q: 'Will teachers be flooded with alerts?',
+    a: 'No. The most urgent students come first, and each alert has an owner and a due date.',
   },
   {
-    q: 'What makes DISHA different from traditional campus ERP or LMS analytics?',
-    a: 'Traditional campus systems are retrospective, highlighting failure only after exams or dropouts occur. DISHA works proactively: it re-scores students every week as the term progresses, and tracks every intervention to an outcome.',
+    q: 'How is this different from a normal campus system?',
+    a: 'Normal systems show problems after the exams are over. Disha checks every week during the term and follows each case to an outcome.',
   },
 ]
 
@@ -40,13 +40,13 @@ export function FaqSection() {
       <div className="mx-auto max-w-4xl">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            / FAQS &amp; ARCHITECTURE
+            / QUESTIONS
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-slate-900 leading-[1.25]">
             <span className="font-semibold text-slate-950">Frequently asked</span> questions
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-500 font-normal">
-            Everything you need to know about DISHA early-warning signals, SLA tracking, and universal context memory.
+            Short answers to common questions.
           </p>
         </div>
 

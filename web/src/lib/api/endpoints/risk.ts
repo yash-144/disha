@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../client'
 import type { Tier } from '../../../components/common/ui'
+import { studentName } from '../../labels'
 
 /** Rolling risk model reads (api/app/modules/ml). Shapes follow docs/architecture/INSIGHTS_SPEC.md. */
 export interface Reason {
@@ -133,6 +134,10 @@ export function buildPeopleIndex(cases: CaseLite[] | undefined): Map<string, Per
   }
   return m
 }
+/** The real name if we have one, otherwise null. */
+export function knownName(people: Map<string, PersonInfo>, row: { student_id?: string | null; student_ref: string }): string | null {
+  return people.get(row.student_id ?? '')?.name ?? people.get(row.student_ref)?.name ?? null
+}
 export function displayName(people: Map<string, PersonInfo>, row: { student_id?: string | null; student_ref: string }): string {
-  return people.get(row.student_id ?? '')?.name ?? people.get(row.student_ref)?.name ?? row.student_ref
+  return studentName(people.get(row.student_id ?? '')?.name ?? people.get(row.student_ref)?.name, row.student_ref)
 }

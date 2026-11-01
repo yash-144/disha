@@ -42,18 +42,18 @@ export function LoginPage() {
     setError(null)
     if (!isSupabaseConfigured()) {
       setBusy(false)
-      setError('Google sign-in is not set up on this server yet.')
+      setError('Sign-in is not available right now. Please try again later.')
       return
     }
     try {
       const { error: err } = await signInWithGoogle()
       if (err) {
         setBusy(false)
-        setError(err.message || 'Sign-in failed. Please try again.')
+        setError('We could not sign you in. Please try again.')
       }
     } catch {
       setBusy(false)
-      setError('Could not reach Google. Check your connection and try again.')
+      setError('We could not reach Google. Check your internet and try again.')
     }
   }
 
@@ -64,10 +64,10 @@ export function LoginPage() {
         <Wordmark />
         <div>
           <SignalArt className="w-full max-w-md" />
-          <h2 className="mt-10 max-w-md font-display text-[44px] leading-[1.05] tracking-tight">Catch struggling students early. Act on every alert.</h2>
-          <p className="mt-4 max-w-sm text-sm text-white/65">Weekly risk scores, plain-language reasons, and a named owner for every case.</p>
+          <h2 className="mt-10 max-w-md font-display text-[44px] leading-[1.05] tracking-tight">Spot struggling students early. Help every one of them.</h2>
+          <p className="mt-4 max-w-sm text-sm text-white/65">Every week, we check how each student is doing, say why, and make sure someone follows up.</p>
         </div>
-        <p className="text-xs text-white/40">No alert without action.</p>
+        <p className="text-xs text-white/40">Every warning gets a follow-up.</p>
       </aside>
 
       {/* Sign-in */}
@@ -102,9 +102,9 @@ export function LoginPage() {
 
           <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-muted">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-            Your role is set by your campus. We never see your Google password.
+            Your campus decides what you can see. We never see your Google password.
           </p>
-          <p className="mt-3 text-xs text-muted">Can't sign in? Ask your campus admin to add your email.</p>
+          <p className="mt-3 text-xs text-muted">Cannot sign in? Ask your campus admin to add your email.</p>
         </div>
       </main>
     </div>

@@ -18,20 +18,9 @@ export function portalForRole(role: string | null | undefined): Portal | null {
   return role ? ROLE_TO_PORTAL[role] ?? null : null
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  student: 'Student',
-  faculty: 'Faculty',
-  mentor: 'Mentor',
-  hod: 'Head of Department',
-  counsellor: 'Counsellor',
-  finance: 'Finance',
-  placement: 'Placement',
-  leadership: 'Leadership',
-  institution_admin: 'Institution Admin',
-  platform_admin: 'Platform Admin',
-}
+import { roleName } from '../labels'
 
 export function roleLabel(role: string | null | undefined): string {
   if (!role) return ''
-  return ROLE_LABELS[role] ?? role
+  return roleName(role)
 }

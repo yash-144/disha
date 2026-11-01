@@ -2,7 +2,7 @@ import base64
 from datetime import datetime
 from typing import List, Optional, Sequence, Tuple
 
-from sqlalchemy import func, select, update
+from sqlalchemy import true, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import DishaBaseException, EntityNotFoundError
@@ -72,12 +72,20 @@ def _decode_cursor(cursor: str) -> Tuple[datetime, str]:
         raise DishaBaseException("Invalid cursor", 400)
 
 
+def audience_filter(role: Optional[str]):
+    """Case alerts are for staff. A student never sees them, even when the same person also holds a staff role."""
+    if role == "student":
+        return ~Notification.notification_type.like("CASE\\_%", escape="\\")
+    return true()
+
+
 class InboxService:
     @staticmethod
     async def list_for_user(
-        db: AsyncSession, campus_id: str, user_id: str, unread_only: bool, limit: int, cursor: Optional[str]
+        db: AsyncSession, campus_id: str, user_id: str, unread_only: bool, limit: int, cursor: Optional[str],
+        role: Optional[str] = None,
     ):
-        stmt = select(Notification).where(Notification.recipient_id == user_id, Notification.campus_id == campus_id)
+        stmt = select(Notification).where(Notification.recipient_id == user_id, Notification.campus_id == campus_id, audience_filter(role))
         if unread_only:
             stmt = stmt.where(Notification.is_read == False)  # noqa: E712
         if cursor:
@@ -94,13 +102,14 @@ class InboxService:
         return rows, next_cursor
 
     @staticmethod
-    async def unread_count(db: AsyncSession, campus_id: str, user_id: str) -> int:
+    async def unread_count(db: AsyncSession, campus_id: str, user_id: str, role: Optional[str] = None) -> int:
         return (
             await db.execute(
                 select(func.count(Notification.id)).where(
                     Notification.recipient_id == user_id,
                     Notification.campus_id == campus_id,
                     Notification.is_read == False,  # noqa: E712
+                    audience_filter(role),
                 )
             )
         ).scalar_one()
@@ -128,13 +137,14 @@ class InboxService:
         return notif
 
     @staticmethod
-    async def mark_all_read(db: AsyncSession, campus_id: str, user_id: str) -> int:
+    async def mark_all_read(db: AsyncSession, campus_id: str, user_id: str, role: Optional[str] = None) -> int:
         res = await db.execute(
             update(Notification)
             .where(
                 Notification.recipient_id == user_id,
                 Notification.campus_id == campus_id,
                 Notification.is_read == False,  # noqa: E712
+                audience_filter(role),
             )
             .values(is_read=True)
         )

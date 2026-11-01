@@ -29,7 +29,7 @@ const TAB_METADATA: Record<
     ],
   },
   schedule: {
-    title: 'Schedule & Calls',
+    title: 'Sessions and calls',
     subtitle: '',
     description:
       'Coordinate private student counseling slots, faculty syncs, and emergency support sessions.',
@@ -53,7 +53,7 @@ const TAB_METADATA: Record<
     ],
   },
   'support-cases': {
-    title: 'Support Cases',
+    title: 'My cases',
     subtitle: '',
     description:
       'Manage longitudinal counseling cases, action milestones, and inter-departmental collaboration records.',
@@ -65,7 +65,7 @@ const TAB_METADATA: Record<
     ],
   },
   analytics: {
-    title: 'Counsellor Analytics',
+    title: 'Results',
     subtitle: '',
     description:
       'Evaluate aggregate mental wellbeing indicators, common student stressors, and efficacy of supportive interventions.',
@@ -155,7 +155,7 @@ export function CounsellorDashboard({ initialTab }: CounsellorDashboardProps) {
               ) : activeTab === 'support-cases' ? (
                 <CounsellorSupportCases />
               ) : activeTab === 'schedule' ? (
-                <ScheduleSessionsView title="Counsellor Schedule & Consultations" />
+                <ScheduleSessionsView title="Your sessions and calls" />
               ) : (
                 <AdminAnalyticsPage />
               )}

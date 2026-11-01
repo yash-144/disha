@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { priorityLabel, stageLabel, studentName } from '../../lib/labels'
 import { QueryState, EmptyState } from '../common/QueryState'
 import { useFacultyCases } from '../../lib/api/endpoints/faculty.hooks'
 import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
@@ -10,8 +11,8 @@ export function MyCasesPage() {
 
   return (
     <main className="flex-1 p-4 font-sans">
-      <h1 className="mb-3 text-lg font-bold text-ink">My Monitored Cases</h1>
-      <QueryState query={cases} empty={<EmptyState title="No cases" message="Cases within your academic department or sections will appear here." />}>
+      <h1 className="mb-3 text-lg font-bold text-ink">Cases for students in your classes</h1>
+      <QueryState query={cases} empty={<EmptyState title="No cases yet" message="When a student in your classes needs support, it will show up here." />}>
         {(rows) => (
           <div className="rounded-2xl border border-line bg-white shadow-xs overflow-hidden">
             <ul className="divide-y divide-line text-xs">
@@ -23,10 +24,10 @@ export function MyCasesPage() {
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{c.student_name ?? c.student_ref ?? 'Student'}</span>
+                      <span className="font-bold text-gray-900">{studentName(c.student_name, c.student_ref)}</span>
                       {c.department && <span className="text-muted">({c.department})</span>}
-                      <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 uppercase">
-                        {c.priority}
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                        {priorityLabel(c.priority)}
                       </span>
                       {c.is_overdue && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
@@ -35,12 +36,12 @@ export function MyCasesPage() {
                       )}
                     </div>
                     <span className="text-muted text-xs">
-                      State: <span className="font-semibold uppercase text-indigo-600">{c.state}</span>
+                      <span className="font-semibold text-indigo-600">{stageLabel(c.state)}</span>
                     </span>
                   </div>
 
                   <span className="text-xs text-indigo-600 font-bold flex items-center gap-0.5 hover:underline">
-                    View Trajectory <ChevronRight className="w-3.5 h-3.5" />
+                    Open <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                 </li>
               ))}

@@ -14,6 +14,7 @@ import {
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
 } from '../../lib/api/endpoints/student.hooks'
+import { friendlyDateTime, friendlyError } from '../../lib/labels'
 
 export function StudentMessagesPage() {
   const { data: notifications = [], isLoading, error, refetch } = useStudentNotifications()
@@ -43,7 +44,7 @@ export function StudentMessagesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-2xl border border-line shadow-xs">
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <span>Student Messages &amp; Updates</span>
+            <span>Messages</span>
             {unreadCount > 0 && (
               <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700">
                 {unreadCount} new
@@ -51,7 +52,7 @@ export function StudentMessagesPage() {
             )}
           </h2>
           <p className="text-xs text-gray-500 mt-1">
-            Communications and session notices from your mentors, counsellors, and student welfare team.
+            Notes from your mentors and counsellors.
           </p>
         </div>
 
@@ -71,33 +72,26 @@ export function StudentMessagesPage() {
       {/* Notifications List */}
       {isLoading ? (
         <div className="p-12 text-center text-sm text-gray-500 bg-white rounded-2xl border border-line">
-          Loading messages...
+          Loading…
         </div>
       ) : error ? (
         <div className="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-xs">
-          Unable to load messages: {(error as Error).message}
+          We could not load your messages. {friendlyError(error)}
         </div>
       ) : notifications.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-line shadow-xs">
           <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
             <Bell className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-semibold text-gray-800">Inbox is empty</h3>
+          <h3 className="text-base font-semibold text-gray-800">No messages yet</h3>
           <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-            When your assigned mentors or counsellors schedule a check-in or reply to your requests,
-            their notifications will appear here.
+            When a mentor or counsellor writes to you, you will see it here.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {notifications.map((n) => {
-            const date = new Date(n.created_at)
-            const dateFormatted = date.toLocaleDateString(undefined, {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
+            const dateFormatted = friendlyDateTime(n.created_at)
 
             return (
               <div
