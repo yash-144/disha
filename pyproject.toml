@@ -5,6 +5,17 @@ description = "DISHA — Student Early-Warning & Intervention Platform"
 authors = [{ name = "DISHA Engineering Team" }]
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+    "disha-api",
+    "disha-meko",
+]
+
+[tool.uv.workspace]
+members = ["api", "meko"]
+
+[tool.uv.sources]
+disha-api = { workspace = true }
+disha-meko = { workspace = true }
 
 [tool.ruff]
 line-length = 100
