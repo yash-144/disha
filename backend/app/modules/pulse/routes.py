@@ -101,3 +101,44 @@ async def submit_student_pulse(pulse_id: str, payload: PulseSubmitRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/interventions")
+async def get_interventions():
+    """Retrieve all triggered interventions history."""
+    from app.modules.pulse.intervention_engine import intervention_engine
+    return intervention_engine.list_interventions()
+
+
+@router.get("/mentors")
+async def get_peer_mentors():
+    """Retrieve the peer mentor pool and active availability."""
+    from app.modules.pulse.intervention_engine import intervention_engine
+    return intervention_engine.list_peer_mentors()
+
+
+@router.post("/mentors/invitation/{invitation_id}/respond")
+async def respond_to_mentor_invitation(invitation_id: str, accept: bool):
+    """Student responds to a voluntary peer mentor invitation."""
+    from app.modules.pulse.intervention_engine import intervention_engine
+    try:
+        return intervention_engine.respond_to_mentor_invitation(invitation_id, accept)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/counselling/offer/{offer_id}/respond")
+async def respond_to_counselling_offer(offer_id: str, accept: bool):
+    """Student responds to a private, voluntary counselling offer."""
+    from app.modules.pulse.intervention_engine import intervention_engine
+    try:
+        return intervention_engine.respond_to_counselling_offer(offer_id, accept)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/demo/scenarios")
+async def get_demo_scenarios():
+    """Returns the 5 canonical demo scenarios for evaluator verification."""
+    return pulse_service.demo_scenarios
+
