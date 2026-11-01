@@ -56,9 +56,9 @@ export function DashboardLayout() {
   const [globalSearch, setGlobalSearch] = useState('')
 
   const [notifications, setNotifications] = useState([
-    { id: '1', title: 'Aarav Sharma submitted CS402 Capstone PR', time: '2m ago', unread: true },
+    { id: '1', title: 'A student submitted a capstone PR', time: '2m ago', unread: true },
     { id: '2', title: 'Weekly Assessment Report ready for review', time: '45m ago', unread: true },
-    { id: '3', title: 'Tanvi Verma scored 98% in React Canvas Lab', time: '2h ago', unread: false },
+    { id: '3', title: 'A student scored 98% in React Canvas Lab', time: '2h ago', unread: false },
   ])
 
   // Live dynamic clock for top cockpit bar

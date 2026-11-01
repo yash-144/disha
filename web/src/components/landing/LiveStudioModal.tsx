@@ -40,7 +40,7 @@ export function LiveStudioModal() {
     },
     {
       id: 'm2',
-      sender: 'Aarav Sharma',
+      sender: 'A student',
       text: 'Super excited for this session! Audio is crystal clear.',
       time: '12:32 PM',
     },

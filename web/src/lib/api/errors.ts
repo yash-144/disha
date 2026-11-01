@@ -1,3 +1,5 @@
+import { friendlyError } from '../labels'
+
 /**
  * Typed API error. Normalises the three error shapes the DISHA API returns:
  *  1. DishaBaseException: { error, status_code, details, request_id }   (api/app/core/exceptions.py)
@@ -68,10 +70,17 @@ export function isApiError(e: unknown): e is ApiError {
   return e instanceof ApiError
 }
 
-/** Human-readable message that is safe to show in the UI. */
+/**
+ * Message that is safe to show people: one short plain sentence, no status codes, ids or field names.
+ * A server message is kept only when it already reads like a sentence.
+ */
 export function errorMessage(e: unknown): string {
-  if (e instanceof Error) return e.message
-  return 'Something went wrong.'
+  if (e instanceof ApiError) {
+    const m = e.message ?? ''
+    const plain = e.status >= 400 && e.status < 500 && e.status !== 422 && e.status !== 401 && m.length > 8 && m.length < 140 && !/[_{}\[\]:]|\d{3,}|\b[0-9a-f]{8}-[0-9a-f]{4}\b|Traceback|Error\b|HTTP|request/i.test(m)
+    return plain ? m : friendlyError(e)
+  }
+  return friendlyError(e)
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {

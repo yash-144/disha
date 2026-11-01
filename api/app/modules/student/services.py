@@ -306,6 +306,7 @@ class StudentService:
             select(Notification)
             .where(
                 Notification.recipient_id == tenancy.user_id,
+                ~Notification.notification_type.like("CASE\\_%", escape="\\"),
                 Notification.campus_id == tenancy.campus_id,
             )
             .order_by(Notification.created_at.desc())

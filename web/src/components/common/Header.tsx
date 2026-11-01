@@ -45,8 +45,8 @@ export function Header() {
       <div className="border-b border-slate-800 bg-slate-950 px-4 py-2 text-center text-xs text-slate-300 font-medium">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-emerald-400 font-semibold">EARLY-WARNING ACTIVE:</span>
-          <span className="hidden sm:inline">Weekly risk scores with plain-language reasons for every flagged student.</span>
+          <span className="text-emerald-400 font-semibold">Early warning is on:</span>
+          <span className="hidden sm:inline">A weekly check of every student, with the reasons in plain words.</span>
           <button
             onClick={() => navigateTo('login')}
             className="ml-1 text-white underline decoration-emerald-400 decoration-1 underline-offset-4 hover:text-emerald-300 transition"
@@ -128,7 +128,7 @@ export function Header() {
                 }`}
               >
                 <Shield className="h-3 w-3" />
-                <span>Faculty</span>
+                <span>Teacher</span>
               </button>
               <button
                 onClick={() => switchRole('student')}
@@ -147,7 +147,7 @@ export function Header() {
               className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
             >
               <LayoutDashboard className="h-3.5 w-3.5 text-blue-600" />
-              <span>Cockpit</span>
+              <span>My dashboard</span>
             </button>
 
             {/* Auth Buttons */}
@@ -182,10 +182,10 @@ export function Header() {
             {[
               { label: 'Home', action: () => handleNavClick('landing') },
               { label: 'Why DISHA', action: () => scrollToSection('why-disha') },
-              { label: 'Solutions & Interventions', action: () => scrollToSection('solutions') },
-              { label: 'FAQs & Architecture', action: () => scrollToSection('faqs') },
-              { label: 'About Platform', action: () => handleNavClick('about') },
-              { label: 'LMS Cockpit', action: () => handleNavClick('dashboard') },
+              { label: 'Solutions', action: () => scrollToSection('solutions') },
+              { label: 'Questions', action: () => scrollToSection('faqs') },
+              { label: 'About', action: () => handleNavClick('about') },
+              { label: 'My dashboard', action: () => handleNavClick('dashboard') },
             ].map((item, idx) => (
               <button
                 key={idx}

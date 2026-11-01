@@ -38,7 +38,7 @@ function Attendance({ sectionId }: { sectionId: string }) {
         <Button variant="ghost" onClick={() => setMarks(Object.fromEntries((students.data ?? []).map((s) => [s.id, 'Present'])))}>All present</Button>
       </div>
     }>
-      <QueryState query={students} empty={<EmptyState title="No students in this section" />}>
+      <QueryState query={students} empty={<EmptyState title="No students in this class" />}>
         {(rows) => (
           <>
             <ul className="divide-y divide-line">
@@ -98,17 +98,17 @@ function Gradebook({ sectionId }: { sectionId: string }) {
   })
   return (
     <div className="flex flex-col gap-4">
-      <Card title="New assessment" tip="Creates a column in the gradebook. Then type marks straight into the cells.">
+      <Card title="New quiz or test" tip="Adds a column to the marks table. Then type marks straight into the boxes.">
         <form onSubmit={(e) => { e.preventDefault(); setErr(null); create.mutate() }} className="flex flex-wrap items-end gap-3 text-xs">
           <label className="flex flex-col gap-1 font-semibold text-ink-2">Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-56 rounded-md border border-line bg-panel px-3 py-2 font-normal" /></label>
-          <label className="flex flex-col gap-1 font-semibold text-ink-2">Type<select value={form.assessment_type} onChange={(e) => setForm({ ...form, assessment_type: e.target.value })} className="rounded-md border border-line bg-panel px-3 py-2 font-normal">{['quiz', 'assignment', 'midterm', 'final', 'project'].map((t) => <option key={t}>{t}</option>)}</select></label>
+          <label className="flex flex-col gap-1 font-semibold text-ink-2">Type<select value={form.assessment_type} onChange={(e) => setForm({ ...form, assessment_type: e.target.value })} className="rounded-md border border-line bg-panel px-3 py-2 font-normal">{[['quiz', 'Quiz'], ['assignment', 'Assignment'], ['midterm', 'Mid-term'], ['final', 'Final exam'], ['project', 'Project']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
           <label className="flex flex-col gap-1 font-semibold text-ink-2">Out of<input required value={form.total_marks} onChange={(e) => setForm({ ...form, total_marks: e.target.value.replace(/[^\d.]/g, '') })} className="w-20 rounded-md border border-line bg-panel px-3 py-2 font-normal" /></label>
           <Button type="submit" disabled={create.isPending || !form.title}><Plus className="h-3.5 w-3.5" /> Add</Button>
           {err && <p role="alert" className="text-tier-high">{err}</p>}
         </form>
       </Card>
-      <Card title="Gradebook">
-        <QueryState query={gb} isEmpty={(d) => !d.gradebook.length} empty={<EmptyState title="No students in this section" />}>
+      <Card title="Marks">
+        <QueryState query={gb} isEmpty={(d) => !d.gradebook.length} empty={<EmptyState title="No students in this class" />}>
           {(d) => (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] text-left text-xs">
@@ -141,11 +141,11 @@ export function TeacherAssessmentsPage() {
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-4 p-4 font-sans sm:p-6 lg:px-8 lg:py-6">
       <h1 className="font-display text-[34px] leading-tight tracking-tight">Classroom</h1>
-      <QueryState query={sections} empty={<EmptyState title="No sections assigned to you" />} loading={<LoadingSkeleton rows={1} />}>
+      <QueryState query={sections} empty={<EmptyState title="No classes assigned to you yet" />} loading={<LoadingSkeleton rows={1} />}>
         {(rows) => (
           <>
             <div className="flex flex-wrap items-center gap-3">
-              <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} aria-label="Section" className="rounded-md border border-line bg-panel px-3 py-2 text-xs font-semibold">
+              <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} aria-label="Class" className="rounded-md border border-line bg-panel px-3 py-2 text-xs font-semibold">
                 {rows.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <Tabs value={tab} onChange={setTab} items={[{ id: 'grades', label: 'Marks' }, { id: 'attendance', label: 'Attendance' }]} />

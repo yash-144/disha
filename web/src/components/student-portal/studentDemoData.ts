@@ -61,7 +61,7 @@ export const STUDENT_DEMO_DATA: Record<DemoMode, StudentDemoScenario> = {
       {
         id: 'u1',
         title: 'Mentor check-in scheduled',
-        subtitle: '14 Oct, 17:30 with Prof. Sharma',
+        subtitle: '14 Oct, 17:30 with your mentor',
         iconType: 'calendar',
         color: 'purple',
       },
@@ -189,7 +189,7 @@ export const STUDENT_DEMO_DATA: Record<DemoMode, StudentDemoScenario> = {
     },
     focusItems: [
       { id: 'f1', label: 'Complete check-in', done: true },
-      { id: 'f2', label: 'Attend 1-on-1 with Prof. Sharma', done: true },
+      { id: 'f2', label: 'Attend 1-on-1 with your mentor', done: true },
       { id: 'f3', label: 'Submit lab 3 makeup exercise', done: true },
       { id: 'f4', label: 'Review weekly progress milestone', done: false },
     ],
@@ -197,7 +197,7 @@ export const STUDENT_DEMO_DATA: Record<DemoMode, StudentDemoScenario> = {
       {
         id: 'u1',
         title: 'Mentor consultation recorded',
-        subtitle: 'Attestation signed by Prof. Sharma',
+        subtitle: 'Attestation signed by your mentor',
         iconType: 'calendar',
         color: 'blue',
       },
@@ -219,7 +219,7 @@ export const STUDENT_DEMO_DATA: Record<DemoMode, StudentDemoScenario> = {
     upcomingEvents: [
       {
         id: 'ev1',
-        title: 'Mentor Check-in with Prof. Sharma',
+        title: 'Mentor Check-in with your mentor',
         time: '14 Oct, 17:30',
         iconType: 'calendar',
       },

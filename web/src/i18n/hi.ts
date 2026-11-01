@@ -5,6 +5,13 @@ export const HI: Record<string, string> = {
   'My Cases': 'मेरे केस', 'Request Support': 'सहायता माँगें', Assessment: 'मूल्यांकन', Messages: 'संदेश',
   'Students in Need': 'सहायता चाहने वाले छात्र', 'Support Cases': 'सहायता केस', 'Counsellor Analytics': 'काउंसलर विश्लेषण',
   Classroom: 'कक्षा', 'Schedule & Calls': 'समय-सारणी और कॉल', 'Staff & access': 'स्टाफ़ और पहुँच', Students: 'छात्र',
+  'Sessions and calls': 'सत्र और कॉल', 'Students & staff': 'छात्र और स्टाफ़', 'Support options': 'सहायता विकल्प', Reports: 'रिपोर्ट', 'Upload data': 'डेटा अपलोड',
+  'Early warning': 'पूर्व चेतावनी', 'My students': 'मेरे छात्र', 'Ways to help': 'मदद के तरीक़े', 'My requests': 'मेरे अनुरोध', 'Ask for help': 'सहायता माँगें',
+  'Wellbeing check-in': 'वेलबीइंग चेक-इन', 'My cases': 'मेरे केस', Results: 'नतीजे', Resolved: 'हल हुआ',
+  'Needs help now': 'अभी मदद चाहिए', 'Needs a closer look': 'ध्यान से देखें', 'Keep an eye on': 'नज़र रखें',
+  'Campus admin': 'परिसर प्रशासक', Teacher: 'शिक्षक', 'Head of department': 'विभागाध्यक्ष', 'Start check-in': 'चेक-इन शुरू करें', 'Send request': 'अनुरोध भेजें',
+  'Every warning gets a follow-up.': 'हर चेतावनी पर कार्रवाई होती है।',
+  'Every week, Disha checks how each student is doing, explains why, and gives each concern to someone who follows up.': 'Disha हर सप्ताह देखता है कि हर छात्र कैसा कर रहा है, कारण बताता है, और हर चिंता किसी ज़िम्मेदार व्यक्ति को सौंपता है।',
   // page titles
   'Institution Analytics': 'संस्थान विश्लेषण', 'Counsellor Overview': 'अवलोकन', 'Interventions & Protocols': 'हस्तक्षेप और प्रोटोकॉल',
   Sessions: 'सत्र', 'Case pipeline': 'केस की स्थिति', 'Risk across campus': 'परिसर में जोखिम', 'How risk is changing': 'जोखिम कैसे बदल रहा है',

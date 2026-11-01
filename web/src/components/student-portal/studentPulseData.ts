@@ -1300,7 +1300,7 @@ export const PULSE_DEMO_SCENARIOS: Record<string, PulseDemoScenario> = {
     wellbeingScore: 42.0,
     expectedActions: ['COUNSELLOR_OFFER'],
     dialogTitle: 'Confidential Support Available',
-    dialogMessage: 'A private check-in with Dr. Meera Nambiar (Lead Student Counsellor) is available if you choose to connect.',
+    dialogMessage: 'A private check-in with A student counsellor is available if you choose to connect.',
   },
   scenario3: {
     id: 'scenario3',
@@ -1347,7 +1347,7 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
     sectionId: 'Section A (B.Tech 3rd Yr)',
-    title: 'Student Pulse #3: Trees, Recursion & Midterm Pulse',
+    title: 'Trees, Recursion & Midterm check-in',
     status: 'published',
     dueAt: '2026-11-06T23:59:59Z',
     createdAt: '2026-10-28T10:00:00Z',
@@ -1378,7 +1378,7 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
     courseId: 'CS202',
     courseName: 'Database Management Systems',
     sectionId: 'Section B (B.Tech 3rd Yr)',
-    title: 'Student Pulse #2: Relational Schema & Normalization Check',
+    title: 'Relational Schema & Normalization Check',
     status: 'published',
     dueAt: '2026-11-08T23:59:59Z',
     createdAt: '2026-10-29T14:30:00Z',
@@ -1409,7 +1409,7 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
     courseId: 'CS201',
     courseName: 'Data Structures & Algorithms',
     sectionId: 'Section A (B.Tech 3rd Yr)',
-    title: 'Student Pulse #4: Graph Traversals & Shortest Path (Draft)',
+    title: 'Graph Traversals & Shortest Path (Draft)',
     status: 'draft',
     dueAt: '2026-11-15T23:59:59Z',
     createdAt: '2026-10-31T08:15:00Z',
@@ -1443,7 +1443,7 @@ export const INITIAL_PULSE_ASSIGNMENTS: PulseAssignment[] = [
 
 export const DEMO_PULSE_ANALYTICS: Pulse3PartAnalytics = {
   pulseId: 'pulse-cs201-03',
-  title: 'Student Pulse #3: Trees, Recursion & Midterm Pulse',
+  title: 'Trees, Recursion & Midterm check-in',
   courseId: 'CS201',
   sampleSize: 42,
   kAnonymityEnforced: true,
@@ -1583,7 +1583,7 @@ export const INITIAL_STUDENT_SUBMISSION: StudentPulseSubmission = {
       isCorrect: true,
       marksAwarded: 4.0,
       maxMarks: 5.0,
-      explanation: 'Descriptive response awarded 4.0/5.0 by Prof. Sharma: Excellent conceptual articulation of queue vs stack mechanisms.',
+      explanation: 'Descriptive response awarded 4.0/5.0 by your mentor: Excellent conceptual articulation of queue vs stack mechanisms.',
     },
   ],
 }

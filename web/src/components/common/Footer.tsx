@@ -34,9 +34,8 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm sm:text-base md:text-lg font-normal text-slate-600 leading-relaxed max-w-lg">
-              Enterprise multi-campus student early-warning &amp; accountable intervention platform.
-              Operating under the unyielding principle of{' '}
-              <strong className="font-semibold text-slate-900">"No Alert Without Action."</strong>
+              Helping campuses spot struggling students early and make sure each one gets help.{' '}
+              <strong className="font-semibold text-slate-900">Every warning gets a follow-up.</strong>
             </p>
           </div>
 
@@ -58,7 +57,7 @@ export function Footer() {
               onClick={() => navigateTo('login')}
               className="group flex items-center gap-3.5 rounded-full bg-slate-900 px-7 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-lg hover:bg-slate-800 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>Register for DISHA</span>
+              <span>Get started</span>
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white group-hover:rotate-45 transition-transform duration-200">
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </div>

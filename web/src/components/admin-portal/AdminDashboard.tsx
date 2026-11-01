@@ -22,31 +22,31 @@ const TAB_METADATA: Record<
     subtitle: '',
   },
   schedule: {
-    title: 'Schedule & Calls',
+    title: 'Sessions and calls',
     subtitle: '',
   },
   'case-management': {
-    title: 'Case Management',
+    title: 'Cases',
     subtitle: '',
   },
   'student-directory': {
-    title: 'Student Directory',
+    title: 'Students & staff',
     subtitle: '',
   },
   interventions: {
-    title: 'Interventions & Protocols',
+    title: 'Support options',
     subtitle: '',
   },
   analytics: {
-    title: 'Institution Analytics',
+    title: 'Reports',
     subtitle: '',
   },
   'data-import': {
-    title: 'Data Import',
+    title: 'Upload data',
     subtitle: '',
   },
   'risk-model': {
-    title: 'Risk Model',
+    title: 'Early warning',
     subtitle: '',
   },
 }

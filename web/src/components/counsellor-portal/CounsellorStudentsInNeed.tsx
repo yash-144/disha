@@ -3,10 +3,11 @@ import { QueryState, EmptyState } from '../common/QueryState'
 import { Direction, SearchInput, TierBadge, TIER_STYLE, pct, type Tier } from '../common/ui'
 import { buildPeopleIndex, displayName, useAllCases, useAllScores } from '../../lib/api/endpoints/risk'
 import { StudentInsightDrawer } from '../admin-portal/StudentInsightDrawer'
+import { courseName, inTen } from '../../lib/labels'
 
 const TIERS: Tier[] = ['HIGH', 'MEDIUM', 'WATCH']
 
-/** Everyone the risk model flags, with the reasons. Click a row for the full explanation. */
+/** Everyone flagged as needing support, with the reasons. Click a row for the full explanation. */
 export function CounsellorStudentsInNeed() {
   const [tier, setTier] = useState<Tier>('HIGH')
   const [search, setSearch] = useState('')
@@ -26,24 +27,24 @@ export function CounsellorStudentsInNeed() {
             </button>
           ))}
         </div>
-        <SearchInput value={search} onChange={setSearch} placeholder="Search name, ID or course" />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by name or course" />
       </div>
-      <QueryState query={scores} isEmpty={(d) => !d.items.length} empty={<EmptyState title="No risk scores yet" message="An administrator needs to import data and run scoring first." />}>
+      <QueryState query={scores} isEmpty={(d) => !d.items.length} empty={<EmptyState title="No results yet" message="Ask your campus admin to upload data and run the weekly check." />}>
         {(d) => {
           const rows = d.items.filter((r) => r.tier === tier && (!search || `${displayName(people, r)} ${r.student_ref} ${r.course_id}`.toLowerCase().includes(search.toLowerCase())))
           if (!rows.length) return <EmptyState title="No students match" />
           return (
             <div className="overflow-x-auto rounded-lg border border-line bg-panel">
               <table className="w-full min-w-[620px] text-left text-xs">
-                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Course</th><th className="p-3 font-semibold">Risk</th><th className="p-3 font-semibold">Main reason</th></tr></thead>
+                <thead><tr className="border-b border-line text-xs text-muted"><th className="p-3 font-semibold">Student</th><th className="p-3 font-semibold">Course</th><th className="p-3 font-semibold">How urgent</th><th className="p-3 font-semibold">Main reason</th></tr></thead>
                 <tbody>
                   {rows.slice(0, 100).map((r) => {
                     const name = displayName(people, r)
                     return (
                       <tr key={r.id} tabIndex={0} onClick={() => setOpen({ key: r.student_id ?? r.external_student_ref_hash ?? r.student_ref, name })} onKeyDown={(e) => e.key === 'Enter' && setOpen({ key: r.student_id ?? r.student_ref, name })} className="cursor-pointer border-b border-line/60 hover:bg-sunken/60 focus:bg-sunken/60 focus:outline-none">
                         <td className="p-3 font-semibold">{name}</td>
-                        <td className="p-3 text-ink-2">{r.course_id}</td>
-                        <td className="p-3"><span className="flex items-center gap-2"><TierBadge tier={r.tier} /><span className="font-semibold tabular-nums">{pct(r.probability)}</span><Direction d={r.direction} /></span></td>
+                        <td className="p-3 text-ink-2">{courseName(r.course_id)}</td>
+                        <td className="p-3"><span className="flex items-center gap-2"><TierBadge tier={r.tier} /><span className="text-ink-2" title="Chance of struggling">{inTen(r.probability)}</span><Direction d={r.direction} /></span></td>
                         <td className="max-w-[320px] truncate p-3 text-ink-2">{r.reasons?.[0]?.text ?? '—'}</td>
                       </tr>
                     )

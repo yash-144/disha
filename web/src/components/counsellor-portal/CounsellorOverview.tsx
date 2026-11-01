@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { QueryState, EmptyState } from '../common/QueryState'
-import { Card, Kpi, KpiStrip, Pill, fmtDateTime, pretty } from '../common/ui'
+import { Card, Kpi, KpiStrip, Pill, fmtDateTime } from '../common/ui'
+import { priorityLabel, stageLabel, studentName } from '../../lib/labels'
 import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
 import { useCaseload, useCounsellorDashboard, useCounsellingSessions, useFollowups } from '../../lib/api/endpoints/counsellor.hooks'
 
@@ -29,20 +30,20 @@ export function CounsellorOverview() {
       </QueryState>
 
       <div className="grid gap-4 lg:grid-cols-5">
-        <Card className="lg:col-span-3" title="My caseload" tip="Highest priority first. Open a case to add notes, interventions and follow-ups.">
-          <QueryState query={caseload} empty={<EmptyState title="No cases assigned to you" />}>
+        <Card className="lg:col-span-3" title="My caseload" tip="Highest priority first. Open a case to add notes, support and follow-ups.">
+          <QueryState query={caseload} empty={<EmptyState title="No cases assigned to you yet" />}>
             {(rows) => (
               <ul className="divide-y divide-line">
                 {[...rows].sort((a, b) => Number(b.is_overdue) - Number(a.is_overdue) || (ORDER[a.priority] ?? 9) - (ORDER[b.priority] ?? 9)).map((c) => (
                   <li key={c.case_id}>
                     <button type="button" onClick={() => setOpenCase(c.case_id)} className="flex w-full items-center justify-between gap-3 py-2.5 text-left text-xs hover:bg-sunken/60">
                       <span className="min-w-0">
-                        <span className="block truncate font-semibold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                        <span className="text-xs text-muted">{pretty(c.state)}</span>
+                        <span className="block truncate font-semibold text-ink">{studentName(c.student_name, c.student_ref)}</span>
+                        <span className="text-xs text-muted">{stageLabel(c.state)}</span>
                       </span>
                       <span className="flex shrink-0 items-center gap-1.5">
                         {c.is_overdue && <Pill tone="bg-rose-50 text-rose-700">Overdue</Pill>}
-                        <Pill tone={PRIORITY[c.priority] ?? PRIORITY.low}>{pretty(c.priority)}</Pill>
+                        <Pill tone={PRIORITY[c.priority] ?? PRIORITY.low}>{priorityLabel(c.priority)}</Pill>
                       </span>
                     </button>
                   </li>
@@ -74,7 +75,7 @@ export function CounsellorOverview() {
                 <ul className="divide-y divide-line">
                   {rows.filter((s) => s.status === 'scheduled').sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at)).slice(0, 5).map((s) => (
                     <li key={s.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-                      <span className="truncate font-medium">{s.student_name ?? 'Student'}</span>
+                      <span className="truncate font-medium">{studentName(s.student_name)}</span>
                       <span className="shrink-0 tabular-nums text-muted">{fmtDateTime(s.scheduled_at)}</span>
                     </li>
                   ))}

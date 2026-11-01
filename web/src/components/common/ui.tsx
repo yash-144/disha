@@ -1,24 +1,25 @@
 import React, { useEffect } from 'react'
 import { ArrowDownRight, ArrowUpRight, Info, Minus, X } from 'lucide-react'
 import { useT } from '../../i18n'
+import { TIER_LABEL, TIER_HELP, plainBucket, friendlyDate, friendlyDateTime } from '../../lib/labels'
 
 /* ------------------------------------------------------------------ tokens */
 export type Tier = 'HIGH' | 'MEDIUM' | 'WATCH' | 'ON_TRACK'
 export const TIERS: Tier[] = ['HIGH', 'MEDIUM', 'WATCH', 'ON_TRACK']
 export const TIER_STYLE: Record<Tier, { label: string; color: string; bar: string; chip: string; help: string }> = {
-  HIGH: { label: 'High', color: '#B3261E', bar: 'bg-tier-high', chip: 'bg-rose-50 text-rose-700 border-rose-200', help: 'Very likely to fail or withdraw without support' },
-  MEDIUM: { label: 'Medium', color: '#D2691E', bar: 'bg-tier-medium', chip: 'bg-orange-50 text-orange-700 border-orange-200', help: 'Clear warning signs' },
-  WATCH: { label: 'Watch', color: '#C79A14', bar: 'bg-tier-watch', chip: 'bg-amber-50 text-amber-700 border-amber-200', help: 'Early signs worth keeping an eye on' },
-  ON_TRACK: { label: 'On track', color: '#2C7A66', bar: 'bg-tier-ok', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', help: 'No concerns right now' },
+  HIGH: { label: TIER_LABEL.HIGH, color: '#B3261E', bar: 'bg-tier-high', chip: 'bg-rose-50 text-rose-700 border-rose-200', help: TIER_HELP.HIGH },
+  MEDIUM: { label: TIER_LABEL.MEDIUM, color: '#D2691E', bar: 'bg-tier-medium', chip: 'bg-orange-50 text-orange-700 border-orange-200', help: TIER_HELP.MEDIUM },
+  WATCH: { label: TIER_LABEL.WATCH, color: '#C79A14', bar: 'bg-tier-watch', chip: 'bg-amber-50 text-amber-700 border-amber-200', help: TIER_HELP.WATCH },
+  ON_TRACK: { label: TIER_LABEL.ON_TRACK, color: '#2C7A66', bar: 'bg-tier-ok', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', help: TIER_HELP.ON_TRACK },
 }
 
-export const pretty = (s: string) => s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
+/** Plain words for any server label (stages, priorities, statuses...). */
+export const pretty = (s: string) => plainBucket(s)
 export const pct = (n: number | null | undefined, digits = 0) =>
   n == null || Number.isNaN(n) ? '—' : `${(n * 100).toFixed(digits)}%`
 export const fmtCount = (n: number | null | undefined, suppressed?: boolean) => (suppressed ? '<5' : n == null ? '—' : String(n))
-export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—')
-export const fmtDateTime = (s?: string | null) =>
-  s ? new Date(s).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'
+export const fmtDate = (s?: string | null) => friendlyDate(s)
+export const fmtDateTime = (s?: string | null) => friendlyDateTime(s)
 
 /* ------------------------------------------------------------------ tooltip */
 export function InfoTip({ text, className = '' }: { text: string; className?: string }) {
@@ -122,8 +123,8 @@ export function Pill({ children, tone = 'bg-gray-100 text-gray-700' }: { childre
 }
 
 export function Direction({ d }: { d?: string | null }) {
-  if (d === 'up') return <ArrowUpRight className="h-3.5 w-3.5 text-rose-600" aria-label="risk rising" />
-  if (d === 'down') return <ArrowDownRight className="h-3.5 w-3.5 text-emerald-600" aria-label="risk falling" />
+  if (d === 'up') return <ArrowUpRight className="h-3.5 w-3.5 text-rose-600" aria-label="getting worse" />
+  if (d === 'down') return <ArrowDownRight className="h-3.5 w-3.5 text-emerald-600" aria-label="getting better" />
   return <Minus className="h-3.5 w-3.5 text-muted" aria-label="steady" />
 }
 
@@ -255,7 +256,7 @@ export function Bars({ rows, color = 'bg-indigo-500', labelWidth = 'w-24', showE
 export function TierBar({ counts, height = 'h-4' }: { counts: Partial<Record<string, number>>; height?: string }) {
   const total = TIERS.reduce((a, t) => a + (counts[t] ?? 0), 0)
   return (
-    <div className={`flex w-full overflow-hidden rounded-full bg-sunken ${height}`} role="img" aria-label="Risk tier split">
+    <div className={`flex w-full overflow-hidden rounded-full bg-sunken ${height}`} role="img" aria-label="How students are split by level of support needed">
       {TIERS.map((t) => (
         <div key={t} className={TIER_STYLE[t].bar} style={{ width: `${((counts[t] ?? 0) / Math.max(1, total)) * 100}%` }} title={`${TIER_STYLE[t].label}: ${counts[t] ?? 0}`} />
       ))}
@@ -282,7 +283,7 @@ export function Donut({ counts, centre, sub }: { counts: Partial<Record<string, 
   const c = 2 * Math.PI * r
   let offset = 0
   return (
-    <svg viewBox="0 0 140 140" className="h-40 w-40 shrink-0" role="img" aria-label="Risk tier distribution">
+    <svg viewBox="0 0 140 140" className="h-40 w-40 shrink-0" role="img" aria-label="How students are split by level of support needed">
       <circle cx="70" cy="70" r={r} fill="none" stroke="#ECE9E0" strokeWidth="16" />
       {TIERS.map((t) => {
         const len = ((counts[t] ?? 0) / total) * c
@@ -300,7 +301,7 @@ export function Donut({ counts, centre, sub }: { counts: Partial<Record<string, 
   )
 }
 
-/** Stacked columns of tier counts per scoring run (oldest to newest). */
+/** Stacked columns of counts per weekly check (oldest to newest). */
 export function TierTrend({ points }: { points: { label: string; counts: Partial<Record<string, number>> }[] }) {
   const W = 360
   const H = 170
@@ -308,7 +309,7 @@ export function TierTrend({ points }: { points: { label: string; counts: Partial
   const max = Math.max(1, ...points.map((p) => TIERS.reduce((a, t) => a + (p.counts[t] ?? 0), 0)))
   const bw = Math.min(70, (W - pad.l - pad.r) / Math.max(1, points.length) - 16)
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Risk tiers across scoring runs">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="How the split has changed week by week">
       {points.map((p, i) => {
         const x = pad.l + ((W - pad.l - pad.r) / points.length) * (i + 0.5) - bw / 2
         let y = H - pad.b
@@ -346,7 +347,7 @@ export function LineChart({ points, color = '#6366F1', yFmt = (v: number) => `${
   const sy = (y: number) => H - pad.b - (y / ymax) * (H - pad.t - pad.b)
   const d = points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ')
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Line chart">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Trend over the term">
       {[0, 0.5, 1].map((f) => (
         <g key={f}>
           <line x1={pad.l} x2={W - pad.r} y1={sy(ymax * f)} y2={sy(ymax * f)} stroke="#DEDACE" strokeDasharray="3 3" />
@@ -357,11 +358,11 @@ export function LineChart({ points, color = '#6366F1', yFmt = (v: number) => `${
       <path d={d} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
       {points.map((p) => (
         <circle key={p.x} cx={sx(p.x)} cy={sy(p.y)} r="3" fill={color}>
-          <title>{`Day ${p.x}: ${yFmt(p.y)}`}</title>
+          <title>{`Week ${Math.max(1, Math.round(p.x / 7))}: ${yFmt(p.y)}`}</title>
         </circle>
       ))}
-      <text x={pad.l} y={H - 6} fontSize="9" className="fill-muted">day {x0}</text>
-      <text x={W - pad.r} y={H - 6} textAnchor="end" fontSize="9" className="fill-muted">{xLabel ?? `day ${x1}`}</text>
+      <text x={pad.l} y={H - 6} fontSize="9" className="fill-muted">week {Math.max(1, Math.round(x0 / 7))}</text>
+      <text x={W - pad.r} y={H - 6} textAnchor="end" fontSize="9" className="fill-muted">{xLabel ?? `week ${Math.max(1, Math.round(x1 / 7))}`}</text>
     </svg>
   )
 }

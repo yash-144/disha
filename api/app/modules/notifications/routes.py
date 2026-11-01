@@ -25,18 +25,18 @@ async def list_my_notifications(
     db: AsyncSession = Depends(get_db),
 ):
     """The caller's own in-app notifications in the active campus, newest first."""
-    rows, next_cursor = await InboxService.list_for_user(db, ctx.campus_id, ctx.user_id, unread_only, limit, cursor)
+    rows, next_cursor = await InboxService.list_for_user(db, ctx.campus_id, ctx.user_id, unread_only, limit, cursor, role=ctx.role.value)
     return NotificationPage(items=[NotificationItem.model_validate(r) for r in rows], next_cursor=next_cursor)
 
 
 @router.get("/unread-count", response_model=UnreadCount)
 async def unread_count(ctx: TenancyContext = Depends(get_tenancy_context), db: AsyncSession = Depends(get_db)):
-    return UnreadCount(unread=await InboxService.unread_count(db, ctx.campus_id, ctx.user_id))
+    return UnreadCount(unread=await InboxService.unread_count(db, ctx.campus_id, ctx.user_id, role=ctx.role.value))
 
 
 @router.post("/read-all", response_model=UnreadCount)
 async def mark_all_read(ctx: TenancyContext = Depends(get_tenancy_context), db: AsyncSession = Depends(get_db)):
-    await InboxService.mark_all_read(db, ctx.campus_id, ctx.user_id)
+    await InboxService.mark_all_read(db, ctx.campus_id, ctx.user_id, role=ctx.role.value)
     await db.commit()
     return UnreadCount(unread=0)
 

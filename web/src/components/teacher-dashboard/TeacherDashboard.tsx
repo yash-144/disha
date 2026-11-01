@@ -24,9 +24,9 @@ function Stats() {
     <QueryState query={dash}>
       {(d) => (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <StatCard title="Students in Scope" value={d.metrics.total_students_monitored} icon={Users} variant="yellow" />
-          <StatCard title="Active Sections" value={d.metrics.active_sections} icon={Activity} variant="blue" />
-          <StatCard title="Signals Pending Review" value={d.metrics.unreviewed_signals} icon={Flag} variant="purple" />
+          <StatCard title="Students in your classes" value={d.metrics.total_students_monitored} icon={Users} variant="yellow" />
+          <StatCard title="Your classes" value={d.metrics.active_sections} icon={Activity} variant="blue" />
+          <StatCard title="Alerts waiting for you" value={d.metrics.unreviewed_signals} icon={Flag} variant="purple" />
         </div>
       )}
     </QueryState>

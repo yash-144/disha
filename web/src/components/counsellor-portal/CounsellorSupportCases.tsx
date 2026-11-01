@@ -5,12 +5,13 @@ import { errorMessage } from '../../lib/api/errors'
 import { CaseDetailDrawer } from '../common/CaseDetailDrawer'
 import { ChevronRight, AlertTriangle } from 'lucide-react'
 import { useT } from '../../i18n'
+import { priorityLabel, stageLabel, studentName } from '../../lib/labels'
 
 /** Steps a counsellor may take themselves. Assigning an owner (action_planned -> assigned) is an admin action in the backend. */
 const STEP: Record<string, { target: string; label: string; done: string }> = {
   suggested: { target: 'under_review', label: 'Start review', done: 'Review started.' },
-  under_review: { target: 'action_planned', label: 'Approve plan', done: 'Plan approved. An admin can now assign an owner.' },
-  assigned: { target: 'accepted', label: 'Accept', done: 'Case accepted.' },
+  under_review: { target: 'action_planned', label: 'Approve plan', done: 'Plan approved. An admin can now give it to a counsellor.' },
+  assigned: { target: 'accepted', label: 'Accept case', done: 'Case accepted.' },
 }
 
 export function CounsellorSupportCases() {
@@ -40,7 +41,7 @@ export function CounsellorSupportCases() {
         </p>
       )}
 
-      <QueryState query={cases} empty={<EmptyState title="No active cases" message="Students requiring accountable interventions will appear here." />}>
+      <QueryState query={cases} empty={<EmptyState title="No cases yet" message="When a student needs support, their case will show up here." />}>
         {(rows) => (
           <div className="rounded-2xl border border-line bg-white shadow-xs overflow-hidden">
             <ul className="divide-y divide-line text-xs">
@@ -52,9 +53,9 @@ export function CounsellorSupportCases() {
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-ink">{c.student_name ?? c.student_ref ?? 'Student'}</span>
-                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-sunken text-ink-2 uppercase font-semibold">
-                        {c.priority}
+                      <span className="font-bold text-ink">{studentName(c.student_name, c.student_ref)}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-sunken text-ink-2 font-semibold">
+                        {priorityLabel(c.priority)}
                       </span>
                       {c.is_overdue && (
                         <span className="text-xs px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-bold flex items-center gap-1 border border-rose-200">
@@ -63,7 +64,7 @@ export function CounsellorSupportCases() {
                       )}
                     </div>
                     <span className="text-muted text-xs">
-                      State: <span className="font-semibold text-accent">{c.state}</span>
+                      <span className="font-semibold text-accent">{stageLabel(c.state)}</span>
                     </span>
                   </div>
 

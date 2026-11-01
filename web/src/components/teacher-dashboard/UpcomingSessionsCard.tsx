@@ -11,7 +11,7 @@ export function UpcomingSessionsCard({ onViewSchedule }: { onViewSchedule?: () =
       <div className="flex items-center justify-between pb-2">
         <h2 className="text-sm font-bold text-ink flex items-center gap-1.5">
           <Calendar className="w-4 h-4 text-blue-600" />
-          <span>Consultations &amp; Office Hours</span>
+          <span>Upcoming sessions</span>
         </h2>
         <button
           type="button"
@@ -23,7 +23,7 @@ export function UpcomingSessionsCard({ onViewSchedule }: { onViewSchedule?: () =
       </div>
 
       {isLoading ? (
-        <p className="text-xs text-muted">Loading schedule...</p>
+        <p className="text-xs text-muted">Loading…</p>
       ) : (
         <div>
           <span className="text-3xl font-bold tracking-tight text-ink">
@@ -31,8 +31,8 @@ export function UpcomingSessionsCard({ onViewSchedule }: { onViewSchedule?: () =
           </span>
           <p className="text-xs text-muted mt-0.5">
             {scheduled.length === 1
-              ? '1 upcoming appointment'
-              : `${scheduled.length} upcoming appointments`}
+              ? '1 session coming up'
+              : `${scheduled.length} sessions coming up`}
           </p>
         </div>
       )}

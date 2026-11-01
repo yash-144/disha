@@ -30,10 +30,10 @@ export interface NavItem {
 
 export const COUNSELLOR_NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Overview', route: '/counsellor/overview', icon: LayoutGrid },
-  { id: 'schedule', label: 'Schedule & Calls', route: '/counsellor/schedule', icon: Calendar },
+  { id: 'schedule', label: 'Sessions and calls', route: '/counsellor/schedule', icon: Calendar },
   { id: 'students-in-need', label: 'Students in Need', route: '/counsellor/students-in-need', icon: AlertCircle },
-  { id: 'support-cases', label: 'Support Cases', route: '/counsellor/support-cases', icon: FolderKanban },
-  { id: 'analytics', label: 'Counsellor Analytics', route: '/counsellor/analytics', icon: LineChart },
+  { id: 'support-cases', label: 'My cases', route: '/counsellor/support-cases', icon: FolderKanban },
+  { id: 'analytics', label: 'Results', route: '/counsellor/analytics', icon: LineChart },
 ]
 
 export function CounsellorSidebar({ activeTab, onSelectTab }: CounsellorSidebarProps) {

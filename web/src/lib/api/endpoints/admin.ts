@@ -62,6 +62,8 @@ export interface EarlyWarning {
     median_days_warning: number
     p25_days: number
     p75_days: number
+    struggling_students_caught: number | null
+    flagged_who_really_struggled: number | null
   }
 }
 

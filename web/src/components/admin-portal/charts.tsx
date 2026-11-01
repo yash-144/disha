@@ -9,7 +9,7 @@ function Tip({ children }: { children: React.ReactNode }) {
   return <div className="rounded-md border border-line bg-panel px-3 py-2 text-xs shadow-lg">{children}</div>
 }
 
-/** Stacked bars: how many student-courses sat in each tier at every scoring run. */
+/** Stacked bars: how many students sat in each group at every weekly check. */
 export function TierRunsChart({ runs }: { runs: { label: string; counts: Partial<Record<string, number>> }[] }) {
   const data = runs.map((r) => ({ label: r.label, ...Object.fromEntries(TIERS.map((t) => [t, r.counts[t] ?? 0])) }))
   return (
@@ -19,7 +19,7 @@ export function TierRunsChart({ runs }: { runs: { label: string; counts: Partial
           <BarChart data={data} margin={{ top: 8, right: 8, left: 22, bottom: 8 }} barCategoryGap="22%">
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} />
-            <YAxis tick={AXIS} tickLine={false} axisLine={false} width={36} label={{ value: 'Student-courses', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: -4 }} />
+            <YAxis tick={AXIS} tickLine={false} axisLine={false} width={36} label={{ value: 'Students', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: -4 }} />
             <Tooltip
               cursor={{ fill: 'rgba(20,24,31,0.04)' }}
               content={({ active, payload, label }) =>
@@ -46,14 +46,14 @@ export function TierRunsChart({ runs }: { runs: { label: string; counts: Partial
 }
 
 /** Ranked horizontal bars, % labelled at the end of each bar. */
-export function RankedBars({ rows, color = '#B3261E', valueLabel = 'of students at High or Medium risk' }: { rows: { label: string; value: number; sub?: string }[]; color?: string; valueLabel?: string }) {
+export function RankedBars({ rows, color = '#B3261E', valueLabel = 'of students need help now or a closer look' }: { rows: { label: string; value: number; sub?: string }[]; color?: string; valueLabel?: string }) {
   const max = Math.max(0.01, ...rows.map((r) => r.value))
   return (
     <div style={{ height: Math.max(180, rows.length * 38 + 40) }}>
       <ResponsiveContainer>
         <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 52, left: 4, bottom: 24 }} barCategoryGap="28%">
           <CartesianGrid horizontal={false} stroke={GRID} />
-          <XAxis type="number" domain={[0, Math.ceil(max * 12) / 10 > 1 ? 1 : Math.ceil(max * 12) / 10]} tickFormatter={(v) => pct(v)} tick={AXIS} tickLine={false} axisLine={false} label={{ value: 'Share of students at High or Medium risk', position: 'insideBottom', offset: -14, style: { ...AXIS, textAnchor: 'middle' } }} />
+          <XAxis type="number" domain={[0, Math.ceil(max * 12) / 10 > 1 ? 1 : Math.ceil(max * 12) / 10]} tickFormatter={(v) => pct(v)} tick={AXIS} tickLine={false} axisLine={false} label={{ value: 'Share of students who need help', position: 'insideBottom', offset: -14, style: { ...AXIS, textAnchor: 'middle' } }} />
           <YAxis type="category" dataKey="label" tick={{ ...AXIS, fontWeight: 600, fill: '#14181F' }} tickLine={false} axisLine={false} width={64} />
           <Tooltip cursor={{ fill: 'rgba(20,24,31,0.04)' }} content={({ active, payload }) => active && payload?.length ? <Tip><p className="font-semibold">{payload[0].payload.label}</p><p>{pct(payload[0].payload.value)} {valueLabel}</p>{payload[0].payload.sub && <p className="text-muted">{payload[0].payload.sub}</p>}</Tip> : null} />
           <Bar dataKey="value" fill={color} radius={[0, 4, 4, 0]} isAnimationActive={false}>
@@ -65,7 +65,7 @@ export function RankedBars({ rows, color = '#B3261E', valueLabel = 'of students 
   )
 }
 
-/** Cumulative flagged line with labelled points. */
+/** Running total of students flagged, by week of the term. */
 export function FlaggedLine({ points }: { points: { day: number; flagged_students: number }[] }) {
   const data = points.map((p) => ({ day: p.day, n: p.flagged_students }))
   const last = data[data.length - 1]
@@ -74,9 +74,9 @@ export function FlaggedLine({ points }: { points: { day: number; flagged_student
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 22, right: 28, left: 22, bottom: 24 }}>
           <CartesianGrid vertical={false} stroke={GRID} />
-          <XAxis dataKey="day" type="number" domain={['dataMin - 4', 'dataMax + 4']} ticks={data.map((d) => d.day)} tickFormatter={(v) => `Day ${v}`} tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} label={{ value: 'Weekly scoring run (day of term)', position: 'insideBottom', offset: -14, style: { ...AXIS, textAnchor: 'middle' } }} />
+          <XAxis dataKey="day" type="number" domain={['dataMin - 4', 'dataMax + 4']} ticks={data.map((d) => d.day)} tickFormatter={(v) => `Wk ${Math.max(1, Math.round(v / 7))}`} tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} label={{ value: 'Week of the term', position: 'insideBottom', offset: -14, style: { ...AXIS, textAnchor: 'middle' } }} />
           <YAxis tick={AXIS} tickLine={false} axisLine={false} width={36} domain={[0, 'dataMax + 20']} label={{ value: 'Flagged so far', angle: -90, position: 'insideLeft', style: { ...AXIS, textAnchor: 'middle' }, offset: -4 }} />
-          <Tooltip content={({ active, payload }) => active && payload?.length ? <Tip><p className="font-semibold">Day {payload[0].payload.day}</p><p><b>{payload[0].payload.n}</b> student-courses flagged so far</p></Tip> : null} />
+          <Tooltip content={({ active, payload }) => active && payload?.length ? <Tip><p className="font-semibold">Week {Math.max(1, Math.round(payload[0].payload.day / 7))}</p><p><b>{payload[0].payload.n}</b> students flagged so far</p></Tip> : null} />
           <Line type="stepAfter" dataKey="n" stroke="#1F54D6" strokeWidth={3} dot={{ r: 5, fill: '#1F54D6', stroke: '#FCFBF8', strokeWidth: 2 }} isAnimationActive={false}>
             <LabelList dataKey="n" position="top" offset={10} style={{ fill: '#14181F', fontSize: 13, fontWeight: 700 }} />
           </Line>
@@ -113,7 +113,7 @@ export function TierDonut({ counts, unit = 'student-courses' }: { counts: Partia
   let offset = 0
   return (
     <div className="flex flex-col items-center gap-5">
-      <svg viewBox="0 0 200 200" className="h-56 w-56 shrink-0" role="img" aria-label={`Risk tiers across ${total} ${unit}`}>
+      <svg viewBox="0 0 200 200" className="h-56 w-56 shrink-0" role="img" aria-label={`${total} ${unit} by level of support needed`}>
         <circle cx="100" cy="100" r={r} fill="none" stroke="#ECE9E0" strokeWidth="26" />
         {TIERS.map((t) => {
           const len = ((counts[t] ?? 0) / total) * c

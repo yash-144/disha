@@ -33,8 +33,8 @@ export function AuthModal() {
       switchRole(role)
       setCurrentUser((prev) => ({
         ...prev,
-        name: name.trim() || 'Aarav Sharma',
-        email: email.trim() || 'aarav.sharma@gmail.com',
+        name: name.trim(),
+        email: email.trim(),
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
         role: role,
       }))
@@ -178,7 +178,7 @@ export function AuthModal() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Aarav Sharma"
+                    placeholder="Your full name"
                     className="w-full bg-transparent outline-none"
                   />
                 </div>

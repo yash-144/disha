@@ -20,9 +20,28 @@ import {
   useRescheduleSession,
 } from '../../lib/api/endpoints/sessions.hooks'
 import { CounsellingSession } from '../../lib/api/endpoints/sessions'
+import { errorMessage } from '../../lib/api/errors'
+import { friendlyDateTime, statusLabel, studentName } from '../../lib/labels'
+import { buildPeopleIndex, knownName, useAllCases, useAllScores } from '../../lib/api/endpoints/risk'
 
-export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { title?: string }) {
+const MODE_LABEL: Record<string, string> = { in_person: 'In person', video: 'Video call', phone: 'Phone call' }
+const FILTER_LABEL: Record<string, string> = { all: 'All', scheduled: 'Coming up', completed: 'Done', cancelled: 'Cancelled' }
+
+export function ScheduleSessionsView({ title = 'Sessions and calls' }: { title?: string }) {
   const { data: sessions = [], isLoading, error, refetch } = useSessionsList()
+  const scores = useAllScores()
+  const cases = useAllCases()
+  const studentOptions = React.useMemo(() => {
+    const people = buildPeopleIndex(cases.data)
+    const seen = new Map<string, string>()
+    for (const r of scores.data?.items ?? []) {
+      if (!r.student_id || seen.has(r.student_id)) continue
+      const nm = knownName(people, r)
+      seen.set(r.student_id, nm ? nm : `Student ${r.student_ref}`)
+    }
+    return [...seen.entries()].map(([id, label]) => ({ id, label })).sort((a, b) => a.label.localeCompare(b.label))
+  }, [scores.data, cases.data])
+  const [studentText, setStudentText] = useState('')
   const createMutation = useCreateSession()
   const completeMutation = useCompleteSession()
   const cancelMutation = useCancelSession()
@@ -61,6 +80,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
         notes: formData.notes || undefined,
       })
       setIsScheduleModalOpen(false)
+      setStudentText('')
       setFormData({
         student_id: '',
         scheduled_at: '',
@@ -133,7 +153,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
         <div>
           <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Coordinate student advisory sessions, confidential counseling appointments, and office hours.
+            Book, move or finish one-to-one sessions with students.
           </p>
         </div>
         <button
@@ -142,7 +162,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-xs transition"
         >
           <Plus className="w-4 h-4" />
-          <span>Book Session</span>
+          <span>Book a session</span>
         </button>
       </div>
 
@@ -154,13 +174,13 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
               key={tab}
               type="button"
               onClick={() => setFilterStatus(tab)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
                 filterStatus === tab
                   ? 'bg-white text-gray-900 shadow-xs'
                   : 'text-gray-500 hover:text-gray-900'
               }`}
             >
-              {tab}
+              {FILTER_LABEL[tab]}
             </button>
           ))}
         </div>
@@ -170,7 +190,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
             <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search student or location..."
+              placeholder="Search by student or place"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 pr-3 py-1.5 text-xs bg-white border border-line rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
@@ -190,24 +210,24 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
       {/* Sessions Content */}
       {isLoading ? (
         <div className="p-12 text-center text-sm text-gray-500 bg-white rounded-2xl border border-line">
-          Loading sessions...
+          Loading…
         </div>
       ) : error ? (
         <div className="p-6 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-sm flex items-center gap-3">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <div>
-            <p className="font-semibold">Unable to load sessions</p>
-            <p className="text-xs text-red-600 mt-0.5">{(error as Error).message}</p>
+            <p className="font-semibold">We could not load the sessions</p>
+            <p className="text-xs text-red-600 mt-0.5">{errorMessage(error)}</p>
           </div>
         </div>
       ) : filteredSessions.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-line shadow-xs">
           <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-gray-800">No sessions found</h3>
+          <h3 className="text-base font-semibold text-gray-800">No sessions yet</h3>
           <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
             {filterStatus === 'all'
-              ? 'There are currently no scheduled appointments or consultations.'
-              : `No sessions found with status "${filterStatus}".`}
+              ? 'Nothing is booked yet.'
+              : `No sessions are marked "${FILTER_LABEL[filterStatus] ?? filterStatus}".`}
           </p>
           <button
             type="button"
@@ -215,22 +235,14 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
             className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg hover:bg-blue-100 transition"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Schedule First Session</span>
+            <span>Book the first session</span>
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSessions.map((session) => {
             const date = new Date(session.scheduled_at)
-            const dateStr = date.toLocaleDateString(undefined, {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-            })
-            const timeStr = date.toLocaleTimeString(undefined, {
-              hour: 'numeric',
-              minute: '2-digit',
-            })
+            const whenStr = friendlyDateTime(date)
 
             const statusStyles =
               session.status === 'scheduled'
@@ -247,30 +259,27 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span
-                      className={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusStyles}`}
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${statusStyles}`}
                     >
-                      {session.status}
+                      {statusLabel(session.status)}
                     </span>
                     <span className="text-xs font-medium text-gray-500 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
-                      {session.duration_minutes}m
+                      {session.duration_minutes} min
                     </span>
                   </div>
 
                   <h3 className="font-semibold text-gray-900 text-base">
-                    {session.student_name || `Student (${session.student_id.slice(0, 8)})`}
+                    {studentName(session.student_name)}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5 font-mono">
-                    ID: {session.student_id}
-                  </p>
 
                   <div className="mt-4 space-y-2 text-xs text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-muted shrink-0" />
-                      <span>{dateStr} at {timeStr}</span>
+                      <span>{whenStr}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 capitalize">
+                    <div className="flex items-center gap-2">
                       {session.mode === 'video' ? (
                         <Video className="w-4 h-4 text-indigo-500 shrink-0" />
                       ) : session.mode === 'phone' ? (
@@ -279,8 +288,8 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                         <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
                       )}
                       <span>
-                        {session.mode.replace('_', ' ')}
-                        {session.location ? ` • ${session.location}` : ''}
+                        {MODE_LABEL[session.mode] ?? session.mode}
+                        {session.location ? ` · ${session.location}` : ''}
                       </span>
                     </div>
 
@@ -301,7 +310,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                       className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-medium rounded-lg transition"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      Complete
+                      Mark as done
                     </button>
                     <div className="flex items-center gap-1.5">
                       <button
@@ -318,7 +327,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                         type="button"
                         onClick={() => setCancelTarget(session)}
                         className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition"
-                        title="Cancel Session"
+                        title="Cancel this session"
                       >
                         <XCircle className="w-4 h-4" />
                       </button>
@@ -335,30 +344,39 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
       {isScheduleModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-line animate-in fade-in duration-150">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Book Consultation Session</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Book a session</h3>
             <p className="text-xs text-gray-500 mb-4">
-              Schedule a one-on-one advising appointment or counselling check-in.
+              Set up a one-to-one meeting with a student.
             </p>
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Student ID or Reference *
+                  Student *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. STU-CB368B3E or UUID"
-                  value={formData.student_id}
-                  onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                  list="session-students"
+                  placeholder="Start typing a name"
+                  value={studentText}
+                  onChange={(e) => {
+                    setStudentText(e.target.value)
+                    const hit = studentOptions.find((o) => o.label === e.target.value)
+                    setFormData({ ...formData, student_id: hit ? hit.id : '' })
+                  }}
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
+                <datalist id="session-students">
+                  {studentOptions.map((o) => <option key={o.id} value={o.label} />)}
+                </datalist>
+                {studentText && !formData.student_id && <p className="mt-1 text-[11px] text-amber-700">Pick a name from the list.</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Date & Time *
+                    Date and time *
                   </label>
                   <input
                     type="datetime-local"
@@ -391,25 +409,25 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Mode
+                    How
                   </label>
                   <select
                     value={formData.mode}
                     onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
                     className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
                   >
-                    <option value="in_person">In-Person</option>
-                    <option value="video">Google Meet / Video</option>
-                    <option value="phone">Phone Consultation</option>
+                    <option value="in_person">In person</option>
+                    <option value="video">Video call</option>
+                    <option value="phone">Phone call</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Location / Link
+                    Place or link
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Room 204 or Meet URL"
+                    placeholder="Room number or meeting link"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -419,11 +437,11 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
 
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Session Agenda / Notes
+                  What to talk about
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Optional confidential notes or meeting agenda..."
+                  placeholder="Optional notes"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -432,7 +450,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
 
               {createMutation.isError && (
                 <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">
-                  {(createMutation.error as Error).message}
+                  {errorMessage(createMutation.error)}
                 </p>
               )}
 
@@ -449,7 +467,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                   disabled={createMutation.isPending}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition"
                 >
-                  {createMutation.isPending ? 'Scheduling...' : 'Schedule Session'}
+                  {createMutation.isPending ? 'Booking…' : 'Book session'}
                 </button>
               </div>
             </form>
@@ -461,23 +479,23 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
       {completeTarget && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-line animate-in fade-in duration-150">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Complete Consultation</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Finish session</h3>
             <p className="text-xs text-gray-500 mb-4">
               Mark session with{' '}
               <span className="font-medium text-gray-800">
-                {completeTarget.student_name || completeTarget.student_id}
+                {studentName(completeTarget.student_name)}
               </span>{' '}
-              as concluded.
+              as done.
             </p>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Completion Summary / Outcomes
+                  How did it go?
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Summary of recommendations, next steps or support provided..."
+                  placeholder="What was discussed and what happens next"
                   value={completionNotes}
                   onChange={(e) => setCompletionNotes(e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -486,7 +504,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
 
               {completeMutation.isError && (
                 <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">
-                  {(completeMutation.error as Error).message}
+                  {errorMessage(completeMutation.error)}
                 </p>
               )}
 
@@ -504,7 +522,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                   disabled={completeMutation.isPending}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition"
                 >
-                  {completeMutation.isPending ? 'Marking Complete...' : 'Confirm Concluded'}
+                  {completeMutation.isPending ? 'Saving…' : 'Mark as done'}
                 </button>
               </div>
             </div>
@@ -516,20 +534,20 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
       {cancelTarget && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-line animate-in fade-in duration-150">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Cancel Consultation</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Cancel session</h3>
             <p className="text-xs text-gray-500 mb-4">
-              Please state a reason for cancelling this appointment. The student will be notified.
+              Tell us why. The student will be told.
             </p>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Cancellation Reason *
+                  Reason *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Schedule conflict, rescheduled by student request"
+                  placeholder="For example: clash in timetable"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"
@@ -538,7 +556,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
 
               {cancelMutation.isError && (
                 <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">
-                  {(cancelMutation.error as Error).message}
+                  {errorMessage(cancelMutation.error)}
                 </p>
               )}
 
@@ -556,7 +574,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                   disabled={cancelMutation.isPending || !cancelReason.trim()}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition"
                 >
-                  {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Appointment'}
+                  {cancelMutation.isPending ? 'Cancelling…' : 'Cancel session'}
                 </button>
               </div>
             </div>
@@ -568,15 +586,15 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
       {rescheduleTarget && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-line animate-in fade-in duration-150">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Reschedule Session</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Move session</h3>
             <p className="text-xs text-gray-500 mb-4">
-              Select a new date and time for the consultation.
+              Pick a new date and time.
             </p>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  New Date & Time *
+                  New Date and time *
                 </label>
                 <input
                   type="datetime-local"
@@ -589,7 +607,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
 
               {rescheduleMutation.isError && (
                 <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">
-                  {(rescheduleMutation.error as Error).message}
+                  {errorMessage(rescheduleMutation.error)}
                 </p>
               )}
 
@@ -607,7 +625,7 @@ export function ScheduleSessionsView({ title = 'Schedule & Consultations' }: { t
                   disabled={rescheduleMutation.isPending || !rescheduleDate}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition"
                 >
-                  {rescheduleMutation.isPending ? 'Updating...' : 'Update Time'}
+                  {rescheduleMutation.isPending ? 'Saving…' : 'Save new time'}
                 </button>
               </div>
             </div>

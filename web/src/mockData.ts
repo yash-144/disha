@@ -2,22 +2,22 @@ import { Course, LiveSession, ClassItem, StudentRecord, QuizQuestion, BlogPost, 
 
 export const INSTRUCTOR_USER: UserProfile = {
   id: 'inst-1',
-  name: 'Joseph Jackson',
+  name: '',
   role: 'instructor',
   title: 'Senior Full Stack & Cloud Architect',
-  email: 'joseph.jackson@skillsup.in',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  email: '',
+  avatar: '',
   activeStudents: 28,
   bio: 'Specializing in React, TypeScript, Cloud Infrastructure, and Microservices with 10+ years teaching experience.'
 }
 
 export const STUDENT_USER: UserProfile = {
   id: 'stud-1',
-  name: 'Aarav Sharma',
+  name: '',
   role: 'student',
   title: 'Aspiring Software Developer',
-  email: 'aarav.sharma@example.com',
-  avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
+  email: '',
+  avatar: '',
   enrolledCoursesCount: 4,
   bio: 'Enthusiastic CS learner focused on Web Development, Cloud Computing, and AI Fundamentals.'
 }
@@ -25,21 +25,21 @@ export const STUDENT_USER: UserProfile = {
 
 export const COUNSELLOR_USER: UserProfile = {
   id: 'couns-1',
-  name: 'Dr. Meera Nambiar',
+  name: '',
   role: 'counsellor',
   title: 'Lead Student Counsellor & Wellbeing Specialist',
-  email: 'meera.nambiar@apex.edu.in',
-  avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+  email: '',
+  avatar: '',
   bio: 'Specialist in student psychological wellbeing, stress regulation, and academic retention coaching.'
 }
 
 export const ADMIN_USER: UserProfile = {
   id: 'admin-1',
-  name: 'Dean Rajesh Malhotra',
+  name: '',
   role: 'admin',
   title: 'Dean of Student Affairs & Institutional Compliance',
-  email: 'dean.affairs@apex.edu.in',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+  email: '',
+  avatar: '',
   bio: 'Overseeing campus welfare protocols, cross-departmental interventions, and compliance audits.'
 }
 
@@ -396,7 +396,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-1',
     name: 'Aarav Sharma',
-    email: 'aarav.sharma@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80',
     status: 'Present',
     attendanceRate: 96,
@@ -406,7 +406,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-2',
     name: 'Tanvi Verma',
-    email: 'tanvi.v@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
     status: 'Present',
     attendanceRate: 100,
@@ -416,7 +416,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-3',
     name: 'Devansh Kulkarni',
-    email: 'devansh.k@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
     status: 'Late',
     attendanceRate: 84,
@@ -426,7 +426,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-4',
     name: 'Meera Nambiar',
-    email: 'meera.n@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
     status: 'Present',
     attendanceRate: 92,
@@ -436,7 +436,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-5',
     name: 'Rohan Deshmukh',
-    email: 'rohan.d@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
     status: 'Absent',
     attendanceRate: 72,
@@ -446,7 +446,7 @@ export const STUDENTS_DATA: StudentRecord[] = [
   {
     id: 'stud-6',
     name: 'Ananya Pillai',
-    email: 'ananya.p@example.com',
+    email: '',
     avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&q=80',
     status: 'Present',
     attendanceRate: 95,
