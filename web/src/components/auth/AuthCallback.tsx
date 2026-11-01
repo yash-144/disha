@@ -14,7 +14,15 @@ export function AuthCallback() {
         const oauthError = params.get('error_description') || hash.get('error_description')
         if (oauthError) throw new Error(oauthError)
 
-        const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } }
+        let { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } }
+        if (!data.session && hash.get('access_token')) {
+          const at = hash.get('access_token')!
+          const rt = hash.get('refresh_token') || ''
+          const res = await supabase?.auth.setSession({ access_token: at, refresh_token: rt })
+          if (res?.data.session) {
+            data = res.data
+          }
+        }
         const user = data.session?.user
         if (!user?.email) throw new Error('No Google session found. Please try again.')
 
